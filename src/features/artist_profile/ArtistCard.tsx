@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Artist } from '../../services/api';
+import { Artist } from '../../services/slopbop';
 
 export function ArtistCard({ artist }: { artist: Artist }) {
   return (
@@ -10,12 +10,12 @@ export function ArtistCard({ artist }: { artist: Artist }) {
       <div className="w-full aspect-video bg-surface-2 overflow-hidden">
         <img
           src={artist.imageUrl ?? '/Images/mystery-actor.png'}
-          alt={artist.nickname}
+          alt={artist.name}
           className="w-full h-full object-cover object-top"
         />
       </div>
       <div className="px-md py-sm">
-        <p className="font-display text-xl truncate text-center">{artist.nickname}</p>
+        <p className="font-display text-xl truncate text-center">{artist.name}</p>
       </div>
     </Link>
   );

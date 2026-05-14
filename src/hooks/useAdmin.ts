@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { checkAdmin } from '../services/api';
+import { checkAdmin } from '../services/slopbop';
 
 export function useAdmin() {
   const { publicKey, connected } = useWallet();

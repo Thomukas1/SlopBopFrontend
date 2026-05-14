@@ -78,7 +78,7 @@ export default function CollectionPage() {
             to={`/artists/${artist?._id}`}
             className="underline"
           >
-            {artist?.nickname ?? 'Unknown'}
+            {artist?.name ?? 'Unknown'}
           </Link>
           {collection.createdAt && <> | {formatDate(collection.createdAt)}</>}
         </p>

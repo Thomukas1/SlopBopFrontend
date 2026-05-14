@@ -1,19 +1,14 @@
-import { useState, useEffect } from 'react';
-import { fetchArtists, Artist } from '../services/api';
+import { useResource } from './useResource';
+import { fetchArtists, Artist } from '../services/slopbop';
 import { useToast } from '../context/ToastContext';
 
 export function useArtists(limit?: number) {
   const { showToast } = useToast();
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchArtists(limit)
-      .then(map => setArtists(Object.values(map)))
-      .catch(() => showToast('Failed to load artists'))
-      .finally(() => setLoading(false));
-  }, []);
-
+  const { data, loading } = useResource(
+    () => fetchArtists(limit).then(map => Object.values(map)),
+    `artists-${limit ?? 'all'}`,
+    { onError: () => showToast('Failed to load artists') },
+  );
+  const artists: Artist[] = data ?? [];
   return { artists, loading };
 }

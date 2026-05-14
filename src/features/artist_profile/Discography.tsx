@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCollections } from '../../hooks/useCollections';
 import { useSongs } from '../../hooks/useSongs';
-import type { Collection, Song } from '../../services/api';
+import type { Collection, Song } from '../../services/slopbop';
 import CollectionCard from './CollectionCard';
 import SingleCard from './SingleCard';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';

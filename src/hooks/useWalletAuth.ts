@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
-import { getVerificationChallenge, type VerificationData } from '../services/walletAuth';
+import { getVerificationChallenge, type VerificationData } from '../services/slopbop';
 
 export function useWalletVerification() {
   const { publicKey, signMessage } = useWallet();

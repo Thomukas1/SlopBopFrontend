@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletVerification } from './useWalletAuth';
-import { generateSong } from '../services/api';
+import { generateSong } from '../services/slopbop';
 
 export function useGenerateSong() {
   const { publicKey } = useWallet();

@@ -6,6 +6,8 @@ SlopBop is a platform for AI-generated synthetic artists. The frontend is a mobi
 
 The experience is closest to AI Spotify: browse artists, listen to their collections, vote on songs, and during live events, request AI-generated songs in real time.
 
+The app is currently being expanded into a **simulation-first** view: a separate `SlopBopSimulator` (Python) produces a presimulated day per artist, and the frontend will drip-feed that day to viewers. Plumbing (types, fetchers, hooks) is in place; UI is not yet built. See "Simulation Plumbing" below.
+
 ---
 
 ## Routes
@@ -30,7 +32,7 @@ The experience is closest to AI Spotify: browse artists, listen to their collect
 **Backend** (external, TypeScript, Heroku)
 - MongoDB for all data (artists, collections, songs)
 - Arweave for audio file storage — only URLs are stored in MongoDB
-- REST API under `/msi/` prefix
+- REST API under `/slopbop/` prefix
 - Base URL configured via `VITE_API_URL` env var (defaults to `http://localhost:5000`)
 
 **Song Generation** (local machine, Python)
@@ -43,7 +45,7 @@ The experience is closest to AI Spotify: browse artists, listen to their collect
 ## Data Model
 
 ```ts
-Artist     { _id, nickname, bio?, imageUrl?, socials? }
+Artist     { _id, name, bio?, imageUrl?, socials? }
 Collection { _id, artistId, collectionType: 'Album'|'EP', title?, coverUrl?, isRecording?, createdAt? }
 Song       { _id, artistId, collectionId?, title?, duration?, coverUrl?, audioUrl?, lyrics?, createdAt?, stats? }
 SongStats  { bops, slops, totalVotes }
@@ -105,18 +107,24 @@ Any wallet-connected user can submit a song request during recording mode (not a
 
 ## API Surface (Frontend → Backend)
 
-All calls go through `apiFetch()` in `src/services/api.ts` with base `VITE_API_URL`.
+All calls go through `apiFetch()` in `src/services/slopbop/client.ts` with base `VITE_API_URL`. Per-resource modules under `src/services/slopbop/` own their types and fetchers; `src/services/slopbop.ts` is a barrel that re-exports them.
 
-| Call | Method | Endpoint |
-|---|---|---|
-| Fetch artist | GET | `/msi/artist/:id` |
-| Fetch collections | GET | `/msi/collections?artist_id=&type=` |
-| Fetch collection + songs | GET | `/msi/collections/:id` |
-| Fetch songs (standalone) | GET | `/msi/songs?artist_id=` |
-| Vote on song | PATCH | `/msi/songs/:id/vote` |
-| Generate song | POST | `/msi/song/generate` |
-| Toggle recording mode | POST | `/msi/collections/recording-mode` |
-| Admin check | POST | `/msi/admin/check` |
+| Call | Method | Endpoint | Module |
+|---|---|---|---|
+| Fetch artist | GET | `/slopbop/artist/:id` | `slopbop/artists` |
+| Fetch artists | GET | `/slopbop/artists?limit=` | `slopbop/artists` |
+| Fetch collections | GET | `/slopbop/collections?artist_id=&type=` | `slopbop/collections` |
+| Fetch collection + songs | GET | `/slopbop/collections/:id` | `slopbop/collections` |
+| Toggle recording mode | POST | `/slopbop/collections/recording-mode` | `slopbop/collections` |
+| Fetch songs (standalone) | GET | `/slopbop/songs?artist_id=` | `slopbop/songs` |
+| Vote on song | PATCH | `/slopbop/songs/:id/vote` | `slopbop/songs` |
+| Generate song | POST | `/slopbop/song/generate` | `slopbop/songs` |
+| Current sim | GET | `/slopbop/sim/current` | `slopbop/sim` |
+| Artist notes | GET | `/slopbop/sim/:simId/artist/:artistId/notes` | `slopbop/sim` |
+| Artist journal | GET | `/slopbop/sim/:simId/artist/:artistId/journal` | `slopbop/sim` |
+| World map | GET | `/slopbop/world/map` | `slopbop/sim` |
+| Admin check | POST | `/slopbop/admin/check` | `slopbop/admin` |
+| Verification challenge | POST | `/slopbop/verification/challenge` | `slopbop/verification` |
 
 ---
 
@@ -137,20 +145,50 @@ BrowserRouter
 
 ---
 
+## Hooks Pattern
+
+Read-hooks are thin wrappers over a generic `useResource<T>(fetcher, key, { onError?, pollMs? })` in `src/hooks/useResource.ts`. It owns the stale-response guard (`fetchKeyRef`), the loading state, and optional polling. `pollMs` accepts either a number or a function of the latest data (used by `useSimCurrent` to auto-stop polling once a past sim is loaded).
+
+Wallet-gated mutation hooks (`useGenerateSong`, `useRecordingMode`, `useAdmin`, `useWalletAuth`) follow a separate command-shaped pattern and don't go through `useResource`.
+
+## Simulation Plumbing
+
+Types and fetchers in `src/services/slopbop/sim.ts`:
+
+- `SimCurrent` — `{ simulation_id, date, weather, sim_time, status, artists }`. Per-artist value is a `SnapshotState | null` (null = intro hasn't run yet).
+- `SnapshotState` — `{ location, position, current_action, current_target, busy_until, stats }`. `stats` is an array of `{ name, value }` pairs (no hardcoded keys).
+- `JournalEntry` — discriminated union of `intent | resolution | arrival`.
+- `Note` — `{ sim_time, note }`.
+- `Location` + `InteractionDef` — world map shapes (location key, emoji, description, interactions map).
+- Helper `isSimLive(sim)` — UTC `sim.date === today`.
+
+Hooks in `src/hooks/`:
+
+- `useSimCurrent()` — fetches `/sim/current`, polls every 2 min while the sim is live, auto-stops once a past sim is loaded.
+- `useSimArtistNotes(simId, artistId, { live? })` — notes for one artist; caller forwards `live` (typically `isSimLive(sim)` from `useSimCurrent`).
+- `useSimArtistJournal(simId, artistId, { live? })` — same shape, returns journal entries.
+- `useWorldMap()` — fetched once, cached at module scope with in-flight dedup.
+
+No UI consumes these yet. The redesign (sim-overview home, state strip on artist profile, journal tab) is the next phase.
+
 ## Key Files
 
 | Path | Role |
 |---|---|
 | `src/main.tsx` | Bootstrap, providers, routing |
 | `src/config/network.ts` | Solana network + Helius RPC config |
-| `src/services/api.ts` | All backend calls + TypeScript types |
-| `src/services/walletAuth.ts` | Challenge-response wallet verification |
+| `src/services/slopbop.ts` | Barrel re-exporting everything under `slopbop/` |
+| `src/services/slopbop/client.ts` | `apiFetch` + base URL |
+| `src/services/slopbop/{artists,collections,songs,admin,verification}.ts` | Per-resource types + fetchers |
+| `src/services/slopbop/sim.ts` | Sim types + fetchers + `isSimLive` helper |
 | `src/context/MusicPlayerContext.tsx` | Global audio state |
 | `src/context/ToastContext.tsx` | Global toast state |
+| `src/hooks/useResource.ts` | Generic read-hook (stale-guard + polling) |
 | `src/hooks/useAdmin.ts` | Admin wallet check |
 | `src/hooks/useWalletAuth.ts` | Wallet signature flow |
 | `src/hooks/useRecordingMode.ts` | Toggle recording on a collection |
 | `src/hooks/useGenerateSong.ts` | Submit song generation request |
+| `src/hooks/useSim*.ts`, `useWorldMap.ts` | Simulation read-hooks |
 | `src/features/artist_profile/` | Artist profile page + discography |
 | `src/features/collection/` | Collection/album page + live mode |
 | `src/features/music_player/` | MusicPlayer, MiniPlayer, BopMeter |

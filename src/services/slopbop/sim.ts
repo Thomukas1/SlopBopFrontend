@@ -1,0 +1,115 @@
+import { apiFetch } from './client';
+
+export interface SnapshotState {
+  location: string | null;
+  position: [number, number] | null;
+  current_action: 'move' | 'interact' | null;
+  current_target: string | null;
+  busy_until: string | null;
+  stats: Record<string, number>;
+}
+
+export interface SimCurrent {
+  simulation_id: string;
+  date: string;
+  weather: string | null;
+  sim_time: string;
+  status: string;
+  artists: Record<string, SnapshotState | null>;
+}
+
+export interface Note {
+  sim_time: string;
+  note: string;
+}
+
+export interface JournalIntent {
+  type: 'intent';
+  sim_time: string;
+  action: 'move' | 'interact';
+  target: string;
+  intent: string;
+  until?: string;
+}
+
+export interface JournalInteraction {
+  type: 'interaction';
+  sim_time: string;
+  target: string;
+  observation: string;
+  outcome: string;
+}
+
+export interface JournalArrival {
+  type: 'arrival';
+  sim_time: string;
+  location: string;
+}
+
+export type JournalEntry = JournalIntent | JournalInteraction | JournalArrival;
+
+export interface InteractionDef {
+  emoji: string;
+  description: string;
+  flavor?: string[];
+  duration_minutes?: number;
+  energy_cost?: number;
+  skill_use?: string;
+}
+
+export interface Location {
+  _id: string;
+  name: string;
+  position: [number, number];
+  emoji: string;
+  description: string;
+  interactions: Record<string, InteractionDef>;
+}
+
+export type WorldMap = Location[];
+
+interface SimCurrentResponse {
+  success: boolean;
+  sim: SimCurrent | null;
+}
+
+interface SimNotesResponse {
+  success: boolean;
+  notes: Note[];
+}
+
+interface SimJournalResponse {
+  success: boolean;
+  entries: JournalEntry[];
+}
+
+interface WorldMapResponse {
+  success: boolean;
+  locations: Location[];
+}
+
+export const fetchSimCurrent = () =>
+  apiFetch<SimCurrentResponse>('/slopbop/sim/current').then(r => r.sim);
+
+export const fetchSimAt = (at: Date) =>
+  apiFetch<SimCurrentResponse>(
+    `/slopbop/sim?at=${encodeURIComponent(at.toISOString())}`,
+  ).then(r => r.sim);
+
+export const fetchSimArtistNotes = (simulationId: string, artistId: string) =>
+  apiFetch<SimNotesResponse>(
+    `/slopbop/sim/${simulationId}/artist/${artistId}/notes`,
+  ).then(r => r.notes);
+
+export const fetchSimArtistJournal = (simulationId: string, artistId: string) =>
+  apiFetch<SimJournalResponse>(
+    `/slopbop/sim/${simulationId}/artist/${artistId}/journal`,
+  ).then(r => r.entries);
+
+export const fetchWorldMap = () =>
+  apiFetch<WorldMapResponse>('/slopbop/world/map').then(r => r.locations);
+
+export function isSimLive(sim: SimCurrent | null): boolean {
+  if (!sim) return false;
+  return sim.date === new Date().toISOString().slice(0, 10);
+}

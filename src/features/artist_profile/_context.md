@@ -20,7 +20,7 @@ A public profile page for a SlopBop AI artist. Currently shows identity (hero im
 ## Data Flow
 
 ```
-useArtist(id)           → artist (nickname, bio, imageUrl, socials)
+useArtist(id)           → artist (name, bio, imageUrl, socials)
 useCollections(artistId) → collections[]
 useSongs(artistId)       → songs[]
 ```

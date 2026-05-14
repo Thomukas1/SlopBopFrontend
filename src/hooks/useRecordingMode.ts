@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletVerification } from './useWalletAuth';
-import { setRecordingMode } from '../services/api';
+import { setRecordingMode } from '../services/slopbop';
 
 export function useRecordingMode() {
   const { publicKey } = useWallet();

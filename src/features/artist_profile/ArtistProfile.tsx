@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useArtist } from '../../hooks/useArtist';
 import ExpandableBio from '../../primitives/ExpandableBio';
-import { SocialLinks } from '../../primitives/SocialLinks';
+import { ArtistStateCard } from './ArtistStateCard';
 import Discography from './Discography';
 
 export default function ArtistProfile() {
@@ -33,23 +33,22 @@ export default function ArtistProfile() {
       <div className="w-full h-[350px] overflow-hidden">
         <img
           src={heroSrc}
-          alt={artist.nickname}
+          alt={artist.name}
           className="w-full h-full object-cover object-[center_50%]"
         />
       </div>
 
       {/* Artist info — overlaps the hero image */}
       <div className="flex flex-col gap-md p-lg -mt-[100px] relative z-10">
-        <h1 className="font-display text-xl text-left drop-shadow-lg">{artist.nickname}</h1>
+        <h1 className="font-display text-xl text-left drop-shadow-lg">{artist.name}</h1>
 
-        {/* Bio + socials block */}
-        {(artist.bio || Object.keys(artist.socials ?? {}).length > 0) && (
+        {artist.bio && (
           <div className="frosted-card p-lg flex flex-col gap-md">
-            {artist.bio && <ExpandableBio text={artist.bio} />}
-
-            <SocialLinks socials={artist.socials ?? {}} className="justify-end" />
+            <ExpandableBio text={artist.bio} />
           </div>
         )}
+
+        <ArtistStateCard artistId={artistId} />
       </div>
 
       {/* Discography */}

@@ -17,21 +17,13 @@ export default function ExpandableBio({ text }: { text: string }) {
         className={expanded ? '' : 'line-clamp-2'}
       >
         {text}
-        {expanded && (
-          <button
-            onClick={() => setExpanded(false)}
-            className="text-accent ml-1 inline"
-          >
-            hide
-          </button>
-        )}
       </p>
-      {clamped && !expanded && (
+      {clamped && (
         <button
-          onClick={() => setExpanded(true)}
+          onClick={() => setExpanded(v => !v)}
           className="text-accent mt-1"
         >
-          show
+          {expanded ? 'show less' : 'show more'}
         </button>
       )}
     </div>

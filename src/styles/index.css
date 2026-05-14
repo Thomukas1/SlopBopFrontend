@@ -9,8 +9,11 @@
 @import './components/cards.css';
 @import './components/forms.css';
 @import './components/modals.css';
+@import './components/bottom-sheet.css';
+@import './components/bars-modal.css';
 @import './components/slider.css';
 @import './components/spinners.css';
+@import './components/stat-bar.css';
 @import './components/toast.css';
 
 /* Tailwind CSS */

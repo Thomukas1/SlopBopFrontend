@@ -12,7 +12,7 @@ An interactive collection view (album/EP/single) for a SlopBop artist. Doubles a
 
 ```
 useCollection(id)  → collection metadata + songs[]
-useArtist(id)      → artist nickname/profile (derived from collection.artistId)
+useArtist(id)      → artist name/profile (derived from collection.artistId)
 useAdmin()         → checks connected Solana wallet against admin list
 ```
 

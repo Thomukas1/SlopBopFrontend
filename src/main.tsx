@@ -31,6 +31,7 @@ import CollectionPage from './features/collection/CollectionPage';
 import { Header } from './components/Header';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
+import { TimelineProvider } from './context/TimelineContext';
 import { MusicPlayerProvider } from './context/MusicPlayerContext';
 import MusicPlayer from './features/music_player/MusicPlayer';
 import MiniPlayer from './features/music_player/MiniPlayer';
@@ -103,16 +104,18 @@ createRoot(container).render(
     <BrowserRouter>
       <WalletContextProvider>
         <ToastProvider>
-          <MusicPlayerProvider>
-            <Header />
-            <Routes>
-              <Route path="/" element={<App />} />
-              <Route path="/artists/:id" element={<ArtistProfile />} />
-              <Route path="/collections/:id" element={<CollectionPage />} />
-            </Routes>
-            <MiniPlayer />
-            <MusicPlayer />
-          </MusicPlayerProvider>
+          <TimelineProvider>
+            <MusicPlayerProvider>
+              <Header />
+              <Routes>
+                <Route path="/" element={<App />} />
+                <Route path="/artists/:id" element={<ArtistProfile />} />
+                <Route path="/collections/:id" element={<CollectionPage />} />
+              </Routes>
+              <MiniPlayer />
+              <MusicPlayer />
+            </MusicPlayerProvider>
+          </TimelineProvider>
         </ToastProvider>
       </WalletContextProvider>
     </BrowserRouter>

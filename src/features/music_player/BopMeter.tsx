@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
-import { voteSong, VoteType, SongStats } from '../../services/api';
+import { voteSong, VoteType, SongStats } from '../../services/slopbop';
 import './bop-meter.css';
 
 const VOTED_KEY = 'slopbop_votes';
