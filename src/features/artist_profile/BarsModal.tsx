@@ -10,13 +10,14 @@ interface Props {
   artistId: string;
 }
 
-function formatDate(d: Date) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function noteTimestamp(simTime: string): number {
-  return new Date(simTime.endsWith('Z') ? simTime : simTime + 'Z').getTime();
+// `at` is a naive sim-local string "YYYY-MM-DDTHH:MM" — format its date part
+// directly, never via new Date().
+function formatDate(at: string) {
+  if (!at) return '';
+  const [y, mo, d] = at.split('T')[0].split('-');
+  return `${Number(d)} ${MONTHS[Number(mo) - 1]} ${Number(y)}`;
 }
 
 function unescapeNewlines(text: string): string {
@@ -51,8 +52,10 @@ export function BarsModal({ open, onClose, simulationId, artistId }: Props) {
 
   if (!mounted) return null;
 
-  const now = at.getTime();
-  const visible = notes.filter(n => noteTimestamp(n.sim_time) <= now);
+  // Notes and `at` are both naive sim-local "YYYY-MM-DDTHH:MM" strings, so
+  // lexical comparison is chronological. The endpoint already cuts off by the
+  // server-side frontier; this just keeps the view in sync with the timeline.
+  const visible = at ? notes.filter(n => n.sim_time <= at) : notes;
 
   return createPortal(
     <div

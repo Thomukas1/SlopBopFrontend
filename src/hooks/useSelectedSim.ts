@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { useResource } from './useResource';
-import { fetchSimAt, isSimLive } from '../services/slopbop';
+import { fetchSimCurrent, fetchSimAt, isSimLive } from '../services/slopbop';
 import { useToast } from '../context/ToastContext';
 import { useTimeline } from '../context/TimelineContext';
 
@@ -7,15 +8,15 @@ const POLL_MS = 2 * 60 * 1000;
 
 export function useSelectedSim() {
   const { showToast } = useToast();
-  const { mode, at } = useTimeline();
+  const { mode, at, setEnvironment } = useTimeline();
 
-  // Live mode uses a stable key + interval polling so the 1s clock tick doesn't
-  // cause refetches; the fetcher reads `new Date()` at call time. Scrubbed mode
-  // keys on `at` so each new scrub position triggers a fetch.
-  const key = mode === 'live' ? 'sim-live' : `sim-scrub-${at.toISOString()}`;
+  // Live mode hits /sim/current — needs no `at`, and is the call that delivers
+  // the environment (timezone/city). Scrubbed mode keys on `at` so each new
+  // scrub position triggers a fetch with the naive sim-local timestamp.
+  const key = mode === 'live' ? 'sim-live' : `sim-scrub-${at}`;
 
   const { data: sim, loading, refetch } = useResource(
-    () => fetchSimAt(mode === 'live' ? new Date() : at),
+    () => (mode === 'live' ? fetchSimCurrent() : fetchSimAt(at)),
     key,
     {
       onError: () => showToast('Failed to load simulation'),
@@ -25,5 +26,11 @@ export function useSelectedSim() {
       },
     },
   );
+
+  // Capture the sim's clock once it lands; the context treats it as static.
+  useEffect(() => {
+    if (sim?.environment) setEnvironment(sim.environment);
+  }, [sim?.environment, setEnvironment]);
+
   return { sim, loading, refetch };
 }

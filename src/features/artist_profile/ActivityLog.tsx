@@ -14,11 +14,10 @@ function titleCaseSnake(s: string) {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-function formatSimTime(iso: string) {
-  const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
-  const h = String(d.getUTCHours()).padStart(2, '0');
-  const m = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
+// `sim_time` is a naive sim-local string "YYYY-MM-DDTHH:MM" — take the HH:MM
+// part directly, never via new Date().
+function formatSimTime(simTime: string) {
+  return simTime.split('T')[1] ?? simTime;
 }
 
 function EntryRow({ entry }: { entry: JournalEntry }) {

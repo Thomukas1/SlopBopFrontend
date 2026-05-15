@@ -17,11 +17,10 @@ function titleCaseSnake(s: string) {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-function formatUntilUtc(iso: string) {
-  const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
-  const h = String(d.getUTCHours()).padStart(2, '0');
-  const m = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
+// `busy_until` is a naive sim-local string "YYYY-MM-DDTHH:MM" — take the HH:MM
+// part directly, never via new Date().
+function formatUntil(simTime: string) {
+  return simTime.split('T')[1] ?? simTime;
 }
 
 function findLocation(map: Location[] | null, name: string | null): Location | undefined {
@@ -40,7 +39,7 @@ function ActionRow({ label, busyUntil, emoji, name, prefix = '' }: {
     <div className="flex flex-col gap-xs">
       <div className="text-md text-white">
         {label}
-        {busyUntil && <span> (until {formatUntilUtc(busyUntil)})</span>}
+        {busyUntil && <span> (until {formatUntil(busyUntil)})</span>}
       </div>
       <p className="text-lg">
         {prefix}<span className="mr-1">{emoji}</span>{name}
