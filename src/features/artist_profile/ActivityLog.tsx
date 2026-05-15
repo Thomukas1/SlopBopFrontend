@@ -25,6 +25,21 @@ function EntryRow({ entry }: { entry: JournalEntry }) {
   const time = formatSimTime(entry.sim_time);
 
   switch (entry.type) {
+    case 'plan':
+      return (
+        <div className="flex gap-md">
+          <div className="text-xs text-gray font-display tabular-nums pt-xs w-12 flex-shrink-0">
+            {time}
+          </div>
+          <div className="flex flex-col gap-xs flex-1">
+            <div className="text-sm text-white">
+              <span className="mr-1">📝</span>
+              Plan for the day
+            </div>
+            <div className="text-sm text-gray italic">"{entry.plan}"</div>
+          </div>
+        </div>
+      );
     case 'intent': {
       const verb = entry.action === 'move' ? 'Heading to' : 'Going to';
       return (

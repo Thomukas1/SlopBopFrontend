@@ -23,6 +23,12 @@ export interface Note {
   note: string;
 }
 
+export interface JournalPlan {
+  type: 'plan';
+  sim_time: string;
+  plan: string;
+}
+
 export interface JournalIntent {
   type: 'intent';
   sim_time: string;
@@ -46,7 +52,11 @@ export interface JournalArrival {
   location: string;
 }
 
-export type JournalEntry = JournalIntent | JournalInteraction | JournalArrival;
+export type JournalEntry =
+  | JournalPlan
+  | JournalIntent
+  | JournalInteraction
+  | JournalArrival;
 
 export interface InteractionDef {
   emoji: string;
