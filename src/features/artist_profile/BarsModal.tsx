@@ -1,7 +1,6 @@
 import { useEffect, useState, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { useSimArtistNotes } from '../../hooks/useSimArtistNotes';
-import { useTimeline } from '../../context/TimelineContext';
 
 interface Props {
   open: boolean;
@@ -12,11 +11,10 @@ interface Props {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// `at` is a naive sim-local string "YYYY-MM-DDTHH:MM" — format its date part
+// "YYYY-MM-DD" → "14 May 2026". Naive sim-local date — display its parts
 // directly, never via new Date().
-function formatDate(at: string) {
-  if (!at) return '';
-  const [y, mo, d] = at.split('T')[0].split('-');
+function formatDate(date: string) {
+  const [y, mo, d] = date.split('-');
   return `${Number(d)} ${MONTHS[Number(mo) - 1]} ${Number(y)}`;
 }
 
@@ -25,7 +23,6 @@ function unescapeNewlines(text: string): string {
 }
 
 export function BarsModal({ open, onClose, simulationId, artistId }: Props) {
-  const { at } = useTimeline();
   const { notes, loading } = useSimArtistNotes(simulationId, artistId, { live: open });
   const [mounted, setMounted] = useState(open);
   const [entered, setEntered] = useState(false);
@@ -52,11 +49,7 @@ export function BarsModal({ open, onClose, simulationId, artistId }: Props) {
 
   if (!mounted) return null;
 
-  // Notes and `at` are both naive sim-local "YYYY-MM-DDTHH:MM" strings, so
-  // lexical comparison is chronological. The endpoint already cuts off by the
-  // server-side frontier; this just keeps the view in sync with the timeline.
-  const visible = at ? notes.filter(n => n.sim_time <= at) : notes;
-
+  // The notes endpoint already drip-feeds to the server-side cutoff.
   return createPortal(
     <div
       className={`bars-modal-backdrop${entered ? ' open' : ''}`}
@@ -71,15 +64,15 @@ export function BarsModal({ open, onClose, simulationId, artistId }: Props) {
       >
         <div className="bars-modal-header">
           <div className="bars-modal-title">Song ideas</div>
-          <div className="bars-modal-date">{formatDate(at)}</div>
+          <div className="bars-modal-date">{formatDate(simulationId.slice(0, 10))}</div>
         </div>
         <div className="bars-modal-content">
-          {loading && visible.length === 0 ? (
+          {loading && notes.length === 0 ? (
             <div className="bars-empty">…</div>
-          ) : visible.length === 0 ? (
+          ) : notes.length === 0 ? (
             <div className="bars-empty">No bars yet.</div>
           ) : (
-            visible.map((n, i) => (
+            notes.map((n, i) => (
               <Fragment key={`${n.sim_time}-${i}`}>
                 {i > 0 && <div className="bars-divider">⁂</div>}
                 <div className="bars-note">{unescapeNewlines(n.note)}</div>

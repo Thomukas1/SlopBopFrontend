@@ -1,55 +1,57 @@
 import { useState, useEffect, useRef } from 'react';
 import { ConnectWalletButton } from '../primitives/buttons/ConnectWalletButton';
 import { ImageButton } from '../primitives/buttons/ImageButton';
-import { useTimeline } from '../context/TimelineContext';
+import { useSim } from '../context/SimContext';
+import { isSimLive } from '../services/slopbop';
 
 const SCROLL_UP_THRESHOLD = 30;
 
-// Live wall clock for `timezone`, re-derived every second. Empty until the
-// timezone has been captured from the first sim load.
-function useTickingClock(timezone: string | null): string {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  if (!timezone) return '';
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    hourCycle: 'h23',
-    year: '2-digit',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).formatToParts(now);
-  const p = (t: string) => parts.find(x => x.type === t)!.value;
-  return `${p('year')}/${p('month')}/${p('day')} ${p('hour')}:${p('minute')}:${p('second')}`;
-}
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// `at` is a naive sim-local string "YYYY-MM-DDTHH:MM" — display its parts
-// directly; never run it through new Date() (that would re-apply the browser's
-// local zone and double-shift it). Used in scrubbed mode, where `at` is a
-// fixed minute-resolution position.
-function formatScrubbed(at: string) {
-  if (!at) return '—';
-  const [date, time] = at.split('T');
+// "YYYY-MM-DD" → "14 May 2026". Naive sim-local date — display its parts
+// directly, never via new Date().
+function formatSimDate(date: string) {
   const [y, mo, d] = date.split('-');
-  return `${y.slice(2)}/${mo}/${d} ${time}`;
+  return `${Number(d)} ${MONTHS[Number(mo) - 1]} ${Number(y)}`;
 }
 
-function LocalTime() {
-  const { mode, timezone, at, city } = useTimeline();
-  const live = useTickingClock(timezone);
-  const display = mode === 'live' ? live || '—' : formatScrubbed(at);
+// The sim's clock: which day, how far into it, and whether it's still unfolding.
+// `sim_time` is the cutoff — it advances on its own as the live day plays out.
+function SimClock() {
+  const { sim } = useSim();
+
+  if (!sim) {
+    return (
+      <div className="flex flex-col leading-tight">
+        <span className="text-gray text-xs uppercase tracking-wide">Simulation</span>
+        <span className="font-display text-sm">—</span>
+      </div>
+    );
+  }
+
+  const live = isSimLive(sim);
+  const time = sim.sim_time.split('T')[1] ?? sim.sim_time;
+  // City names the clock's place, so a sim time that differs from the viewer's
+  // own wall clock isn't read as wrong. First segment only — "Vilnius, Lithuania"
+  // → "Vilnius" — to stay compact in the header.
+  const city = sim.environment?.city.split(',')[0];
+
   return (
     <div className="flex flex-col leading-tight">
       <span className="text-gray text-xs uppercase tracking-wide">
-        {/* {city ? `Local Time in ${city}` : 'Local Time'} */}
-        {'Local Time'}
+        {formatSimDate(sim.date)}
+        {city && ` · ${city}`}
       </span>
-      <span className="font-display text-sm tabular-nums">{display}</span>
+      <span className="font-display text-sm tabular-nums flex items-center gap-sm">
+        {time}
+        <span className="flex items-center gap-1 text-xs uppercase tracking-wide text-gray">
+          <span
+            className="inline-block w-1.5 h-1.5 rounded-full"
+            style={{ background: live ? '#4ade80' : '#6b7280' }}
+          />
+          {live ? 'Live' : 'Ended'}
+        </span>
+      </span>
     </div>
   );
 }
@@ -99,7 +101,7 @@ export function Header() {
             <img src="/Branding/logo.png" alt="SlopBop Logo" className="header-logo" />
           </ImageButton>
 
-          <LocalTime />
+          <SimClock />
         </div>
 
         <div className="items-center">

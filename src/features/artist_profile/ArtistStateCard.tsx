@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSelectedSim } from '../../hooks/useSelectedSim';
+import { useSim } from '../../context/SimContext';
 import { useWorldMap } from '../../hooks/useWorldMap';
 import { StatBar } from '../../primitives/StatBar';
 import { Location, SnapshotState } from '../../services/slopbop';
@@ -80,7 +80,7 @@ function renderActionSection(state: SnapshotState, locationDef: Location | undef
 }
 
 export function ArtistStateCard({ artistId }: { artistId: string }) {
-  const { sim } = useSelectedSim();
+  const { sim } = useSim();
   const { map } = useWorldMap();
   const [logOpen, setLogOpen] = useState(false);
   const [barsOpen, setBarsOpen] = useState(false);

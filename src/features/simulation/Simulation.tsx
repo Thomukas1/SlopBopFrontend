@@ -1,9 +1,9 @@
-import { useSelectedSim } from '../../hooks/useSelectedSim';
+import { useSim } from '../../context/SimContext';
 import { SimulationClock } from './SimulationClock';
 import { ArtistsGrid } from './ArtistsGrid';
 
 export function Simulation() {
-  const { sim, loading } = useSelectedSim();
+  const { sim, loading } = useSim();
 
   if (loading && !sim) {
     return <p className="text-secondary text-sm">Loading simulation...</p>;

@@ -110,13 +110,6 @@ interface WorldMapResponse {
 export const fetchSimCurrent = () =>
   apiFetch<SimCurrentResponse>('/slopbop/sim/current').then(r => r.sim);
 
-// `at` is a naive sim-local wall-clock string — "YYYY-MM-DDTHH:MM", no Z, no
-// offset. It is interpreted directly in the sim's environment.timezone.
-export const fetchSimAt = (at: string) =>
-  apiFetch<SimCurrentResponse>(
-    `/slopbop/sim?at=${encodeURIComponent(at)}`,
-  ).then(r => r.sim);
-
 export const fetchSimArtistNotes = (simulationId: string, artistId: string) =>
   apiFetch<SimNotesResponse>(
     `/slopbop/sim/${simulationId}/artist/${artistId}/notes`,
@@ -135,22 +128,6 @@ export function todayInTz(timezone: string): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(
     new Date(),
   );
-}
-
-// An absolute instant projected onto the sim's wall clock — "YYYY-MM-DDTHH:MM".
-// hourCycle 'h23' keeps midnight as "00", never "24".
-export function toSimWallClock(instant: Date, timezone: string): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).formatToParts(instant);
-  const p = (type: string) => parts.find(x => x.type === type)!.value;
-  return `${p('year')}-${p('month')}-${p('day')}T${p('hour')}:${p('minute')}`;
 }
 
 // "Is this sim still live" — derived from today *in the sim's timezone*, since

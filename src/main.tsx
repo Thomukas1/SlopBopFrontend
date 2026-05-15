@@ -31,7 +31,7 @@ import CollectionPage from './features/collection/CollectionPage';
 import { Header } from './components/Header';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
-import { TimelineProvider } from './context/TimelineContext';
+import { SimProvider } from './context/SimContext';
 import { MusicPlayerProvider } from './context/MusicPlayerContext';
 import MusicPlayer from './features/music_player/MusicPlayer';
 import MiniPlayer from './features/music_player/MiniPlayer';
@@ -104,7 +104,7 @@ createRoot(container).render(
     <BrowserRouter>
       <WalletContextProvider>
         <ToastProvider>
-          <TimelineProvider>
+          <SimProvider>
             <MusicPlayerProvider>
               <Header />
               <Routes>
@@ -115,7 +115,7 @@ createRoot(container).render(
               <MiniPlayer />
               <MusicPlayer />
             </MusicPlayerProvider>
-          </TimelineProvider>
+          </SimProvider>
         </ToastProvider>
       </WalletContextProvider>
     </BrowserRouter>
