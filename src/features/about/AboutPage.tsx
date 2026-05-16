@@ -1,7 +1,8 @@
-import { Simulation } from './features/simulation/Simulation';
-import { Footer } from './primitives/Footer';
+import { Footer } from '../../primitives/Footer';
 
-function App() {
+// The "What is this?" page (route: /about) — the project blurb and footer
+// that used to be the home page, now that the map is the home page.
+export default function AboutPage() {
   return (
     <div className="flex flex-col gap-xl px-md py-lg">
       <div className="flex flex-col gap-md">
@@ -11,11 +12,7 @@ function App() {
         </p>
       </div>
 
-      <Simulation />
-
       <Footer />
     </div>
   );
 }
-
-export default App;

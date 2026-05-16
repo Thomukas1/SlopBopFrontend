@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { ConnectWalletButton } from '../primitives/buttons/ConnectWalletButton';
+import { useNavigate } from 'react-router-dom';
+// import { ConnectWalletButton } from '../primitives/buttons/ConnectWalletButton';
+// ^ hidden for MVP — restore when there's a reason to connect a wallet.
 import { ImageButton } from '../primitives/buttons/ImageButton';
 import { useSim } from '../context/SimContext';
 import { isSimLive } from '../services/slopbop';
@@ -60,6 +62,7 @@ export function Header() {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const scrollUpAccumulator = useRef(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,8 +107,14 @@ export function Header() {
           <SimClock />
         </div>
 
-        <div className="items-center">
-          <ConnectWalletButton />
+        <div className="flex items-center">
+          <button
+            type="button"
+            className="primary"
+            onClick={() => navigate('/about')}
+          >
+            About
+          </button>
         </div>
       </div>
     </div>
