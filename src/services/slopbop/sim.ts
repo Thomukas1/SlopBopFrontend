@@ -7,6 +7,9 @@ export interface SnapshotState {
   current_target: string | null;
   busy_until: string | null;
   stats: Record<string, number>;
+  // Names of the items the artist is carrying — resolve against the
+  // catalogue from `fetchWorldItems` / `useWorldItems`.
+  items: string[];
 }
 
 export interface Environment {
@@ -41,7 +44,7 @@ export interface JournalPlan {
 export interface JournalIntent {
   type: 'intent';
   sim_time: string;
-  action: 'move' | 'interact';
+  action: 'move' | 'interact' | 'item';
   target: string;
   intent: string;
   until?: string;
@@ -49,6 +52,15 @@ export interface JournalIntent {
 
 export interface JournalInteraction {
   type: 'interaction';
+  sim_time: string;
+  target: string;
+  observation: string;
+  outcome: string;
+}
+
+// The outcome of using a carried item — same shape as JournalInteraction.
+export interface JournalItem {
+  type: 'item';
   sim_time: string;
   target: string;
   observation: string;
@@ -65,6 +77,7 @@ export type JournalEntry =
   | JournalPlan
   | JournalIntent
   | JournalInteraction
+  | JournalItem
   | JournalArrival;
 
 export interface InteractionDef {
@@ -87,6 +100,22 @@ export interface Location {
 
 export type WorldMap = Location[];
 
+// A portable thing an artist carries and can use anywhere, independent of
+// location. Global catalogue entry — an artist's owned items are the
+// `items` name list on its `SnapshotState`, resolved against this.
+export interface Item {
+  name: string;
+  emoji: string;
+  description: string;
+  duration_minutes: number;
+  // Signed Energy/Focus/Inspiration deltas applied when the item is used.
+  stat_effects: Record<string, number>;
+  skill_use?: string;
+  tool_use?: string;
+}
+
+export type ItemCatalogue = Item[];
+
 interface SimCurrentResponse {
   success: boolean;
   sim: SimCurrent | null;
@@ -107,6 +136,11 @@ interface WorldMapResponse {
   locations: Location[];
 }
 
+interface WorldItemsResponse {
+  success: boolean;
+  items: Item[];
+}
+
 export const fetchSimCurrent = () =>
   apiFetch<SimCurrentResponse>('/slopbop/sim/current').then(r => r.sim);
 
@@ -122,6 +156,9 @@ export const fetchSimArtistJournal = (simulationId: string, artistId: string) =>
 
 export const fetchWorldMap = () =>
   apiFetch<WorldMapResponse>('/slopbop/world/map').then(r => r.locations);
+
+export const fetchWorldItems = () =>
+  apiFetch<WorldItemsResponse>('/slopbop/world/items').then(r => r.items);
 
 // Today's date ("YYYY-MM-DD") as it reads on a wall clock in `timezone`.
 export function todayInTz(timezone: string): string {

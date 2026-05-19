@@ -6,14 +6,17 @@ interface Props {
   onClose: () => void;
   title?: string;
   // When true the sheet is only as tall as its content (still capped at the
-  // CSS max-height) instead of the default fixed 85dvh.
+  // CSS max-height) instead of the default fixed height.
   fitContent?: boolean;
+  // When true the content area drops its padding and scroll, so the consumer
+  // can lay out its own fixed header + independently scrolling body.
+  flush?: boolean;
   children: React.ReactNode;
 }
 
 const SWIPE_CLOSE_THRESHOLD = 100;
 
-export function BottomSheet({ open, onClose, title, fitContent, children }: Props) {
+export function BottomSheet({ open, onClose, title, fitContent, flush, children }: Props) {
   const [mounted, setMounted] = useState(open);
   const [entered, setEntered] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -97,7 +100,9 @@ export function BottomSheet({ open, onClose, title, fitContent, children }: Prop
             <div className="bottom-sheet-title">{title}</div>
           </div>
         )}
-        <div className="bottom-sheet-content">{children}</div>
+        <div className={`bottom-sheet-content${flush ? ' flush' : ''}`}>
+          {children}
+        </div>
       </div>
     </>,
     document.body,

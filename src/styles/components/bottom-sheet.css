@@ -23,8 +23,8 @@
   transform: translateX(-50%) translateY(100%);
   width: 100%;
   max-width: 430px;
-  height: 75dvh;
-  max-height: 75vh;
+  height: 50dvh;
+  max-height: 50vh;
   background: var(--bg-secondary);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
@@ -76,7 +76,15 @@
 
 .bottom-sheet-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-lg) var(--space-xl) var(--space-3xl);
   -webkit-overflow-scrolling: touch;
+}
+
+/* Flush variant — the consumer owns padding and scrolling, so it can keep a
+   fixed header and scroll only part of the body. */
+.bottom-sheet-content.flush {
+  padding: 0;
+  overflow: hidden;
 }

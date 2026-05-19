@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom';
-import { BottomSheet } from '../../primitives/BottomSheet';
+import { Modal } from '../../primitives/Modal';
 import { Artist, Location } from '../../services/slopbop';
 
 // One artist at a location: a compact clickable strip — icon on the left,
-// name beside it — that opens their profile page.
-function ArtistStrip({ artist }: { artist: Artist }) {
+// name beside it — that opens their bottom sheet.
+function ArtistStrip({ artist, onClick }: { artist: Artist; onClick: () => void }) {
   return (
-    <Link
-      to={`/artists/${artist._id}`}
+    <button
+      type="button"
+      onClick={onClick}
       className="flex items-center gap-md rounded-xl bg-surface-2 border border-border p-sm active:opacity-70 transition-opacity"
     >
       <img
@@ -16,28 +16,30 @@ function ArtistStrip({ artist }: { artist: Artist }) {
         className="w-10 h-10 rounded-full object-cover object-top shrink-0"
       />
       <span className="font-display text-md truncate">{artist.name}</span>
-    </Link>
+    </button>
   );
 }
 
-// Sliding panel for a tapped location: name, description, and the artists
-// currently standing on its tile. `location` stays set while the sheet
-// animates closed, so its content doesn't blank out mid-slide.
+// Modal for a tapped location: name, description, and the artists currently
+// standing on its tile. Clicking outside the box closes it. `location` stays
+// set while the modal animates closed, so its content doesn't blank out.
 export function LocationPanel({
   open,
   onClose,
   location,
   occupants,
+  onSelectArtist,
 }: {
   open: boolean;
   onClose: () => void;
   location: Location | null;
   occupants: Artist[];
+  onSelectArtist: (artist: Artist) => void;
 }) {
   return (
-    <BottomSheet open={open} onClose={onClose} fitContent>
+    <Modal open={open} onClose={onClose} title={location?.name}>
       {location && (
-        <div className="flex flex-col gap-lg">
+        <div className="flex flex-col gap-lg overflow-y-auto p-xl">
           <h2 className="font-display text-xl text-center uppercase tracking-wide">
             {location.name}
           </h2>
@@ -47,7 +49,11 @@ export function LocationPanel({
           {occupants.length > 0 ? (
             <div className="flex flex-col gap-sm">
               {occupants.map(a => (
-                <ArtistStrip key={a._id} artist={a} />
+                <ArtistStrip
+                  key={a._id}
+                  artist={a}
+                  onClick={() => onSelectArtist(a)}
+                />
               ))}
             </div>
           ) : (
@@ -57,6 +63,6 @@ export function LocationPanel({
           )}
         </div>
       )}
-    </BottomSheet>
+    </Modal>
   );
 }

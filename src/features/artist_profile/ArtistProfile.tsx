@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useArtist } from '../../hooks/useArtist';
 import ExpandableBio from '../../primitives/ExpandableBio';
-import { ArtistStateCard } from './ArtistStateCard';
 import Discography from './Discography';
 
 export default function ArtistProfile() {
@@ -47,8 +46,6 @@ export default function ArtistProfile() {
             <ExpandableBio text={artist.bio} />
           </div>
         )}
-
-        <ArtistStateCard artistId={artistId} />
       </div>
 
       {/* Discography */}

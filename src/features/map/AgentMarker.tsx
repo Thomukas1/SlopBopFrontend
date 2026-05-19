@@ -1,25 +1,27 @@
-import { Link } from 'react-router-dom';
 import { Artist } from '../../services/slopbop';
 import { tileToPixel, WorldBounds } from './grid';
 
-// An agent pinned on the board at their current tile. Tapping opens the
-// artist profile. `transition-[left,top]` glides the avatar when the tile
+// An agent pinned on the board at their current tile. Tapping opens their
+// bottom sheet. `transition-[left,top]` glides the avatar when the tile
 // changes between snapshots — agents always sit on integer tiles, so this
 // needs no travel maths at all.
 export function AgentMarker({
   artist,
   tile,
   bounds,
+  onClick,
 }: {
   artist: Artist;
   tile: [number, number];
   bounds: WorldBounds;
+  onClick: () => void;
 }) {
   const { left, top } = tileToPixel(tile, bounds);
 
   return (
-    <Link
-      to={`/artists/${artist._id}`}
+    <button
+      type="button"
+      onClick={onClick}
       style={{ left, top }}
       className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 transition-[left,top] duration-700 ease-in-out active:opacity-70"
     >
@@ -31,6 +33,6 @@ export function AgentMarker({
       <span className="px-1 rounded bg-black/70 text-xs leading-tight">
         {artist.name}
       </span>
-    </Link>
+    </button>
   );
 }

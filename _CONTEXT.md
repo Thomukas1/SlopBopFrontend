@@ -62,10 +62,14 @@ The home page — a full-screen, top-down map that makes the simulation tangible
 
 The backend gives every location and agent an integer tile coordinate (used server-side for distance / travel-turn maths). The frontend treats that grid as the layout. `src/features/map/grid.ts` is the **single source** of the grid↔pixel mapping: the board is *derived* from the locations (`computeBounds` — min/max tile + a `MARGIN_TILES` border, so there's never dead grid), then scaled with a CSS transform so the whole world is always visible at once, filling the viewport on any screen. Unlike the rest of the app, the map page is **not** clamped to the 430px column.
 
-- **`MapPage`** — owns the fit-scale, splits agents into location occupants vs. loose markers, renders the weather chip.
+- **`MapPage`** — owns the fit-scale, splits agents into location occupants vs. loose markers, renders the weather chip, and owns the location/artist selection state.
 - **`LocationIcon`** — emoji + name at its tile; shows a `👤 N` overlay when artists stand on it; tapping opens the panel.
-- **`AgentMarker`** — an artist's avatar at their tile, linking to the profile. Rendered only for artists on a *vacant* tile — artists on a location's tile are folded into that location's occupant count instead.
-- **`LocationPanel`** — a `BottomSheet` (its `fitContent` variant) with the location name, description, and clickable artist strips.
+- **`AgentMarker`** — an artist's avatar at their tile; tapping opens their `ArtistSheet`. Rendered only for artists on a *vacant* tile — artists on a location's tile are folded into that location's occupant count instead.
+- **`LocationPanel`** — a `Modal` with the location name, description, and clickable artist strips; tapping a strip opens that artist's `ArtistSheet` (and closes the panel — the modal sits above the sheet's z-index).
+- **`ArtistSheet`** — a `BottomSheet` for a tapped agent: identity row + "View Profile" link to `/artists/:id`, then a Status / Bars / Journal tab switcher over the artist's live simulation data. All sim-derived artist UI lives here, not on the profile page.
+  - **`ArtistStatus`** — location, current action, the three stat bars (Energy / Focus / Inspiration) and carried items (resolved against `useWorldItems`) from the sim snapshot.
+  - **`ArtistBars`** — the artist's song-idea notes on notebook-style lined paper (`bars-page.css`).
+  - **`ArtistJournal`** — reverse-chronological journal of plans, intents, interactions, item uses and arrivals; resolves interaction/item emojis from `useWorldMap` / `useWorldItems`.
 - **`GridLines`** — dev overlay (grid + margin shading), gated by `GRIDLINE_OPACITY` in `grid.ts`; set to 0 to hide.
 
 Pan/zoom is intentionally deferred: the fit-scale *is* the default zoom level a future pan/zoom layer would start from.
@@ -138,6 +142,7 @@ All calls go through `apiFetch()` in `src/services/slopbop/client.ts` with base 
 | Artist notes | GET | `/slopbop/sim/:simId/artist/:artistId/notes` | `slopbop/sim` |
 | Artist journal | GET | `/slopbop/sim/:simId/artist/:artistId/journal` | `slopbop/sim` |
 | World map | GET | `/slopbop/world/map` | `slopbop/sim` |
+| World items | GET | `/slopbop/world/items` | `slopbop/sim` |
 | Admin check | POST | `/slopbop/admin/check` | `slopbop/admin` |
 | Verification challenge | POST | `/slopbop/verification/challenge` | `slopbop/verification` |
 
@@ -172,10 +177,11 @@ Wallet-gated mutation hooks (`useGenerateSong`, `useRecordingMode`, `useAdmin`, 
 Types and fetchers in `src/services/slopbop/sim.ts`:
 
 - `SimCurrent` — `{ simulation_id, date, weather, sim_time, environment, status, artists }`. Per-artist value is a `SnapshotState | null` (null = intro hasn't run yet). `environment` is `{ city, timezone, lat, lon }` (the sim's place, static for its life; null for legacy docs).
-- `SnapshotState` — `{ location, position, current_action, current_target, busy_until, stats }`. `position` is a `[number, number]` tile or null; `stats` is a `Record<string, number>` (no hardcoded keys).
-- `JournalEntry` — discriminated union on `type`: `plan | intent | interaction | arrival`.
+- `SnapshotState` — `{ location, position, current_action, current_target, busy_until, stats, items }`. `position` is a `[number, number]` tile or null; `stats` is a `Record<string, number>` (Energy / Focus / Inspiration); `items` is a `string[]` of owned item names, resolved against the item catalogue.
+- `JournalEntry` — discriminated union on `type`: `plan | intent | interaction | item | arrival`. `intent.action` is `move | interact | item`; `item` entries share the `interaction` shape (`target, observation, outcome`).
 - `Note` — `{ sim_time, note }`.
 - `Location` — `{ _id, name, position, emoji, description, interactions }`; `interactions` is a map of `InteractionDef`. `WorldMap` is `Location[]`.
+- `Item` — `{ name, emoji, description, duration_minutes, stat_effects, skill_use?, tool_use? }`; the global portable-item catalogue. `ItemCatalogue` is `Item[]`.
 - Helper `isSimLive(sim)` — `sim.date === today` evaluated in the sim's own `environment.timezone` (falls back to UTC for legacy docs).
 
 Hooks in `src/hooks/`:
@@ -184,8 +190,9 @@ Hooks in `src/hooks/`:
 - `useSimArtistNotes(simId, artistId, { live? })` — notes for one artist; caller forwards `live` (typically `isSimLive(sim)` from `useSimCurrent`).
 - `useSimArtistJournal(simId, artistId, { live? })` — same shape, returns journal entries.
 - `useWorldMap()` — fetched once, cached at module scope with in-flight dedup.
+- `useWorldItems()` — same pattern as `useWorldMap()`; the static item catalogue.
 
-`SimContext` wraps `useSimCurrent()` so the snapshot is fetched/polled once and shared via `useSim()`. The **World Map** (`/`) consumes `useWorldMap()` plus that snapshot. The remaining redesign (state strip on artist profile, journal tab) is the next phase.
+`SimContext` wraps `useSimCurrent()` so the snapshot is fetched/polled once and shared via `useSim()`. The **World Map** (`/`) consumes `useWorldMap()` plus that snapshot. All sim-derived artist UI (status, bars, journal) now lives in the map's `ArtistSheet`; the `ArtistProfile` page is purely static (hero, bio, discography).
 
 ## Key Files
 

@@ -1,16 +1,15 @@
-import { useState } from 'react';
 import { useSim } from '../../context/SimContext';
 import { useWorldMap } from '../../hooks/useWorldMap';
+import { useWorldItems } from '../../hooks/useWorldItems';
 import { StatBar } from '../../primitives/StatBar';
-import { Location, SnapshotState } from '../../services/slopbop';
-import { ActivityLog } from './ActivityLog';
-import { BarsModal } from './BarsModal';
+import { Item, Location, SnapshotState } from '../../services/slopbop';
 
-const STAT_STYLE: Record<string, { emoji: string; color: string }> = {
-  energy: { emoji: '⚡', color: '#4ade80' },
-};
-
-const DEFAULT_STAT_STYLE = { emoji: '•', color: 'var(--blue-secondary)' };
+// The three tracked stats, in display order, each with its own emoji + color.
+const STATS: { key: string; emoji: string; color: string }[] = [
+  { key: 'Energy', emoji: '💪', color: '#4ade80' },
+  { key: 'Focus', emoji: '🧠', color: '#facc15' },
+  { key: 'Inspiration', emoji: '👁', color: '#60a5fa' },
+];
 
 function titleCaseSnake(s: string) {
   const spaced = s.replace(/_/g, ' ');
@@ -79,14 +78,33 @@ function renderActionSection(state: SnapshotState, locationDef: Location | undef
   }
 }
 
-export function ArtistStateCard({ artistId }: { artistId: string }) {
+// One carried item — emoji, bold name, then its description inline.
+function ItemRow({ item }: { item: Item }) {
+  return (
+    <p className="text-md leading-relaxed">
+      <span className="mr-1">{item.emoji}</span>
+      <span className="font-bold capitalize">{item.name}</span>
+      <span className="text-gray"> — {item.description}</span>
+    </p>
+  );
+}
+
+// Live simulation status for one artist: where they are, what they're doing,
+// their stats, and the items they carry. Pulled from the current sim
+// snapshot — shows a fallback when the artist isn't in a running simulation.
+export function ArtistStatus({ artistId }: { artistId: string }) {
   const { sim } = useSim();
   const { map } = useWorldMap();
-  const [logOpen, setLogOpen] = useState(false);
-  const [barsOpen, setBarsOpen] = useState(false);
+  const { items: catalogue } = useWorldItems();
 
   const state: SnapshotState | null = sim?.artists[artistId] ?? null;
-  if (!sim || !state) return null;
+  if (!sim || !state) {
+    return (
+      <p className="text-center text-gray text-sm py-3xl">
+        Not part of a running simulation.
+      </p>
+    );
+  }
 
   const locationDef = findLocation(map, state.location);
   const locationName = locationDef?.name
@@ -94,10 +112,18 @@ export function ArtistStateCard({ artistId }: { artistId: string }) {
     : (state.location ?? 'Somewhere');
   const locationEmoji = locationDef?.emoji ?? '📍';
 
-  const stats = Object.entries(state.stats ?? {});
+  // Resolve the artist's owned item names against the global catalogue.
+  // The snapshot stores names lowercased ("notebook"); the catalogue keeps
+  // them title-cased ("Notebook") — so match case-insensitively.
+  const byName = new Map(
+    (catalogue ?? []).map(i => [i.name.toLowerCase(), i]),
+  );
+  const ownedItems = (state.items ?? [])
+    .map(name => byName.get(name.toLowerCase()))
+    .filter((i): i is Item => i !== undefined);
 
   return (
-    <div className="frosted-card p-lg flex flex-col gap-xl">
+    <div className="flex flex-col gap-xl">
       {state.current_action !== 'move' && (
         <div className="flex items-baseline gap-sm">
           <span className="text-md text-white">Location:</span>
@@ -109,51 +135,26 @@ export function ArtistStateCard({ artistId }: { artistId: string }) {
 
       {renderActionSection(state, locationDef)}
 
-      {stats.length > 0 && (
-        <div className="flex flex-col gap-sm">
-          {stats.map(([name, value]) => {
-            const style = STAT_STYLE[name] ?? DEFAULT_STAT_STYLE;
-            return (
-              <StatBar
-                key={name}
-                emoji={style.emoji}
-                name={name}
-                value={value}
-                color={style.color}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <div className="flex gap-md">
-        <button
-          onClick={() => setBarsOpen(true)}
-          className="flex-1 rounded-lg border border-border py-sm text-sm active:opacity-70"
-        >
-          <span className="mr-1">🎵</span>View Bars
-        </button>
-        <button
-          onClick={() => setLogOpen(true)}
-          className="flex-1 rounded-lg border border-border py-sm text-sm active:opacity-70"
-        >
-          <span className="mr-1">🔍</span>Activity Log
-        </button>
+      <div className="flex flex-col gap-sm">
+        {STATS.map(({ key, emoji, color }) => (
+          <StatBar
+            key={key}
+            emoji={emoji}
+            name={key}
+            value={state.stats[key] ?? 0}
+            color={color}
+          />
+        ))}
       </div>
 
-      <ActivityLog
-        open={logOpen}
-        onClose={() => setLogOpen(false)}
-        simulationId={sim.simulation_id}
-        artistId={artistId}
-      />
-
-      <BarsModal
-        open={barsOpen}
-        onClose={() => setBarsOpen(false)}
-        simulationId={sim.simulation_id}
-        artistId={artistId}
-      />
+      {ownedItems.length > 0 && (
+        <div className="flex flex-col gap-sm">
+          <span className="text-md text-white">Items</span>
+          {ownedItems.map(item => (
+            <ItemRow key={item.name} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

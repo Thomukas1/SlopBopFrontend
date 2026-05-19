@@ -8,6 +8,7 @@ import { GridLines } from './GridLines';
 import { LocationIcon } from './LocationIcon';
 import { AgentMarker } from './AgentMarker';
 import { LocationPanel } from './LocationPanel';
+import { ArtistSheet } from './ArtistSheet';
 
 // Tracks the viewport size so the board can be scaled to fit it.
 function useViewportSize() {
@@ -39,6 +40,19 @@ export default function MapPage() {
   // panel content doesn't blank out mid-slide.
   const [selected, setSelected] = useState<Location | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+
+  // The tapped agent — from a free marker or a location's occupant list —
+  // shown in a bottom sheet. Likewise kept set during the close animation.
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [artistSheetOpen, setArtistSheetOpen] = useState(false);
+
+  // Opening an artist closes the location panel beneath it: the location
+  // modal sits above the sheet's z-index, so they can't both be visible.
+  const openArtist = (artist: Artist) => {
+    setPanelOpen(false);
+    setSelectedArtist(artist);
+    setArtistSheetOpen(true);
+  };
 
   const loading = mapLoading || artistsLoading;
 
@@ -108,7 +122,13 @@ export default function MapPage() {
             />
           ))}
           {looseAgents.map(({ artist, tile }) => (
-            <AgentMarker key={artist._id} artist={artist} tile={tile} bounds={bounds} />
+            <AgentMarker
+              key={artist._id}
+              artist={artist}
+              tile={tile}
+              bounds={bounds}
+              onClick={() => openArtist(artist)}
+            />
           ))}
         </div>
       )}
@@ -125,6 +145,13 @@ export default function MapPage() {
         onClose={() => setPanelOpen(false)}
         location={selected}
         occupants={selectedOccupants}
+        onSelectArtist={openArtist}
+      />
+
+      <ArtistSheet
+        open={artistSheetOpen}
+        onClose={() => setArtistSheetOpen(false)}
+        artist={selectedArtist}
       />
     </div>
   );
