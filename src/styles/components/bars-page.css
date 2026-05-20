@@ -17,7 +17,7 @@
 .bars-note {
   font-family: var(--font-body);
   font-style: italic;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-xs);
   line-height: 28px;
   color: #2a2118;
   text-align: center;
