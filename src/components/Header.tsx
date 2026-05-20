@@ -98,6 +98,7 @@ export function Header() {
         <div className="flex items-center gap-lg">
           <ImageButton
             href="/"
+            isLink
             ariaLabel="Go to home"
             className="image-button lg"
           >
