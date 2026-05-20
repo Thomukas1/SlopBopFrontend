@@ -54,6 +54,7 @@ export function ArtistSheet({
             {/* Link out to the static profile / discography page */}
             <Link
               to={`/artists/${artist._id}`}
+              onClick={onClose}
               className="rounded-lg border border-border py-sm text-center text-sm font-display uppercase tracking-wide active:opacity-70 transition-opacity"
             >
               View Profile
