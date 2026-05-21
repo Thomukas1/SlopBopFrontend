@@ -1,7 +1,7 @@
 import { apiFetch } from './client';
 
 export interface Artist {
-  _id: string;
+  artist_id: string;
   name: string;
   bio?: string;
   imageUrl?: string;

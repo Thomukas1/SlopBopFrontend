@@ -68,7 +68,7 @@ export default function MapPage() {
   // Split placed agents into those standing on a location's tile (shown as
   // that location's occupants) and those on a vacant tile (shown as a free
   // marker, exactly as before). Agents always sit on an integer tile.
-  const artistById = new Map(artists.map(a => [a._id, a]));
+  const artistById = new Map(artists.map(a => [a.artist_id, a]));
   const locationByTile = new Map(
     (locations ?? []).map(l => [tileKey(l.position), l]),
   );
@@ -123,7 +123,7 @@ export default function MapPage() {
           ))}
           {looseAgents.map(({ artist, tile }) => (
             <AgentMarker
-              key={artist._id}
+              key={artist.artist_id}
               artist={artist}
               tile={tile}
               bounds={bounds}

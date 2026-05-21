@@ -7,11 +7,10 @@ import { ArtistStatus } from './ArtistStatus';
 import { ArtistBars } from './ArtistBars';
 import { ArtistJournal } from './ArtistJournal';
 
-type Tab = 'status' | 'bars' | 'journal';
+type Tab = 'status' | 'journal';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'status', label: 'Status' },
-  { id: 'bars', label: 'Bars' },
   { id: 'journal', label: 'Journal' },
 ];
 
@@ -53,7 +52,7 @@ export function ArtistSheet({
 
             {/* Link out to the static profile / discography page */}
             <Link
-              to={`/artists/${artist._id}`}
+              to={`/artists/${artist.artist_id}`}
               onClick={onClose}
               className="rounded-lg border border-border py-sm text-center text-sm font-display uppercase tracking-wide active:opacity-70 transition-opacity"
             >
@@ -82,24 +81,26 @@ export function ArtistSheet({
 
           {/* Selected tab — the only part that scrolls */}
           <div className="flex-1 min-h-0 overflow-y-auto px-xl pb-xl">
-            {tab === 'status' && <ArtistStatus artistId={artist._id} />}
-            {tab === 'bars' &&
-              (sim ? (
-                <ArtistBars
-                  simulationId={sim.simulation_id}
-                  artistId={artist._id}
-                  live={open}
-                />
-              ) : (
-                <p className="text-center text-gray text-sm py-3xl">
-                  Not part of a running simulation.
-                </p>
-              ))}
+            {tab === 'status' && (
+              <div className="flex flex-col gap-xl">
+                <ArtistStatus artistId={artist.artist_id} />
+                {sim && (
+                  <>
+                    <div className="border-t border-border" />
+                    <ArtistBars
+                      simulationId={sim.simulation_id}
+                      artistId={artist.artist_id}
+                      live={open}
+                    />
+                  </>
+                )}
+              </div>
+            )}
             {tab === 'journal' &&
               (sim ? (
                 <ArtistJournal
                   simulationId={sim.simulation_id}
-                  artistId={artist._id}
+                  artistId={artist.artist_id}
                   live={open}
                 />
               ) : (
