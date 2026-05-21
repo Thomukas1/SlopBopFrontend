@@ -22,7 +22,7 @@ Full-screen music player with a collapsed mini-player bar. All playback state li
 Uses a persistent `HTMLAudioElement` ref — not recreated per track.
 
 ## Voting Flow
-1. Song `stats` (`{ bops, slops, totalVotes }`) come from the backend on the Song document
+1. Song `stats` (`{ bops, slops, total_votes }`) come from the backend on the Song document
 2. BopMeter reads stats from `track.stats` and checks localStorage for prior vote
 3. On vote → `PATCH /msi/songs/:id/vote` → backend returns updated stats → UI updates + localStorage marked
 4. No auth — one vote per browser per song via localStorage

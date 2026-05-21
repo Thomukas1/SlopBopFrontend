@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useCollection } from '../../hooks/useCollection';
 import { useArtist } from '../../hooks/useArtist';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useRecordingMode } from '../../hooks/useRecordingMode';
-import { useGenerateSong } from '../../hooks/useGenerateSong';
+import { useSim } from '../../context/SimContext';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
-import { useToast } from '../../context/ToastContext';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -27,17 +23,20 @@ function formatDuration(seconds: number): string {
 
 export default function CollectionPage() {
   const { id } = useParams<{ id: string }>();
-  const { collection, songs, loading: collectionLoading, refetch } = useCollection(id ?? '');
-  const { artist, loading: artistLoading } = useArtist(collection?.artistId ?? '');
+  const { collection, songs, loading: collectionLoading } = useCollection(id ?? '');
+  const { artist, loading: artistLoading } = useArtist(collection?.artist_id ?? '');
+  const { sim } = useSim();
   const { play } = useMusicPlayer();
-  const { connected } = useWallet();
-  const { isAdmin } = useAdmin();
-  const { toggleRecording, loading: recordingLoading } = useRecordingMode();
-  const { generate, loading: generating } = useGenerateSong();
-  const { showToast } = useToast();
-  const [theme, setTheme] = useState('');
 
   const loading = collectionLoading || artistLoading;
+
+  // Same release-gate as Discography: fixed-width "YYYY-MM-DDTHH:MM"
+  // string compare is correct chronological order.
+  const visibleSongs = useMemo(() => {
+    const cutoff = sim?.sim_time;
+    if (!cutoff) return [];
+    return songs.filter(s => s.release_date && s.release_date <= cutoff);
+  }, [songs, sim?.sim_time]);
 
   if (loading) {
     return (
@@ -57,15 +56,8 @@ export default function CollectionPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {collection.isRecording && (
-        <div className="flex items-center justify-center gap-sm bg-[var(--red)] py-sm px-lg live-recording-banner">
-          <span className="w-3 h-3 rounded-full bg-white recording-dot flex-shrink-0" />
-          <p className="text-sm font-bold tracking-wide text-white">LIVE RECORDING</p>
-        </div>
-      )}
-
       <img
-        src={collection.coverUrl || '/Images/default_song_cover.png'}
+        src={collection.cover_url || '/Images/default_song_cover.png'}
         alt={collection.title}
         className="w-full aspect-square object-cover"
       />
@@ -73,14 +65,14 @@ export default function CollectionPage() {
       <div className="flex flex-col gap-xs p-lg">
         <h1 className="font-display text-xl">{collection.title || 'Untitled'}</h1>
         <p className="text-sm ml-md">
-          {collection.collectionType} by{' '}
+          {collection.collection_type} by{' '}
           <Link
-            to={`/artists/${artist?._id}`}
+            to={`/artists/${artist?.artist_id}`}
             className="underline"
           >
             {artist?.name ?? 'Unknown'}
           </Link>
-          {collection.createdAt && <> | {formatDate(collection.createdAt)}</>}
+          {collection.created_at && <> | {formatDate(collection.created_at)}</>}
         </p>
       </div>
 
@@ -92,7 +84,7 @@ export default function CollectionPage() {
         </div>
 
         <div className="flex flex-col bg-[var(--bg-secondary)] rounded-lg p-sm">
-          {songs.map((song, i) => (
+          {visibleSongs.map((song, i) => (
             <div key={song._id}>
               {i > 0 && <div className="border-t border-white/10 my-xs" />}
               <button
@@ -100,8 +92,8 @@ export default function CollectionPage() {
                 onClick={() => play({
                   id: song._id,
                   title: song.title || 'Untitled',
-                  coverUrl: song.coverUrl || collection.coverUrl,
-                  audioUrl: song.audioUrl || '',
+                  coverUrl: song.cover_url || collection.cover_url,
+                  audioUrl: song.audio_url || '',
                   duration: song.duration,
                   lyrics: song.lyrics,
                   stats: song.stats,
@@ -121,46 +113,6 @@ export default function CollectionPage() {
           ))}
         </div>
       </div>
-
-      {collection.isRecording && (
-        <div className="flex flex-col gap-sm px-lg pb-lg">
-          <textarea
-            maxLength={50}
-            rows={2}
-            value={theme}
-            onChange={e => setTheme(e.target.value)}
-            placeholder="What should I sing about?"
-            disabled={generating || !connected}
-            className="w-full resize-none light"
-          />
-          <div className="flex justify-end">
-            <button
-              className="special"
-              disabled={generating || !theme.trim() || !connected}
-              onClick={() =>
-                generate(collection.artistId, theme.trim(), collection._id)
-                  .then(() => { setTheme(''); showToast('Song creation started successfully', 'success'); })
-                  .catch(() => showToast('Failed to generate song'))
-              }
-            >
-              {generating ? 'CREATING...' : 'CREATE'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="px-lg">
-          <button
-            className={collection.isRecording ? 'back full-width' : 'special full-width'}
-            disabled={recordingLoading}
-            onClick={() => toggleRecording(collection._id, !collection.isRecording).then(refetch)}
-          >
-            {recordingLoading ? 'UPDATING...' : collection.isRecording ? 'STOP RECORDING' : 'START RECORDING'}
-          </button>
-        </div>
-      )}
-
     </div>
   );
 }

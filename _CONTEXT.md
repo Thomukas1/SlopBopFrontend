@@ -2,9 +2,9 @@
 
 ## What It Is
 
-SlopBop is a platform for AI-generated synthetic artists. The frontend is a mobile-first web app (430px design target) that serves as both a public artist showcase and an interactive live recording tool. Currently, **thomukas1** is the featured artist used to demonstrate the concept.
+SlopBop is a platform for AI-generated synthetic artists. The frontend is a mobile-first web app (430px design target) that serves as a public artist showcase. Currently, **thomukas1** is the featured artist used to demonstrate the concept.
 
-The experience is closest to AI Spotify: browse artists, listen to their collections, vote on songs, and during live events, request AI-generated songs in real time.
+The experience is closest to AI Spotify: browse artists, listen to their collections, and vote on songs. Songs are published server-side by the simulator and gated on the frontend by `sim.sim_time` — the day unfolds, releases drop as the cutoff advances.
 
 The app has been reframed into a **simulation-first** view: a separate `SlopBopSimulator` (Python) produces a presimulated day per artist, and the frontend drip-feeds that day to viewers. The home page is now a full-screen **world map** that places artists and locations on a tile grid, so opening the site immediately reads as "a simulation you're watching a snapshot of." See "World Map" below.
 
@@ -17,7 +17,7 @@ The app has been reframed into a **simulation-first** view: a separate `SlopBopS
 | `/` | `MapPage` | Full-screen world map — the simulation view (home) |
 | `/about` | `AboutPage` | Project blurb + footer |
 | `/artists/:id` | `ArtistProfile` | Artist profile + discography |
-| `/collections/:id` | `CollectionPage` | Album/EP view + live recording mode |
+| `/collections/:id` | `CollectionPage` | Album/EP view (tracklist) |
 
 ---
 
@@ -47,9 +47,10 @@ The app has been reframed into a **simulation-first** view: a separate `SlopBopS
 
 ```ts
 Artist     { _id, name, bio?, imageUrl?, socials? }
-Collection { _id, artistId, collectionType: 'Album'|'EP', title?, coverUrl?, isRecording?, createdAt? }
-Song       { _id, artistId, collectionId?, title?, duration?, coverUrl?, audioUrl?, lyrics?, createdAt?, stats? }
-SongStats  { bops, slops, totalVotes }
+Collection { _id, artist_id, collection_type: 'Album'|'EP', title?, cover_url?, created_at? }
+Song       { _id, artist_id, collection_id?, title?, duration?, cover_url?, audio_url?, lyrics?,
+             caption?, bpm?, keyscale?, lora?, release_date?, created_at?, stats? }
+SongStats  { bops, slops, total_votes }
 ```
 
 ---
@@ -83,20 +84,17 @@ Fetches artist, collections, and songs in parallel. Layout:
 3. Frosted info card — collapsible bio + social icon links (Twitter/X, TikTok, Instagram)
 4. Discography — Albums/EPs in a 2-column `CollectionCard` grid, standalone singles as a stacked `SingleCard` list
 
-Songs are split via `useMemo`: songs with a `collectionId` are grouped under their collection; the rest are singles.
+Songs are filtered by `release_date <= sim.sim_time` (fixed-width `"YYYY-MM-DDTHH:MM"`, lexicographic == chronological), then split via `useMemo`: songs with a `collection_id` are grouped under their collection; the rest are singles. Songs without a `release_date` are dropped (treated as unreleased) during the backfill window.
 
 Tapping a `CollectionCard` navigates to `/collections/:id`. Tapping a `SingleCard` calls `play()` on `MusicPlayerContext`.
 
 ### Collection Page (`/collections/:id`)
 
-Loads collection metadata + songs + admin status in parallel. Layout:
+Loads collection metadata + songs in parallel. Layout:
 
-1. **Live Recording Banner** — red bar with pulsing dot, only when `isRecording === true`
-2. Full-width square cover art
-3. Metadata — title, type, linked artist name, date
-4. **Tracklist** — numbered rows, each taps to call `play()` on `MusicPlayerContext`
-5. **Song Request Form** — visible only during recording mode; requires wallet connected; textarea (50 char max) + CREATE button; submits theme to generate a new song
-6. **Admin Controls** — visible only to admin wallets; START/STOP RECORDING toggle
+1. Full-width square cover art
+2. Metadata — title, type, linked artist name, date
+3. **Tracklist** — numbered rows, each taps to call `play()` on `MusicPlayerContext`. Songs gated by `release_date <= sim.sim_time` (same rule as Discography).
 
 ### Music Player
 
@@ -111,16 +109,13 @@ Global playback state in `MusicPlayerContext` — a persistent `HTMLAudioElement
 ## Auth Model
 
 ### Wallet Verification (challenge-response)
-Used for any sensitive action (recording mode toggle, song generation). Flow:
+Used by the remaining wallet-gated actions (vote, admin check). Flow:
 1. `useWalletVerification()` calls backend to get a challenge message + `challengeId`
 2. User's wallet signs the message
 3. Signature + challenge data sent alongside the API request; backend verifies server-side
 
 ### Admin Check
-`useAdmin()` sends the connected wallet's public key to `POST /msi/admin/check`. Backend returns `{ isAdmin: boolean }` based on an allowlist. Admin wallets see the recording controls.
-
-### Song Generation Auth
-Any wallet-connected user can submit a song request during recording mode (not admin-only). Still requires wallet verification to sign the request.
+`useAdmin()` sends the connected wallet's public key to `POST /slopbop/admin/check`. Backend returns `{ isAdmin: boolean }` based on an allowlist.
 
 ---
 
@@ -134,10 +129,8 @@ All calls go through `apiFetch()` in `src/services/slopbop/client.ts` with base 
 | Fetch artists | GET | `/slopbop/artists?limit=` | `slopbop/artists` |
 | Fetch collections | GET | `/slopbop/collections?artist_id=&type=` | `slopbop/collections` |
 | Fetch collection + songs | GET | `/slopbop/collections/:id` | `slopbop/collections` |
-| Toggle recording mode | POST | `/slopbop/collections/recording-mode` | `slopbop/collections` |
 | Fetch songs (standalone) | GET | `/slopbop/songs?artist_id=` | `slopbop/songs` |
 | Vote on song | PATCH | `/slopbop/songs/:id/vote` | `slopbop/songs` |
-| Generate song | POST | `/slopbop/song/generate` | `slopbop/songs` |
 | Current sim | GET | `/slopbop/sim/current` | `slopbop/sim` |
 | Artist notes | GET | `/slopbop/sim/:simId/artist/:artistId/notes` | `slopbop/sim` |
 | Artist journal | GET | `/slopbop/sim/:simId/artist/:artistId/journal` | `slopbop/sim` |
@@ -170,7 +163,7 @@ BrowserRouter
 
 Read-hooks are thin wrappers over a generic `useResource<T>(fetcher, key, { onError?, pollMs? })` in `src/hooks/useResource.ts`. It owns the stale-response guard (`fetchKeyRef`), the loading state, and optional polling. `pollMs` accepts either a number or a function of the latest data (used by `useSimCurrent` to auto-stop polling once a past sim is loaded).
 
-Wallet-gated mutation hooks (`useGenerateSong`, `useRecordingMode`, `useAdmin`, `useWalletAuth`) follow a separate command-shaped pattern and don't go through `useResource`.
+Wallet-gated mutation hooks (`useAdmin`, `useWalletAuth`) follow a separate command-shaped pattern and don't go through `useResource`.
 
 ## Simulation Plumbing
 
@@ -210,12 +203,10 @@ Hooks in `src/hooks/`:
 | `src/hooks/useResource.ts` | Generic read-hook (stale-guard + polling) |
 | `src/hooks/useAdmin.ts` | Admin wallet check |
 | `src/hooks/useWalletAuth.ts` | Wallet signature flow |
-| `src/hooks/useRecordingMode.ts` | Toggle recording on a collection |
-| `src/hooks/useGenerateSong.ts` | Submit song generation request |
 | `src/hooks/useSim*.ts`, `useWorldMap.ts` | Simulation read-hooks |
 | `src/features/map/` | World map home page — `MapPage`, `grid.ts`, icons, `LocationPanel` |
 | `src/features/about/` | About page (project blurb + footer) |
 | `src/features/artist_profile/` | Artist profile page + discography |
-| `src/features/collection/` | Collection/album page + live mode |
+| `src/features/collection/` | Collection/album page |
 | `src/features/music_player/` | MusicPlayer, MiniPlayer, BopMeter |
 | `src/components/Header.tsx` | Global header |

@@ -47,8 +47,8 @@ export default function BopMeter() {
 
   if (!stats) return null;
 
-  const bopPercent = stats.totalVotes > 0
-    ? Math.round((stats.bops / stats.totalVotes) * 100)
+  const bopPercent = stats.total_votes > 0
+    ? Math.round((stats.bops / stats.total_votes) * 100)
     : 0;
 
   return (
@@ -61,7 +61,7 @@ export default function BopMeter() {
         </p>
 
         <p className="text-xs text-secondary">
-          {stats.totalVotes} Voted
+          {stats.total_votes} Voted
         </p>
 
         <div className="flex gap-md w-full max-w-[320px]">

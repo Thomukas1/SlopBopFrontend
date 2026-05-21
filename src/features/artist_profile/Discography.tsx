@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCollections } from '../../hooks/useCollections';
 import { useSongs } from '../../hooks/useSongs';
+import { useSim } from '../../context/SimContext';
 import type { Collection, Song } from '../../services/slopbop';
 import CollectionCard from './CollectionCard';
 import SingleCard from './SingleCard';
@@ -19,16 +20,25 @@ export interface GroupedDiscography {
 function useDiscography(artistId: string): { discography: GroupedDiscography; loading: boolean } {
   const { collections, loading: collectionsLoading } = useCollections(artistId);
   const { songs, loading: songsLoading } = useSongs(artistId);
+  const { sim } = useSim();
 
   const discography = useMemo<GroupedDiscography>(() => {
+    // `release_date` and `sim.sim_time` are both fixed-width "YYYY-MM-DDTHH:MM"
+    // — lexicographic compare == chronological. Songs without a release_date
+    // are treated as unreleased during the backfill window.
+    const cutoff = sim?.sim_time;
+    const visible = cutoff
+      ? songs.filter(s => s.release_date && s.release_date <= cutoff)
+      : [];
+
     const songsByCollection = new Map<string, Song[]>();
     const singles: Song[] = [];
 
-    for (const song of songs) {
-      if (song.collectionId) {
-        const list = songsByCollection.get(song.collectionId) ?? [];
+    for (const song of visible) {
+      if (song.collection_id) {
+        const list = songsByCollection.get(song.collection_id) ?? [];
         list.push(song);
-        songsByCollection.set(song.collectionId, list);
+        songsByCollection.set(song.collection_id, list);
       } else {
         singles.push(song);
       }
@@ -40,7 +50,7 @@ function useDiscography(artistId: string): { discography: GroupedDiscography; lo
     }));
 
     return { collections: grouped, singles };
-  }, [collections, songs]);
+  }, [collections, songs, sim?.sim_time]);
 
   return { discography, loading: collectionsLoading || songsLoading };
 }
@@ -62,7 +72,7 @@ export default function Discography({ artistId }: Props) {
             {discography.collections.map(({ collection }) => (
               <CollectionCard
                 key={collection._id}
-                coverUrl={collection.coverUrl}
+                coverUrl={collection.cover_url}
                 title={collection.title || 'Untitled'}
                 onClick={() => navigate(`/collections/${collection._id}`)}
               />
@@ -79,14 +89,14 @@ export default function Discography({ artistId }: Props) {
               <div key={song._id}>
                 {i > 0 && <div className="border-t border-white/10 my-xs" />}
                 <SingleCard
-                  coverUrl={song.coverUrl}
+                  coverUrl={song.cover_url}
                   title={song.title || 'Untitled'}
                   duration={song.duration}
                   onClick={() => play({
                     id: song._id,
                     title: song.title || 'Untitled',
-                    coverUrl: song.coverUrl,
-                    audioUrl: song.audioUrl || '',
+                    coverUrl: song.cover_url,
+                    audioUrl: song.audio_url || '',
                     duration: song.duration,
                     lyrics: song.lyrics,
                     stats: song.stats,

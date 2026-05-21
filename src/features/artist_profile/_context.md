@@ -20,13 +20,13 @@ A public profile page for a SlopBop AI artist. Currently shows identity (hero im
 ## Data Flow
 
 ```
-useArtist(id)           → artist (name, bio, imageUrl, socials)
+useArtist(id)           → artist (name, bio, image_url, socials)
 useCollections(artistId) → collections[]
 useSongs(artistId)       → songs[]
 ```
 
 `Discography` internally runs a `useMemo` to split songs into two buckets:
-- Songs with a `collectionId` → grouped under their parent collection
+- Songs with a `collection_id` → grouped under their parent collection
 - Songs without → treated as standalone singles
 
 ## Current Layout (top → bottom)

@@ -4,8 +4,12 @@ export interface Artist {
   artist_id: string;
   name: string;
   bio?: string;
-  imageUrl?: string;
+  image_url?: string;
   socials?: Record<string, string>;
+  gender?: string;
+  nationality?: string;
+  genres?: string[];
+  zodiac_sign?: string;
 }
 
 interface ArtistResponse {

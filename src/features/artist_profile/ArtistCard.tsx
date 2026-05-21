@@ -9,7 +9,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
     >
       <div className="w-full aspect-video bg-surface-2 overflow-hidden">
         <img
-          src={artist.imageUrl ?? '/Images/mystery-actor.png'}
+          src={artist.image_url ?? '/Images/mystery-actor.png'}
           alt={artist.name}
           className="w-full h-full object-cover object-top"
         />

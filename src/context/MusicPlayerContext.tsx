@@ -11,7 +11,7 @@ import {
 export interface TrackStats {
   bops: number;
   slops: number;
-  totalVotes: number;
+  total_votes: number;
 }
 
 export interface Track {

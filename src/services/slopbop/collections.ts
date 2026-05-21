@@ -5,12 +5,11 @@ export type CollectionType = 'Album' | 'EP';
 
 export interface Collection {
   _id: string;
-  artistId: string;
-  collectionType: CollectionType;
+  artist_id: string;
+  collection_type: CollectionType;
   title?: string;
-  coverUrl?: string;
-  isRecording?: boolean;
-  createdAt?: string;
+  cover_url?: string;
+  created_at?: string;
 }
 
 interface CollectionsResponse {
@@ -24,19 +23,6 @@ interface CollectionResponse {
   songs: Song[];
 }
 
-interface RecordingModePayload {
-  collectionId: string;
-  isRecording: boolean;
-  walletAddress: string;
-  challengeId: string;
-  message: string;
-  signature: string;
-}
-
-interface RecordingModeResponse {
-  success: boolean;
-}
-
 export const fetchCollections = (artistId: string, type?: CollectionType) => {
   const params = new URLSearchParams({ artist_id: artistId });
   if (type) params.set('type', type);
@@ -48,9 +34,3 @@ export const fetchCollection = (id: string) =>
     collection: r.collection,
     songs: r.songs,
   }));
-
-export const setRecordingMode = (payload: RecordingModePayload) =>
-  apiFetch<RecordingModeResponse>('/slopbop/collections/recording-mode', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });

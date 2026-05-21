@@ -24,7 +24,7 @@ export default function ArtistProfile() {
     );
   }
 
-  const heroSrc = artist.imageUrl || '/Images/mystery-actor.png';
+  const heroSrc = artist.image_url || '/Images/mystery-actor.png';
 
   return (
     <div className="flex flex-col min-h-screen relative">

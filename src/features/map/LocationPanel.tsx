@@ -11,7 +11,7 @@ function ArtistStrip({ artist, onClick }: { artist: Artist; onClick: () => void 
       className="flex items-center gap-md rounded-xl bg-surface-2 border border-border p-sm active:opacity-70 transition-opacity"
     >
       <img
-        src={artist.imageUrl ?? '/Images/mystery-actor.png'}
+        src={artist.image_url ?? '/Images/mystery-actor.png'}
         alt={artist.name}
         className="w-10 h-10 rounded-full object-cover object-top shrink-0"
       />
@@ -50,7 +50,7 @@ export function LocationPanel({
             <div className="flex flex-col gap-sm">
               {occupants.map(a => (
                 <ArtistStrip
-                  key={a._id}
+                  key={a.artist_id}
                   artist={a}
                   onClick={() => onSelectArtist(a)}
                 />

@@ -43,7 +43,7 @@ export function ArtistSheet({
           <div className="flex flex-col gap-md px-xl pt-lg pb-md shrink-0">
             <div className="flex items-center gap-md">
               <img
-                src={artist.imageUrl ?? '/Images/mystery-actor.png'}
+                src={artist.image_url ?? '/Images/mystery-actor.png'}
                 alt={artist.name}
                 className="w-12 h-12 rounded-lg object-cover object-top shrink-0"
               />

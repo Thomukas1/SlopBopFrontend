@@ -26,7 +26,7 @@ export function AgentMarker({
       className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 transition-[left,top] duration-700 ease-in-out active:opacity-70"
     >
       <img
-        src={artist.imageUrl ?? '/Images/mystery-actor.png'}
+        src={artist.image_url ?? '/Images/mystery-actor.png'}
         alt={artist.name}
         className="w-11 h-11 rounded-full object-cover object-top border-2 border-white shadow-md"
       />

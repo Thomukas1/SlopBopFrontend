@@ -3,20 +3,27 @@ import { apiFetch } from './client';
 export interface SongStats {
   bops: number;
   slops: number;
-  totalVotes: number;
+  total_votes: number;
 }
 
 export interface Song {
   _id: string;
-  artistId: string;
-  collectionId?: string;
+  artist_id: string;
+  collection_id?: string;
   title?: string;
   duration?: number;
-  coverUrl?: string;
-  audioUrl?: string;
-  animationUrl?: string;
+  cover_url?: string;
+  audio_url?: string;
+  animation_url?: string;
   lyrics?: string;
-  createdAt?: string;
+  caption?: string;
+  bpm?: number;
+  keyscale?: string;
+  lora?: string;
+  // Naive sim-local "YYYY-MM-DDTHH:MM" — fixed-width, so lexicographic
+  // comparison against `sim.sim_time` is correct chronological order.
+  release_date?: string;
+  created_at?: string;
   stats?: SongStats;
 }
 
@@ -32,21 +39,6 @@ interface VoteResponse {
   stats: SongStats;
 }
 
-interface GenerateSongPayload {
-  artistId: string;
-  theme: string;
-  collectionId?: string;
-  walletAddress: string;
-  challengeId: string;
-  message: string;
-  signature: string;
-}
-
-interface GenerateSongResponse {
-  success: boolean;
-  message: string;
-}
-
 export const fetchSongs = (artistId: string) =>
   apiFetch<SongsResponse>(`/slopbop/songs?artist_id=${artistId}`).then(r => r.songs);
 
@@ -55,9 +47,3 @@ export const voteSong = (songId: string, type: VoteType) =>
     method: 'PATCH',
     body: JSON.stringify({ type }),
   }).then(r => r.stats);
-
-export const generateSong = (payload: GenerateSongPayload) =>
-  apiFetch<GenerateSongResponse>('/slopbop/song/generate', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });

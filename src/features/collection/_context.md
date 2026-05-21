@@ -2,7 +2,9 @@
 
 ## What it is
 
-An interactive collection view (album/EP/single) for a SlopBop artist. Doubles as a **live recording studio** when an admin activates recording mode.
+A read-only collection view (album/EP/single) for a SlopBop artist. Songs
+are published server-side by the simulator; the frontend only displays
+them.
 
 ## Route
 
@@ -12,41 +14,28 @@ An interactive collection view (album/EP/single) for a SlopBop artist. Doubles a
 
 ```
 useCollection(id)  → collection metadata + songs[]
-useArtist(id)      → artist name/profile (derived from collection.artistId)
-useAdmin()         → checks connected Solana wallet against admin list
+useArtist(id)      → artist name/profile (derived from collection.artist_id)
+useSim()           → current sim_time used as the release cutoff
 ```
 
-All three load in parallel on mount. Page shows a spinner until both `collectionLoading` and `artistLoading` resolve.
+All load in parallel on mount. Page shows a spinner until both
+`collectionLoading` and `artistLoading` resolve.
+
+## Release gating
+
+Songs are only shown when `song.release_date <= sim.sim_time`. Both fields
+are fixed-width `"YYYY-MM-DDTHH:MM"` strings — lexicographic comparison
+matches chronological order, so no `Date` parsing is needed. Songs
+without a `release_date` are treated as unreleased (dropped) during the
+backfill window.
 
 ## Layout (top → bottom)
 
-1. **Live Recording Banner** — red bar with pulsing dot, only visible when `collection.isRecording === true`
-2. **Cover Art** — full-width square image, falls back to `/Images/default_song_cover.png`
-3. **Metadata** — title, collection type, linked artist name, formatted creation date
-4. **Tracklist** — numbered song rows inside a card. Each row is a button that calls `play()` from `MusicPlayerContext`, passing the song data (audio URL, lyrics, stats, cover)
-5. **Song Request Form** — only rendered during recording mode. Textarea (max 50 chars) + CREATE button. Requires wallet connection. Calls `useGenerateSong().generate(artistId, theme, collectionId)` → backend generates a song. Shows toast on success/failure and clears input.
-6. **Admin Controls** — only rendered when `isAdmin === true`. Single button toggles recording mode on/off via `useRecordingMode().toggleRecording()`, then refetches collection data.
+1. **Cover Art** — full-width square image, falls back to `/Images/default_song_cover.png`
+2. **Metadata** — title, collection type, linked artist name, formatted creation date
+3. **Tracklist** — numbered song rows inside a card. Each row is a button that calls `play()` from `MusicPlayerContext`, passing the song data (audio URL, lyrics, stats, cover)
 
 ## Key Interactions
 
 ### Playing a song
 User taps a track row → `play()` pushes a `Track` object into `MusicPlayerContext` → global player starts playback.
-
-### Live Recording Mode (admin)
-1. Admin connects Solana wallet → `useAdmin()` verifies against backend → shows toggle button
-2. Admin clicks **START RECORDING** → `toggleRecording(collectionId, true)` signs a message with the wallet for auth, then hits the backend → `refetch()` reloads collection with `isRecording: true`
-3. Banner appears, song request form appears for all connected users
-4. Admin clicks **STOP RECORDING** → same flow in reverse
-
-### Generating a Song (during recording)
-1. Any connected wallet user types a theme (up to 50 chars)
-2. Clicks **CREATE** → `generate(artistId, theme, collectionId)` signs wallet + sends to backend
-3. Backend generates a song asynchronously
-4. Toast confirms submission, input clears
-5. No polling or auto-refresh — the new song is written to the database by the backend when ready. User must manually refresh the page to see it in the tracklist.
-
-## Auth Model
-
-- **Wallet verification**: both `useRecordingMode` and `useGenerateSong` use `useWalletVerification()` to sign a message before API calls — proves wallet ownership server-side
-- **Admin check**: `useAdmin()` sends the connected wallet's public key to the backend; backend returns whether it's an admin wallet
-- **Song creation**: requires wallet connection (`connected` flag) but not necessarily admin status — any connected user can request during recording mode
