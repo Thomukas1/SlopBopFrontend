@@ -1,10 +1,11 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useArtist } from '../../hooks/useArtist';
 import ExpandableBio from '../../primitives/ExpandableBio';
 import Discography from './Discography';
 
 export default function ArtistProfile() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const artistId = id ?? '';
   const { artist, loading } = useArtist(artistId);
 
@@ -19,7 +20,7 @@ export default function ArtistProfile() {
   if (!artist) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-secondary">Artist not found</p>
+        <p className="text-muted">Artist not found</p>
       </div>
     );
   }
@@ -27,18 +28,28 @@ export default function ArtistProfile() {
   const heroSrc = artist.image_url || '/Images/mystery-actor.png';
 
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className="flex flex-col relative">
       {/* Hero image — full width of the 430px container */}
-      <div className="w-full h-[350px] overflow-hidden">
+      <div className="artist-hero">
         <img
           src={heroSrc}
           alt={artist.name}
           className="w-full h-full object-cover object-[center_50%]"
         />
+        {/* Back button overlaid on top-left of hero */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-lg left-lg z-10 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white active:opacity-70 transition-opacity"
+          aria-label="Go back"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+          </svg>
+        </button>
       </div>
 
       {/* Artist info — overlaps the hero image */}
-      <div className="flex flex-col gap-md p-lg -mt-[100px] relative z-10">
+      <div className="artist-hero-content flex flex-col gap-md p-lg">
         <h1 className="font-display text-xl text-left drop-shadow-lg">{artist.name}</h1>
 
         {artist.bio && (
@@ -50,7 +61,7 @@ export default function ArtistProfile() {
 
       {/* Discography */}
       <div className="p-lg">
-        <Discography artistId={artistId} />
+        <Discography artistId={artistId} artistName={artist.name} />
       </div>
     </div>
   );

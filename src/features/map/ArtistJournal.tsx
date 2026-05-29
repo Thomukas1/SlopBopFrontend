@@ -57,7 +57,7 @@ function EntryRow({
     case 'plan':
       return (
         <div className="flex gap-md">
-          <div className="text-xs text-gray font-display tabular-nums pt-xs w-12 flex-shrink-0">
+          <div className="text-xs text-muted font-display tabular-nums pt-xs w-12 flex-shrink-0">
             {time}
           </div>
           <div className="flex flex-col gap-xs flex-1">
@@ -65,7 +65,7 @@ function EntryRow({
               <span className="mr-1">📝</span>
               Plan for the day
             </div>
-            <div className="text-sm text-gray italic">"{entry.plan}"</div>
+            <div className="text-sm text-muted italic">"{entry.plan}"</div>
           </div>
         </div>
       );
@@ -85,15 +85,15 @@ function EntryRow({
             : interactionEmoji[key] ?? '🎯';
       return (
         <div className="flex gap-md">
-          <div className="text-xs text-gray font-display tabular-nums pt-xs w-12 flex-shrink-0">
+          <div className="text-xs text-muted font-display tabular-nums pt-xs w-12 flex-shrink-0">
             {time}
           </div>
           <div className="flex flex-col gap-xs flex-1">
             <div className="text-sm text-white">
               <span className="mr-1">{emoji}</span>
-              {verb} <span className="text-yellow">{titleCaseSnake(entry.target)}</span>
+              {verb} <span className="text-accent">{titleCaseSnake(entry.target)}</span>
             </div>
-            <div className="text-sm text-gray italic">"{entry.intent}"</div>
+            <div className="text-sm text-muted italic">"{entry.intent}"</div>
           </div>
         </div>
       );
@@ -103,7 +103,7 @@ function EntryRow({
       const ok = entry.outcome === 'success';
       return (
         <div className="flex gap-md">
-          <div className="text-xs text-gray font-display tabular-nums pt-xs w-12 flex-shrink-0">
+          <div className="text-xs text-muted font-display tabular-nums pt-xs w-12 flex-shrink-0">
             {time}
           </div>
           <div className="flex flex-col gap-xs flex-1 min-w-0">
@@ -111,7 +111,7 @@ function EntryRow({
               <span className="mr-1">{ok ? '✓' : '✗'}</span>
               {titleCaseSnake(entry.target)}
               {!ok && (
-                <span className="text-gray ml-sm">({entry.outcome})</span>
+                <span className="text-muted ml-sm">({entry.outcome})</span>
               )}
             </div>
             <div className="text-sm text-white whitespace-pre-line">
@@ -124,12 +124,12 @@ function EntryRow({
     case 'arrival':
       return (
         <div className="flex gap-md">
-          <div className="text-xs text-gray font-display tabular-nums pt-xs w-12 flex-shrink-0">
+          <div className="text-xs text-muted font-display tabular-nums pt-xs w-12 flex-shrink-0">
             {time}
           </div>
           <div className="text-sm text-white pt-xs">
             <span className="mr-1">📍</span>
-            Arrived at <span className="text-yellow">{titleCaseSnake(entry.location)}</span>
+            Arrived at <span className="text-accent">{titleCaseSnake(entry.location)}</span>
           </div>
         </div>
       );
@@ -156,14 +156,14 @@ export function ArtistJournal({ simulationId, artistId, live }: Props) {
 
   if (sorted.length === 0) {
     return (
-      <div className="text-center text-gray text-sm py-3xl">
+      <div className="text-center text-muted text-sm py-3xl">
         Nothing logged yet.
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-lg">
+    <div className="flex flex-col gap-lg rounded-lg p-md" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
       {sorted.map((entry, i) => (
         <EntryRow
           key={`${entry.sim_time}-${entry.type}-${i}`}

@@ -15,7 +15,7 @@ function ArtistStrip({ artist, onClick }: { artist: Artist; onClick: () => void 
         alt={artist.name}
         className="w-10 h-10 rounded-full object-cover object-top shrink-0"
       />
-      <span className="font-display text-md truncate">{artist.name}</span>
+      <span className="font-display text-sm truncate">{artist.name}</span>
     </button>
   );
 }
@@ -43,7 +43,7 @@ export function LocationPanel({
           <h2 className="font-display text-xl text-center uppercase tracking-wide">
             {location.name}
           </h2>
-          <p className="text-sm text-gray leading-relaxed">
+          <p className="text-sm text-muted leading-relaxed">
             {location.description}
           </p>
           {occupants.length > 0 ? (
@@ -57,7 +57,7 @@ export function LocationPanel({
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray text-sm">
+            <p className="text-center text-muted text-sm">
               Nobody here right now.
             </p>
           )}

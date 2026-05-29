@@ -17,7 +17,7 @@ export default function CollectionCard({ coverUrl, title, onClick }: Props) {
         alt={title}
         className="w-full aspect-square object-cover block"
       />
-      <div className="w-full bg-[var(--bg-secondary)] px-sm py-sm">
+      <div className="w-full bg-surface-2 px-sm py-sm">
         <p className="text-sm truncate">{title}</p>
       </div>
     </button>

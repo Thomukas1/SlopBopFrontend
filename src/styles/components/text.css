@@ -61,7 +61,7 @@
 
   label {
     font-size: var(--font-size-xs);
-    color: var(--gray);
+    color: var(--text-muted);
     text-shadow:
       -1px -1px 0 var(--black),
        1px -1px 0 var(--black),
@@ -70,13 +70,13 @@
   }
 
   .highlight {
-    color: var(--yellow);
+    color: var(--accent);
   }
 
   .number {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--yellow);
+    color: var(--accent);
     text-shadow:
       -1px -1px 0 var(--black),
        1px -1px 0 var(--black),
@@ -111,17 +111,17 @@
 
 .copyable-text {
   font-size: 0.75rem;
-  color: var(--gray);
+  color: var(--text-muted);
   font-family: monospace;
   cursor: pointer;
   transition: color 0.15s;
 }
 
 .copyable-text:hover {
-  color: var(--yellow);
+  color: var(--accent);
 }
 
 .copyable-text[role="button"]:focus-visible {
-  outline: 2px solid var(--yellow);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

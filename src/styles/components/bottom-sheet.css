@@ -28,7 +28,7 @@
   background: var(--bg-secondary);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
-  border-top: 3px solid var(--blue-main);
+  border-top: 3px solid var(--brand);
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
   z-index: 600;
   display: flex;

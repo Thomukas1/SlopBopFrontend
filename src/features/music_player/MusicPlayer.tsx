@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import BopMeter from './BopMeter';
 import './music-player.css';
@@ -32,7 +33,7 @@ export default function MusicPlayer() {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-[var(--z-modal)] bg-[var(--bg-primary)] overflow-y-auto">
+    <div className="fixed inset-0 z-modal bg-black overflow-y-auto">
       {/* Header */}
       <div className="flex justify-end p-lg">
         <button type="button" onClick={collapse} className="cursor-pointer">
@@ -47,12 +48,23 @@ export default function MusicPlayer() {
         <img
           src={track.coverUrl || '/Images/default_song_cover.png'}
           alt={track.title}
-          className="w-full max-w-[320px] aspect-square object-cover rounded-lg"
+          className="w-full max-w-player aspect-square object-cover rounded-lg"
         />
       </div>
 
-      {/* Title */}
-      <p className="text-center text-base font-bold px-lg truncate mt-lg">{track.title}</p>
+      {/* Title + artist */}
+      <div className="flex flex-col items-center px-lg mt-lg gap-xs">
+        <p className="text-center text-2xl font-bold truncate w-full">{track.title}</p>
+        {track.artistId && track.artistName && (
+          <Link
+            to={`/artists/${track.artistId}`}
+            onClick={collapse}
+            className="text-sm text-muted underline"
+          >
+            {track.artistName}
+          </Link>
+        )}
+      </div>
 
       {/* Controls + slider */}
       <div className="flex flex-col gap-md p-xl">
@@ -60,7 +72,7 @@ export default function MusicPlayer() {
           <button
             type="button"
             onClick={() => skip(-15)}
-            className="text-secondary text-sm font-bold cursor-pointer active:scale-90 transition-base"
+            className="text-muted text-sm font-bold cursor-pointer active:scale-90 transition-base"
           >
             -15s
           </button>
@@ -86,7 +98,7 @@ export default function MusicPlayer() {
           <button
             type="button"
             onClick={() => skip(15)}
-            className="text-secondary text-sm font-bold cursor-pointer active:scale-90 transition-base"
+            className="text-muted text-sm font-bold cursor-pointer active:scale-90 transition-base"
           >
             +15s
           </button>
@@ -103,7 +115,7 @@ export default function MusicPlayer() {
             className="music-player-slider w-full"
             style={{ '--progress': `${progress}%` } as React.CSSProperties}
           />
-          <div className="flex justify-between text-xs text-secondary">
+          <div className="flex justify-between text-xs text-muted">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -116,7 +128,7 @@ export default function MusicPlayer() {
       {track.lyrics && (
         <div className="px-xl pb-3xl">
           <h3 className="font-display text-lg mb-md">Lyrics</h3>
-          <p className="text-sm text-secondary whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
             {track.lyrics}
           </p>
         </div>

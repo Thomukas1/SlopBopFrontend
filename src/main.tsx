@@ -26,10 +26,10 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import ArtistProfile from './features/artist_profile/ArtistProfile';
+import { NavBar } from './components/NavBar';
 import CollectionPage from './features/collection/CollectionPage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
-import { Header } from './components/Header';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
 import { SimProvider } from './context/SimContext';
@@ -107,13 +107,13 @@ createRoot(container).render(
         <ToastProvider>
           <SimProvider>
             <MusicPlayerProvider>
-              <Header />
               <Routes>
                 <Route path="/" element={<MapPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/artists/:id" element={<ArtistProfile />} />
                 <Route path="/collections/:id" element={<CollectionPage />} />
               </Routes>
+              <NavBar />
               <MiniPlayer />
               <MusicPlayer />
             </MusicPlayerProvider>

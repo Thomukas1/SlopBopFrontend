@@ -31,9 +31,14 @@
 }
 
 /* Body & Root */
+html {
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
 body {
-  color: var(--white);
-  padding: 0 var(--space-lg) 70px;
+  color: var(--text-primary);
+  padding: 0 var(--space-lg);
 }
 
 /* Animated diagonal stripes background */
@@ -47,17 +52,18 @@ body::before {
   z-index: -1;
   background: repeating-linear-gradient(
     45deg,
-    var(--blue-main) 0px,
-    var(--blue-main) 50px,
-    var(--blue-secondary) 50px,
-    var(--blue-secondary) 100px
+    var(--p-navy) 0px,
+    var(--p-navy) 50px,
+    var(--p-cobalt) 50px,
+    var(--p-cobalt) 100px
   );
   animation: diagonalScroll 50s linear infinite;
 }
 
 /* Mobile-first: force vertical mobile layout even on desktop */
 #root {
-  padding-top: 100px;
+  padding-top: var(--space-lg);
+  padding-bottom: 130px;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

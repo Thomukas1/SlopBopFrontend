@@ -22,7 +22,7 @@ button:disabled {
 /* Primary — white */
 button.primary {
   background: var(--white);
-  color: var(--text-dark);
+  color: var(--text-alt);
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
   padding: var(--space-md) var(--space-xl);
@@ -41,9 +41,9 @@ button.primary:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-/* Secondary — yellow */
+/* Secondary — accent */
 button.secondary {
-  background: var(--yellow);
+  background: var(--accent);
   color: var(--black);
   padding: var(--space-md) var(--space-xl);
   min-width: 120px;
@@ -51,7 +51,7 @@ button.secondary {
 }
 
 button.secondary:hover:not(:disabled) {
-  background: var(--yellow);
+  background: var(--accent-dim);
   box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
 }
@@ -60,13 +60,13 @@ button.secondary:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-/* Special — yellow with display font and shine */
+/* Special — accent with display font and shine */
 button.special {
   position: relative;
   overflow: hidden;
   min-height: 48px;
-  background: var(--yellow);
-  color: var(--text-dark);
+  background: var(--accent);
+  color: var(--text-alt);
   font-family: var(--font-display);
 }
 
@@ -94,7 +94,7 @@ button.special::after {
 }
 
 button.special:hover:not(:disabled) {
-  background: #e6d62c;
+  background: var(--accent-dim);
   box-shadow: var(--shadow-lg);
 }
 
@@ -102,9 +102,9 @@ button.special:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-/* Back — red */
+/* Back — danger */
 button.back {
-  background: var(--red);
+  background: var(--color-error);
   color: var(--white);
   width: fit-content;
   padding: var(--space-md) var(--space-xl);
@@ -124,28 +124,28 @@ button.full-width {
   width: 100%;
 }
 
-/* Special Small — compact yellow button */
+/* Special Small — compact accent button */
 .special-small {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-md);
-  background: var(--yellow);
-  color: var(--text-dark);
+  background: var(--accent);
+  color: var(--text-alt);
   cursor: pointer;
   transition: background var(--transition-base);
   text-align: center;
   border: none;
 }
 
-.special-small:hover { background: #e6d62c; }
+.special-small:hover { background: var(--accent-dim); }
 .special-small:active { transform: scale(0.98); }
 
 /* Glass — frosted transparent button */
 button.glass {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
-  padding: var(--space-md) 30px;
+  padding: var(--space-md) var(--space-3xl);
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
@@ -174,26 +174,26 @@ button.glass.selected {
 
 /* Toggle button — display font */
 .toggle-btn {
-  padding: 12px 20px;
+  padding: var(--space-md) var(--space-xl);
   font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 600;
-  border: 2px solid #333;
-  border-radius: 8px;
-  background: #1A1A1A;
-  color: var(--gray);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
   width: auto;
 }
 
 .toggle-btn:hover:not(:disabled):not(.active) {
-  border-color: var(--blue-main);
+  border-color: var(--brand);
   color: var(--white);
 }
 
 .toggle-btn.active {
-  background: var(--blue-main);
+  background: var(--brand);
   border-color: var(--white);
   color: var(--white);
   cursor: default;
@@ -207,27 +207,27 @@ button.glass.selected {
 /* Toggle alt — body font, yellow accent */
 .toggle-btn-alt {
   width: 100%;
-  padding: 0.65rem 1rem;
+  padding: var(--space-sm) var(--space-lg);
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--white);
   background: transparent;
-  border: 2px solid #333;
-  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--transition-fast);
   text-align: center;
 }
 
 .toggle-btn-alt:hover:not(:disabled) {
-  border-color: var(--yellow);
+  border-color: var(--accent);
 }
 
 .toggle-btn-alt.selected {
-  border-color: var(--yellow);
-  background: rgba(254, 238, 49, 0.1);
-  color: var(--yellow);
+  border-color: var(--accent);
+  background: rgba(182, 248, 51, 0.1);
+  color: var(--accent);
 }
 
 /* Image Button — icon/menu buttons */
@@ -271,8 +271,8 @@ button.glass.selected {
 
 .tab-button.active {
   opacity: 1.0;
-  border-bottom: 5px solid var(--yellow);
-  color: var(--yellow);
+  border-bottom: 5px solid var(--accent);
+  color: var(--accent);
 }
 
 .tab-button:disabled {

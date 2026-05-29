@@ -42,7 +42,7 @@
 .stat-bar-fill {
   height: 100%;
   width: var(--stat-pct, 0%);
-  background: var(--stat-color, var(--blue-main));
+  background: var(--stat-color, var(--brand));
   border-radius: inherit;
   transition: width 0.3s ease;
 }

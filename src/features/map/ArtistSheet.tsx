@@ -41,35 +41,35 @@ export function ArtistSheet({
         <div className="flex flex-col h-full">
           {/* Fixed header — identity, profile link, tab switcher */}
           <div className="flex flex-col gap-md px-xl pt-lg pb-md shrink-0">
-            <div className="flex items-center gap-md">
+            <div className="flex items-start gap-md">
               <img
                 src={artist.image_url ?? '/Images/mystery-actor.png'}
                 alt={artist.name}
-                className="w-12 h-12 rounded-lg object-cover object-top shrink-0"
+                className="w-24 h-24 rounded-lg object-cover object-top shrink-0"
               />
-              <span className="font-display text-lg truncate">{artist.name}</span>
+              <div className="flex flex-col gap-xs min-w-0">
+                <span className="font-display text-lg truncate">{artist.name}</span>
+                <Link
+                  to={`/artists/${artist.artist_id}`}
+                  onClick={onClose}
+                  className="self-start rounded-lg border border-border px-md py-xs text-sm font-display uppercase tracking-wide active:opacity-70 transition-opacity"
+                >
+                  View Profile
+                </Link>
+              </div>
             </div>
 
-            {/* Link out to the static profile / discography page */}
-            <Link
-              to={`/artists/${artist.artist_id}`}
-              onClick={onClose}
-              className="rounded-lg border border-border py-sm text-center text-sm font-display uppercase tracking-wide active:opacity-70 transition-opacity"
-            >
-              View Profile
-            </Link>
-
             {/* Tab switcher — lightweight text buttons */}
-            <div className="flex items-center justify-center gap-md font-display text-sm uppercase tracking-wide">
+            <div className="flex items-center justify-center gap-md font-display text-base uppercase tracking-wide">
               {TABS.map((t, i) => (
                 <Fragment key={t.id}>
-                  {i > 0 && <span className="text-border">|</span>}
+                  {i > 0 && <span className="text-muted">|</span>}
                   <button
                     onClick={() => setTab(t.id)}
                     className={`transition-colors ${
                       tab === t.id
-                        ? 'text-blue-secondary underline underline-offset-4'
-                        : 'text-gray active:opacity-70'
+                        ? 'text-accent underline underline-offset-4'
+                        : 'text-muted active:opacity-70'
                     }`}
                   >
                     {t.label}
@@ -104,7 +104,7 @@ export function ArtistSheet({
                   live={open}
                 />
               ) : (
-                <p className="text-center text-gray text-sm py-3xl">
+                <p className="text-center text-muted text-sm py-3xl">
                   Not part of a running simulation.
                 </p>
               ))}

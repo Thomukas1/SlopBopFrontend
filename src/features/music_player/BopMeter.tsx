@@ -60,21 +60,21 @@ export default function BopMeter() {
           {bopPercent}% BOP
         </p>
 
-        <p className="text-xs text-secondary">
+        <p className="text-xs text-muted">
           {stats.total_votes} Voted
         </p>
 
-        <div className="flex gap-md w-full max-w-[320px]">
+        <div className="flex gap-md w-full max-w-player">
           <button
             type="button"
             disabled={!!userVote || voting}
             onClick={() => handleVote('slop')}
             className={`flex-1 py-sm rounded-lg font-bold text-sm transition-base cursor-pointer
               ${userVote === 'slop'
-                ? 'bg-[var(--red)] text-white'
+                ? 'bg-danger text-white'
                 : userVote
-                  ? 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed'
-                  : 'bg-[var(--bg-surface)] text-[var(--red)] active:scale-95'
+                  ? 'bg-surface text-muted cursor-not-allowed'
+                  : 'bg-surface text-danger active:scale-95'
               }`}
           >
             SLOP 🤮
@@ -85,10 +85,10 @@ export default function BopMeter() {
             onClick={() => handleVote('bop')}
             className={`flex-1 py-sm rounded-lg font-bold text-sm transition-base cursor-pointer
               ${userVote === 'bop'
-                ? 'bg-[var(--yellow)] text-[var(--black)]'
+                ? 'bg-accent text-black'
                 : userVote
-                  ? 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed'
-                  : 'bg-[var(--bg-surface)] text-[var(--yellow)] active:scale-95'
+                  ? 'bg-surface text-muted cursor-not-allowed'
+                  : 'bg-surface text-accent active:scale-95'
               }`}
           >
             BOP 🤩

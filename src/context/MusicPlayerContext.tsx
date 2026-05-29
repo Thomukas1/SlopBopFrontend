@@ -22,6 +22,8 @@ export interface Track {
   duration?: number;
   lyrics?: string;
   stats?: TrackStats;
+  artistId?: string;
+  artistName?: string;
 }
 
 interface MusicPlayerContextValue {

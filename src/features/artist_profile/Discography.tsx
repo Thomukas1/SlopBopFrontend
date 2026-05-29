@@ -10,6 +10,7 @@ import { useMusicPlayer } from '../../context/MusicPlayerContext';
 
 interface Props {
   artistId: string;
+  artistName?: string;
 }
 
 export interface GroupedDiscography {
@@ -55,7 +56,7 @@ function useDiscography(artistId: string): { discography: GroupedDiscography; lo
   return { discography, loading: collectionsLoading || songsLoading };
 }
 
-export default function Discography({ artistId }: Props) {
+export default function Discography({ artistId, artistName }: Props) {
   const { discography, loading } = useDiscography(artistId);
   const { play } = useMusicPlayer();
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ export default function Discography({ artistId }: Props) {
       {discography.singles.length > 0 && (
         <div className="flex flex-col gap-md">
           <h2 className="font-display text-lg">Singles</h2>
-          <div className="flex flex-col bg-[var(--bg-secondary)] rounded-lg p-sm">
+          <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
             {discography.singles.map((song, i) => (
               <div key={song._id}>
                 {i > 0 && <div className="border-t border-white/10 my-xs" />}
@@ -100,6 +101,8 @@ export default function Discography({ artistId }: Props) {
                     duration: song.duration,
                     lyrics: song.lyrics,
                     stats: song.stats,
+                    artistId: song.artist_id,
+                    artistName,
                   })}
                 />
               </div>

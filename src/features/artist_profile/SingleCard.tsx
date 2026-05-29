@@ -26,7 +26,7 @@ export default function SingleCard({ coverUrl, title, duration, onClick }: Props
       />
       <p className="text-sm truncate flex-1">{title}</p>
       {duration != null && (
-        <span className="text-sm text-secondary flex-shrink-0">{formatDuration(duration)}</span>
+        <span className="text-sm text-muted flex-shrink-0">{formatDuration(duration)}</span>
       )}
     </button>
   );

@@ -44,7 +44,7 @@ select {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 /* Focus */
@@ -52,8 +52,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--blue-main);
-  box-shadow: 0 0 0 3px rgba(80, 65, 231, 0.1);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(17, 60, 178, 0.15);
 }
 
 /* Disabled */
@@ -62,7 +62,7 @@ textarea:disabled,
 select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--bg-tertiary);
+  background: var(--bg-input);
 }
 
 /* Error State */
@@ -70,21 +70,21 @@ input.error,
 textarea.error,
 select.error {
   border-color: var(--color-error);
-  background: rgba(255, 47, 31, 0.05);
+  background: rgba(232, 52, 74, 0.05);
 }
 
 input.error:focus,
 textarea.error:focus,
 select.error:focus {
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px rgba(255, 47, 31, 0.1);
+  box-shadow: 0 0 0 3px rgba(232, 52, 74, 0.15);
 }
 
 /* Success State */
 input.success,
 textarea.success {
-  border-color: var(--blue-main);
-  background: rgba(80, 65, 231, 0.05);
+  border-color: var(--color-success);
+  background: rgba(182, 248, 51, 0.05);
 }
 
 /* Textarea */
@@ -99,13 +99,13 @@ input.light,
 textarea.light,
 select.light {
   background: var(--white);
-  color: var(--text-dark);
+  color: var(--text-alt);
   border-color: var(--border-color);
 }
 
 input.light::placeholder,
 textarea.light::placeholder {
-  color: var(--gray);
+  color: var(--text-muted);
 }
 
 /* Field Wrapper */
@@ -149,7 +149,7 @@ textarea.light::placeholder {
 /* Field Success Message */
 .field-success {
   font-size: var(--font-size-xs);
-  color: var(--blue-main);
+  color: var(--color-success);
   margin-top: var(--space-sm);
   display: flex;
   align-items: center;
@@ -159,7 +159,7 @@ textarea.light::placeholder {
 /* Field Help Text */
 .field-help {
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--text-muted);
   margin-top: var(--space-sm);
 }
 
@@ -169,7 +169,7 @@ input[type="radio"] {
   width: 18px;
   height: 18px;
   padding: 0;
-  accent-color: var(--blue-main);
+  accent-color: var(--brand);
   cursor: pointer;
 }
 
@@ -212,7 +212,7 @@ select {
 }
 
 select:hover:not(:disabled) {
-  border-color: var(--blue-secondary);
+  border-color: var(--brand);
 }
 
 /* Responsive */

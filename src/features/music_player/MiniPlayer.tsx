@@ -7,8 +7,8 @@ export default function MiniPlayer() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[var(--z-modal-backdrop)]
-                 bg-[var(--yellow)] border-t border-[var(--border)]
+      className="fixed bottom-[60px] left-0 right-0 z-modal-backdrop
+                 bg-accent border-t border-border
                  flex items-center gap-sm px-md py-sm cursor-pointer
                  active:opacity-80 transition-base"
       onClick={expand}
@@ -19,7 +19,7 @@ export default function MiniPlayer() {
         className="w-10 h-10 object-cover rounded-sm flex-shrink-0"
       />
 
-      <span className="text-sm font-medium truncate flex-1 text-[var(--text-alt)]">{track.title}</span>
+      <span className="text-sm font-medium truncate flex-1 text-alt">{track.title}</span>
 
       <div className="flex items-center flex-shrink-0">
         <button

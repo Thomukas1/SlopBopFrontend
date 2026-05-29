@@ -25,7 +25,7 @@ function SimClock() {
   if (!sim) {
     return (
       <div className="flex flex-col leading-tight">
-        <span className="text-gray text-xs uppercase tracking-wide">Simulation</span>
+        <span className="text-muted text-xs uppercase tracking-wide">Simulation</span>
         <span className="font-display text-sm">—</span>
       </div>
     );
@@ -40,13 +40,13 @@ function SimClock() {
 
   return (
     <div className="flex flex-col leading-tight">
-      <span className="text-gray text-xs uppercase tracking-wide">
+      <span className="text-muted text-xs uppercase tracking-wide">
         {formatSimDate(sim.date)}
         {city && ` · ${city}`}
       </span>
       <span className="font-display text-sm tabular-nums flex items-center gap-sm">
         {time}
-        <span className="flex items-center gap-1 text-xs uppercase tracking-wide text-gray">
+        <span className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted">
           <span
             className="inline-block w-1.5 h-1.5 rounded-full"
             style={{ background: live ? '#4ade80' : '#6b7280' }}

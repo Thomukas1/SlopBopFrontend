@@ -49,7 +49,7 @@ export default function CollectionPage() {
   if (!collection) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-secondary">Collection not found</p>
+        <p className="text-muted">Collection not found</p>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function CollectionPage() {
           <p className="flex-shrink-0">Duration</p>
         </div>
 
-        <div className="flex flex-col bg-[var(--bg-secondary)] rounded-lg p-sm">
+        <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
           {visibleSongs.map((song, i) => (
             <div key={song._id}>
               {i > 0 && <div className="border-t border-white/10 my-xs" />}
@@ -97,14 +97,16 @@ export default function CollectionPage() {
                   duration: song.duration,
                   lyrics: song.lyrics,
                   stats: song.stats,
+                  artistId: song.artist_id,
+                  artistName: artist?.name,
                 })}
                 className="flex items-center gap-sm w-full text-left cursor-pointer
                            active:opacity-70 transition-base px-sm py-xs"
               >
-                <span className="w-6 text-center text-sm text-secondary">{i + 1}</span>
+                <span className="w-6 text-center text-sm text-muted">{i + 1}</span>
                 <p className="text-sm truncate flex-1">{song.title || 'Untitled'}</p>
                 {song.duration != null && (
-                  <span className="text-sm text-secondary flex-shrink-0">
+                  <span className="text-sm text-muted flex-shrink-0">
                     {formatDuration(song.duration)}
                   </span>
                 )}

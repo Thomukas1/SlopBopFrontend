@@ -9,6 +9,8 @@ import { LocationIcon } from './LocationIcon';
 import { AgentMarker } from './AgentMarker';
 import { LocationPanel } from './LocationPanel';
 import { ArtistSheet } from './ArtistSheet';
+import { SimHud } from './SimHud';
+import { WelcomeModal, useWelcomeModal } from './WelcomeModal';
 
 // Tracks the viewport size so the board can be scaled to fit it.
 function useViewportSize() {
@@ -23,18 +25,16 @@ function useViewportSize() {
 
 const tileKey = (t: [number, number]) => `${t[0]},${t[1]}`;
 
-// Full-screen world map (route: /map). Unlike the rest of the app it is NOT
+// Full-screen world map (route: /). Unlike the rest of the app it is NOT
 // clamped to the 430px column — it fills the whole viewport. The board is
 // sized to its tiles (computeBounds) and then scaled so the entire world is
 // always visible at once, filling the screen with no scrolling.
-//
-// z-10 keeps it under the header (z-1000), which stays overlaid for the
-// clock and navigation.
 export default function MapPage() {
   const { map: locations, loading: mapLoading } = useWorldMap();
   const { artists, loading: artistsLoading } = useArtists();
   const { sim } = useSim();
   const { w: vw, h: vh } = useViewportSize();
+  const { open: welcomeOpen, dismiss: dismissWelcome, reopen: reopenWelcome } = useWelcomeModal();
 
   // The tapped location, kept set while its panel animates closed so the
   // panel content doesn't blank out mid-slide.
@@ -97,7 +97,7 @@ export default function MapPage() {
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center overflow-hidden bg-surface">
       {loading ? (
-        <p className="text-secondary text-sm">Loading world...</p>
+        <p className="text-muted text-sm">Loading world...</p>
       ) : (
         <div
           className="relative shrink-0 bg-cover bg-center"
@@ -133,12 +133,18 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* Weather chip, centred just below the overlaid header. */}
-      {sim?.weather && (
-        <div className="absolute top-[100px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-xl border border-white/15 bg-white/10 px-sm py-1.5 text-sm shadow-md backdrop-blur-sm">
-          {sim.weather}
-        </div>
-      )}
+      <SimHud />
+
+      <button
+        type="button"
+        onClick={reopenWelcome}
+        aria-label="About this simulation"
+        className="absolute right-3 top-20 z-20 w-8 h-8 rounded-full border border-white/15 bg-white/10 backdrop-blur-sm shadow-md flex items-center justify-center text-sm transition-base active:scale-90"
+      >
+        ℹ️
+      </button>
+
+      <WelcomeModal open={welcomeOpen} onDismiss={dismissWelcome} />
 
       <LocationPanel
         open={panelOpen}

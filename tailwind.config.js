@@ -18,36 +18,35 @@ export default {
         '4xl': '48px',
       },
 
-      // Brand + semantic colors
+      // Colors — white/black are raw hex so opacity modifiers (bg-black/70, border-white/10) work.
+      // All other colors reference CSS vars in theme.css (the single source of truth).
+      // To retheme: change the --p-* palette values in theme.css; these names never change.
       colors: {
-        'blue-main': '#5041E7',
-        'blue-secondary': '#6E63E7',
-        'yellow': '#FEEE31',
-        'red': '#FF2F1F',
-        'black': '#050511',
         'white': '#FFFFFF',
-        'gray': '#a8a7a7',
+        'black': '#051648',       // Deep Navy — raw hex for opacity modifier support
 
-        'primary': '#5041E7',
-        'secondary': '#6E63E7',
-        'success': '#5041E7',
-        'warning': '#FEEE31',
-        'error': '#FF2F1F',
-        'info': '#6E63E7',
+        // Brand & accent (semantic names, not color names)
+        'brand': 'var(--brand)',           // Persian Blue — interactive elements
+        'accent': 'var(--accent)',         // Lime Green — primary accent
+        'accent-2': 'var(--accent-dim)',   // Yellow Green — secondary accent / hover
 
-        'bg-primary': '#050511',
-        'bg-secondary': '#1A1A1A',
-        'bg-tertiary': '#0A0A0A',
-        'bg-surface': '#333333',
-        'bg-input': '#1A1A1A',
+        // Text
+        'muted': 'var(--text-muted)',      // Cool Steel — secondary text
+        'soft': 'var(--text-soft)',        // Tea Green — decorative text
+        'alt': 'var(--text-alt)',          // Deep Navy — text on accent backgrounds
 
-        'text-primary': '#FFFFFF',
-        'text-secondary': '#a8a7a7',
-        'text-muted': '#666666',
-        'text-dark': '#050511',
+        // Surfaces
+        'surface': 'var(--bg-surface)',    // Imperial Blue — cards & panels
+        'surface-2': 'var(--bg-secondary)',// Deep Navy — recessed items inside cards
+        'input': 'var(--bg-input)',        // Deep Navy — input fields
 
-        'border-default': '#333333',
-        'border-dark': '#1A1A1A',
+        // Border — enables `border-border` class
+        'border': 'var(--border-color)',
+
+        // States
+        'danger': 'var(--color-error)',    // Coral Red — errors & SLOP
+        'success': 'var(--color-success)', // Lime Green — success & BOP
+        'warning': 'var(--color-warning)', // Amber — warnings
       },
 
       // Font families
@@ -91,6 +90,11 @@ export default {
         'lg': '12px',
         'xl': '16px',
         'full': '50%',
+      },
+
+      // Max widths
+      maxWidth: {
+        'player': '320px',
       },
 
       // Z-index
