@@ -4,6 +4,7 @@ type Tab = { path: string; emoji: string; label: string };
 
 const TABS: Tab[] = [
   { path: '/', emoji: '🗺️', label: 'Map' },
+  { path: '/roster', emoji: '🎭', label: 'Roster' },
   { path: '/about', emoji: '🎪', label: 'About' },
 ];
 

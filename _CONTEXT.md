@@ -15,6 +15,7 @@ The app has been reframed into a **simulation-first** view: a separate `SlopBopS
 | Route | Component | Description |
 |---|---|---|
 | `/` | `MapPage` | Full-screen world map — the simulation view (home) |
+| `/roster` | `RosterPage` | Artist directory with top-rated song per card |
 | `/about` | `AboutPage` | Project blurb + footer |
 | `/artists/:id` | `ArtistProfile` | Artist profile + discography |
 | `/collections/:id` | `CollectionPage` | Album/EP view (tracklist) |
@@ -75,6 +76,19 @@ The backend gives every location and agent an integer tile coordinate (used serv
 
 Pan/zoom is intentionally deferred: the fit-scale *is* the default zoom level a future pan/zoom layer would start from.
 
+### Roster (`/roster`)
+
+A static artist directory — no sim data. Fetches all artists via `useArtists()` (calls `GET /slopbop/artists`). Each `ArtistCard` independently fetches the artist's songs via `useTopSong(artistId)`, which applies the same `release_date <= sim_time` gate as Discography and picks the highest net-score (`bops − slops`) track with a playable `audio_url`.
+
+Card anatomy (top to bottom):
+1. Full-width `aspect-video` artist image → `Link` to `/artists/:id`
+2. Artist name band → also part of the Link
+3. "Top Rated Song" label (accent colour) + inset `SingleCard` — tapping plays immediately via `MusicPlayerContext`; the pocket is `bg-surface-2` so it reads as nested inside the card
+
+If an artist has no releasable songs, the song pocket is omitted. The "More artists announced soon" footer sits below the list.
+
+Future: highlight artists currently in residency (i.e. present in the active sim's artist list) without restructuring — just pass an `isResident` bool into `ArtistCard` from `useSim()`.
+
 ### Artist Profile (`/artists/:id`)
 
 Fetches artist, collections, and songs in parallel. Layout:
@@ -86,7 +100,11 @@ Fetches artist, collections, and songs in parallel. Layout:
 
 Songs are filtered by `release_date <= sim.sim_time` (fixed-width `"YYYY-MM-DDTHH:MM"`, lexicographic == chronological), then split via `useMemo`: songs with a `collection_id` are grouped under their collection; the rest are singles. Songs without a `release_date` are dropped (treated as unreleased) during the backfill window.
 
+The singles section has a **New / Popular** sort toggle (button group, top-right of the section header). "New" sorts by `release_date` descending; "Popular" sorts by `bops − slops` descending.
+
 Tapping a `CollectionCard` navigates to `/collections/:id`. Tapping a `SingleCard` calls `play()` on `MusicPlayerContext`.
+
+**`SingleCard`** displays the song title on one line and approval rating + duration as a quieter metadata row below. Approval = `bops / total_votes × 100`; only shown when `total_votes > 0`. Emoji tiers: 💩 (0–39 %), 😪 (40–69 %), 🔥 (70–89 %), 🥶 (90–100 %). Duration stays right-aligned.
 
 ### Collection Page (`/collections/:id`)
 
@@ -184,6 +202,7 @@ Hooks in `src/hooks/`:
 - `useSimArtistJournal(simId, artistId, { live? })` — same shape, returns journal entries.
 - `useWorldMap()` — fetched once, cached at module scope with in-flight dedup.
 - `useWorldItems()` — same pattern as `useWorldMap()`; the static item catalogue.
+- `useTopSong(artistId)` — fetches songs for one artist (via `useSongs`), applies the sim_time gate, and returns the single highest net-score (`bops − slops`) track that has an `audio_url`. Returns `null` if none qualify. Used by the Roster's `ArtistCard`.
 
 `SimContext` wraps `useSimCurrent()` so the snapshot is fetched/polled once and shared via `useSim()`. The **World Map** (`/`) consumes `useWorldMap()` plus that snapshot. All sim-derived artist UI (status, bars, journal) now lives in the map's `ArtistSheet`; the `ArtistProfile` page is purely static (hero, bio, discography).
 
@@ -204,9 +223,11 @@ Hooks in `src/hooks/`:
 | `src/hooks/useAdmin.ts` | Admin wallet check |
 | `src/hooks/useWalletAuth.ts` | Wallet signature flow |
 | `src/hooks/useSim*.ts`, `useWorldMap.ts` | Simulation read-hooks |
+| `src/hooks/useTopSong.ts` | Top-rated song per artist (used by Roster) |
 | `src/features/map/` | World map home page — `MapPage`, `grid.ts`, icons, `LocationPanel` |
+| `src/features/roster/` | Roster page — `RosterPage`, `ArtistCard` |
 | `src/features/about/` | About page (project blurb + footer) |
 | `src/features/artist_profile/` | Artist profile page + discography |
 | `src/features/collection/` | Collection/album page |
 | `src/features/music_player/` | MusicPlayer, MiniPlayer, BopMeter |
-| `src/components/Header.tsx` | Global header |
+| `src/components/NavBar.tsx` | Bottom nav — Map, Roster, About tabs |

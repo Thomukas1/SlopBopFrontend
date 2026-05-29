@@ -1,0 +1,55 @@
+import { Link } from 'react-router-dom';
+import { Artist } from '../../services/slopbop';
+import { useTopSong } from '../../hooks/useTopSong';
+import { useMusicPlayer } from '../../context/MusicPlayerContext';
+import SingleCard from '../artist_profile/SingleCard';
+
+export function ArtistCard({ artist }: { artist: Artist }) {
+  const { topSong } = useTopSong(artist.artist_id);
+  const { play } = useMusicPlayer();
+
+  return (
+    <div className="w-full border-b border-border last:border-b-0">
+      <Link
+        to={`/artists/${artist.artist_id}`}
+        className="block w-full active:opacity-70 transition-opacity"
+      >
+        <div className="w-full aspect-video bg-surface-2 overflow-hidden">
+          <img
+            src={artist.image_url ?? '/Images/mystery-actor.png'}
+            alt={artist.name}
+            className="w-full h-full object-cover object-top"
+          />
+        </div>
+        <div className="px-lg py-sm bg-surface">
+          <p className="font-display text-xl">{artist.name}</p>
+        </div>
+      </Link>
+
+      {topSong && (
+        <div className="px-lg pb-lg pt-sm bg-surface flex flex-col gap-xs">
+          <p className="text-xs text-accent uppercase tracking-wider font-medium">Top Rated Song</p>
+          <div className="bg-surface-2 rounded-lg p-sm">
+            <SingleCard
+              coverUrl={topSong.cover_url}
+              title={topSong.title || 'Untitled'}
+              duration={topSong.duration}
+              stats={topSong.stats}
+              onClick={() => play({
+                id: topSong._id,
+                title: topSong.title || 'Untitled',
+                coverUrl: topSong.cover_url,
+                audioUrl: topSong.audio_url!,
+                duration: topSong.duration,
+                lyrics: topSong.lyrics,
+                stats: topSong.stats,
+                artistId: artist.artist_id,
+                artistName: artist.name,
+              })}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

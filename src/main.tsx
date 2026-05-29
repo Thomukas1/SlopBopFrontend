@@ -30,6 +30,7 @@ import { NavBar } from './components/NavBar';
 import CollectionPage from './features/collection/CollectionPage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
+import RosterPage from './features/roster/RosterPage';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
 import { SimProvider } from './context/SimContext';
@@ -110,6 +111,7 @@ createRoot(container).render(
               <Routes>
                 <Route path="/" element={<MapPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/roster" element={<RosterPage />} />
                 <Route path="/artists/:id" element={<ArtistProfile />} />
                 <Route path="/collections/:id" element={<CollectionPage />} />
               </Routes>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCollections } from '../../hooks/useCollections';
 import { useSongs } from '../../hooks/useSongs';
@@ -56,13 +56,28 @@ function useDiscography(artistId: string): { discography: GroupedDiscography; lo
   return { discography, loading: collectionsLoading || songsLoading };
 }
 
+type SinglesSort = 'new' | 'popular';
+
 export default function Discography({ artistId, artistName }: Props) {
   const { discography, loading } = useDiscography(artistId);
   const { play } = useMusicPlayer();
   const navigate = useNavigate();
+  const [singlesSort, setSinglesSort] = useState<SinglesSort>('new');
 
   if (loading) return null;
   if (!discography.collections.length && !discography.singles.length) return null;
+
+  const sortedSingles = singlesSort === 'popular'
+    ? [...discography.singles].sort((a, b) => {
+        const scoreA = (a.stats?.bops ?? 0) - (a.stats?.slops ?? 0);
+        const scoreB = (b.stats?.bops ?? 0) - (b.stats?.slops ?? 0);
+        return scoreB - scoreA;
+      })
+    : [...discography.singles].sort((a, b) => {
+        if (!a.release_date) return 1;
+        if (!b.release_date) return -1;
+        return b.release_date.localeCompare(a.release_date);
+      });
 
   return (
     <div className="flex flex-col gap-lg">
@@ -84,15 +99,34 @@ export default function Discography({ artistId, artistName }: Props) {
 
       {discography.singles.length > 0 && (
         <div className="flex flex-col gap-md">
-          <h2 className="font-display text-lg">Singles</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg">Singles</h2>
+            <div className="flex rounded-md overflow-hidden border border-border text-xs">
+              {(['new', 'popular'] as SinglesSort[]).map(mode => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setSinglesSort(mode)}
+                  className={`px-sm py-xs capitalize transition-base ${
+                    singlesSort === mode
+                      ? 'bg-surface text-primary'
+                      : 'text-muted'
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
-            {discography.singles.map((song, i) => (
+            {sortedSingles.map((song, i) => (
               <div key={song._id}>
                 {i > 0 && <div className="border-t border-white/10 my-xs" />}
                 <SingleCard
                   coverUrl={song.cover_url}
                   title={song.title || 'Untitled'}
                   duration={song.duration}
+                  stats={song.stats}
                   onClick={() => play({
                     id: song._id,
                     title: song.title || 'Untitled',

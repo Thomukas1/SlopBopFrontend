@@ -19,9 +19,10 @@ These two layers power two distinct parts of the UI:
 | UI surface | Data layer | Entry point |
 |---|---|---|
 | World Map (`/`) + ArtistSheet | Live (sim) | Landing page |
-| Artist Profile (`/artists/:id`) | Static | Navigated to from the map |
+| Roster (`/roster`) | Static | NavBar |
+| Artist Profile (`/artists/:id`) | Static | Map sheet or Roster card |
 
-A user lands on the simulation, finds an artist on the map, inspects their live state in the bottom sheet, then optionally navigates to their static profile to listen to music. The sim is the door; the profile is the room.
+A user lands on the simulation, finds an artist on the map, inspects their live state in the bottom sheet, then optionally navigates to their static profile to listen to music. The sim is the primary door; the roster is a secondary one for users who want to browse artists and hear music directly without engaging the map first.
 
 ---
 
@@ -57,7 +58,7 @@ The "View Profile" link in the sheet navigates to the static artist profile. Tha
 
 ## Music Player
 
-Global playback state lives in `MusicPlayerContext` — a single persistent `HTMLAudioElement`, not recreated per track. Songs can be played from the artist profile or the collection page. The MiniPlayer (sticky bottom bar) and full MusicPlayer overlay both read from this shared context.
+Global playback state lives in `MusicPlayerContext` — a single persistent `HTMLAudioElement`, not recreated per track. Songs can be played from the artist profile, the collection page, or directly from a Roster card (which surfaces each artist's top-rated track as a one-tap shortcut). The MiniPlayer (sticky bottom bar) and full MusicPlayer overlay both read from this shared context.
 
 Song visibility is gated by `release_date <= sim.sim_time`, using lexicographic comparison on the naive `YYYY-MM-DDTHH:MM` string format. Songs without a `release_date` are treated as unreleased and hidden.
 
@@ -67,12 +68,13 @@ Song visibility is gated by `release_date <= sim.sim_time`, using lexicographic 
 
 ```
 /                  MapPage         — simulation home, world map
+/roster            RosterPage      — artist directory + top-rated song per artist
 /about             AboutPage       — project explainer
 /artists/:id       ArtistProfile   — static profile + discography
 /collections/:id   CollectionPage  — album/EP tracklist
 ```
 
-No simulation data appears on `/artists/:id` or `/collections/:id`. Those routes are static.
+No simulation data appears on `/roster`, `/artists/:id`, or `/collections/:id`. Those routes are purely static.
 
 ---
 
