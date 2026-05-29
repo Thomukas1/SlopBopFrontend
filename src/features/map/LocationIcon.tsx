@@ -32,7 +32,8 @@ export function LocationIcon({
         </span>
       </span>
 
-      <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-border flex items-center justify-center text-3xl shadow-lg">
+      <div className="relative w-14 h-14 rounded-2xl bg-surface-2 border border-border flex items-center justify-center text-3xl shadow-lg">
+        <div className="absolute inset-0 rounded-2xl border-2 border-white/25 animate-ping [animation-duration:2.5s]" />
         {location.emoji}
       </div>
 

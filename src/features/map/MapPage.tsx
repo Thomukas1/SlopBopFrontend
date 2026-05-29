@@ -96,6 +96,10 @@ export default function MapPage() {
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center overflow-hidden bg-surface">
+      <div
+        className="absolute inset-0 pointer-events-none z-20"
+        style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.7) 100%)' }}
+      />
       {loading ? (
         <p className="text-muted text-sm">Loading world...</p>
       ) : (

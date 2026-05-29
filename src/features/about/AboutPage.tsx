@@ -1,9 +1,9 @@
 import { Footer } from '../../primitives/Footer';
-import { SocialLinks } from '../../primitives/SocialLinks';
 import { FAQ } from './FAQ';
 
 const PROJECT_SOCIALS: Record<string, string> = {
   twitter: 'https://x.com/slopboptv',
+  youtube: 'https://www.youtube.com/@slopboptv',
 };
 
 export default function AboutPage() {
@@ -25,11 +25,6 @@ export default function AboutPage() {
           Each one lives through a day, reflects on their experiences, and then attempts to produce a song from it.
         </p>
       </section>
-
-      {/* Socials — placed high so readers don't have to scroll to find us */}
-      <div className="px-md">
-        <SocialLinks socials={PROJECT_SOCIALS} />
-      </div>
 
       {/* Divider — musical flourish, keeps the page from feeling crammed */}
       <div className="px-md flex justify-between text-sm select-none opacity-80" aria-hidden="true">
@@ -60,7 +55,7 @@ export default function AboutPage() {
       <FAQ />
 
       <div className="px-md">
-        <Footer />
+        <Footer socials={PROJECT_SOCIALS} />
       </div>
     </div>
   );
