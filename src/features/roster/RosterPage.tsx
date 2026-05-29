@@ -18,11 +18,11 @@ export default function RosterPage() {
           <div className="spinner large processing" />
         </div>
       ) : (
-        <div className="flex flex-col border-t border-border -mx-lg">
+        <div className="flex flex-col border-t border-border">
           {artists.map(artist => (
             <ArtistCard key={artist.artist_id} artist={artist} />
           ))}
-          <p className="text-center text-muted text-sm py-lg px-lg">More artists announced soon</p>
+          <p className="text-center text-muted text-sm py-lg">More artists announced soon</p>
         </div>
       )}
     </div>
