@@ -155,10 +155,10 @@ export const fetchSimArtistJournal = (simulationId: string, artistId: string) =>
   ).then(r => r.entries);
 
 export const fetchWorldMap = () =>
-  apiFetch<WorldMapResponse>('/slopbop/world/map').then(r => r.locations);
+  apiFetch<WorldMapResponse>('/slopbop/sim/world/map').then(r => r.locations);
 
 export const fetchWorldItems = () =>
-  apiFetch<WorldItemsResponse>('/slopbop/world/items').then(r => r.items);
+  apiFetch<WorldItemsResponse>('/slopbop/sim/world/items').then(r => r.items);
 
 // Today's date ("YYYY-MM-DD") as it reads on a wall clock in `timezone`.
 export function todayInTz(timezone: string): string {

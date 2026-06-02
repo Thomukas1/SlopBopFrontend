@@ -152,8 +152,8 @@ All calls go through `apiFetch()` in `src/services/slopbop/client.ts` with base 
 | Current sim | GET | `/slopbop/sim/current` | `slopbop/sim` |
 | Artist notes | GET | `/slopbop/sim/:simId/artist/:artistId/notes` | `slopbop/sim` |
 | Artist journal | GET | `/slopbop/sim/:simId/artist/:artistId/journal` | `slopbop/sim` |
-| World map | GET | `/slopbop/world/map` | `slopbop/sim` |
-| World items | GET | `/slopbop/world/items` | `slopbop/sim` |
+| World map | GET | `/slopbop/sim/world/map` | `slopbop/sim` |
+| World items | GET | `/slopbop/sim/world/items` | `slopbop/sim` |
 | Admin check | POST | `/slopbop/admin/check` | `slopbop/admin` |
 | Verification challenge | POST | `/slopbop/verification/challenge` | `slopbop/verification` |
 

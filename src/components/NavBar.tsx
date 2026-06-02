@@ -6,6 +6,7 @@ const TABS: Tab[] = [
   { path: '/', emoji: '🗺️', label: 'Map' },
   { path: '/roster', emoji: '🎭', label: 'Roster' },
   { path: '/about', emoji: '🎪', label: 'About' },
+  { path: '/apply', emoji: '🎙️', label: 'Apply' },
 ];
 
 export function NavBar() {
