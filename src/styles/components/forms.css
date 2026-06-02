@@ -27,6 +27,20 @@ label.required::after {
   color: var(--color-error);
 }
 
+/* Muted inline hint inside a label, e.g. "Email (optional)" */
+.field-label-hint {
+  color: var(--text-muted);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Prominent label — the label is the focus (a question or statement) */
+.field-label--lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--heading-h2-line-height);
+  color: var(--text-primary);
+}
+
 /* Input Base */
 input,
 textarea,
@@ -213,6 +227,181 @@ select {
 
 select:hover:not(:disabled) {
   border-color: var(--brand);
+}
+
+/* Input with a fixed prefix/affix (e.g. "@" for a handle) — the wrapper looks
+   like the field; the inner input is borderless and transparent. */
+.input-affix {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  overflow: hidden;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.input-affix:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(17, 60, 178, 0.15);
+}
+
+.input-affix.error {
+  border-color: var(--color-error);
+  background: rgba(232, 52, 74, 0.05);
+}
+
+.input-affix__prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  color: var(--text-muted);
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-right: 1px solid var(--border-color);
+  user-select: none;
+}
+
+.input-affix input {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.input-affix input:focus {
+  box-shadow: none;
+}
+
+/* Form Section — a filled panel grouping a set of fields into a visual phase */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.form-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-section__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.form-section__desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.form-section__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Step navigator — numbered buttons; active is highlighted, complete is green */
+.step-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.step-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.step-nav__btn:hover:not(.is-active) {
+  border-color: var(--brand);
+}
+
+/* Completed — green fill */
+.step-nav__btn.is-complete {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-alt);
+}
+
+/* Active but not yet complete — brand fill */
+.step-nav__btn.is-active:not(.is-complete) {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--white);
+}
+
+/* Active — ring on top of whatever fill it has */
+.step-nav__btn.is-active {
+  box-shadow: 0 0 0 3px rgba(17, 60, 178, 0.35);
+}
+
+/* Multi-select — removable pills + an "add" picker */
+.multiselect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.multiselect__pills {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-md);
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-alt);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.pill__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(5, 22, 72, 0.2);
+  color: var(--text-alt);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.pill__remove:hover {
+  background: rgba(5, 22, 72, 0.4);
 }
 
 /* Responsive */

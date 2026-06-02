@@ -11,7 +11,10 @@ export interface FormConfig {
     loves: string[];
   };
   zodiac: string[];   // 12 signs for the dropdown
-  genres: string[];   // genre options for the multi-select
+  genres: {           // multi-select options + how many may be picked
+    max_select: number;
+    options: string[];
+  };
 }
 
 // One filled-in audition answer. `question` is the full text that was asked

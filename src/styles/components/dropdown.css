@@ -47,6 +47,22 @@
   color: var(--text-secondary);
 }
 
+/* Selected value (+ optional emoji) on the left of the trigger */
+.dropdown-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dropdown-emoji {
+  flex-shrink: 0;
+  line-height: 1;
+}
+
 .dropdown-caret {
   flex-shrink: 0;
   margin-left: var(--space-md);
@@ -78,7 +94,12 @@
 }
 
 .dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-md);
   width: 100%;
+  text-align: left;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-sm);
   background: transparent;

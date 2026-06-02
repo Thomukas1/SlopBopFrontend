@@ -12,6 +12,8 @@ interface TextAreaFieldProps {
   error?: string;
   help?: string;
   placeholder?: string;
+  // Render the question/label as a prominent prompt (see Field.largeLabel).
+  largeLabel?: boolean;
 }
 
 // Labeled multi-line text input. `maxLength` is enforced by the browser.
@@ -25,10 +27,11 @@ export function TextAreaField({
   error,
   help,
   placeholder,
+  largeLabel,
 }: TextAreaFieldProps) {
   const id = useId();
   return (
-    <Field label={label} htmlFor={id} required={required} error={error} help={help}>
+    <Field label={label} htmlFor={id} required={required} error={error} help={help} largeLabel={largeLabel}>
       <textarea
         id={id}
         value={value}

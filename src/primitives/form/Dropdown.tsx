@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
+export interface DropdownOption {
+  value: string;
+  // Optional leading visual (e.g. a zodiac emoji). Omit for plain dropdowns.
+  emoji?: string;
+}
+
+// Options can be plain strings (no visual) or objects carrying an emoji.
+type DropdownItem = string | DropdownOption;
+
 interface DropdownProps {
-  options: string[];
+  options: DropdownItem[];
   // `null` when nothing is selected — the placeholder shows instead.
   value: string | null;
   onChange: (value: string) => void;
@@ -9,6 +18,9 @@ interface DropdownProps {
   error?: boolean;
   id?: string;
 }
+
+const normalize = (option: DropdownItem): DropdownOption =>
+  typeof option === 'string' ? { value: option } : option;
 
 // Custom single-select dropdown with a height-capped, scrollable options panel
 // — a native <select> popup can't be sized/scrolled this way. Closes on
@@ -42,6 +54,9 @@ export function Dropdown({
     };
   }, [open]);
 
+  const items = options.map(normalize);
+  const selected = items.find(item => item.value === value) ?? null;
+
   const select = (option: string) => {
     onChange(option);
     setOpen(false);
@@ -57,22 +72,26 @@ export function Dropdown({
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
       >
-        <span>{value ?? placeholder}</span>
+        <span className="dropdown-value">
+          {selected?.emoji && <span className="dropdown-emoji" aria-hidden="true">{selected.emoji}</span>}
+          <span>{selected?.value ?? placeholder}</span>
+        </span>
         <span className="dropdown-caret" aria-hidden="true">▾</span>
       </button>
 
       {open && (
         <div className="dropdown-panel" role="listbox">
-          {options.map(option => (
+          {items.map(item => (
             <button
-              key={option}
+              key={item.value}
               type="button"
               role="option"
-              aria-selected={value === option}
-              className={`dropdown-option${value === option ? ' selected' : ''}`}
-              onClick={() => select(option)}
+              aria-selected={value === item.value}
+              className={`dropdown-option${value === item.value ? ' selected' : ''}`}
+              onClick={() => select(item.value)}
             >
-              {option}
+              {item.emoji && <span className="dropdown-emoji" aria-hidden="true">{item.emoji}</span>}
+              <span>{item.value}</span>
             </button>
           ))}
         </div>
