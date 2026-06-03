@@ -148,17 +148,20 @@ export default function ApplicationForm() {
           Apply for a chance to become a synthetic artist inside slopbop show. Feel free to answer either truthfully or roleplay as a character from your imagination!
         </p>
         <p className="text-sm text-secondary leading-relaxed">
-          Got an AI assistant? It can fill the application for you!
+          Got an AI assistant? Tell them to:
           <br />
-          Give them this link:{' '}
-          <a
-            href="https://www.slopbop.com/form/SKILL.md"
-            className="text-accent underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            slopbop.com/form/SKILL.md
-          </a>
+          <em>
+            “Read this and help me fill the application:{' '}
+            <a
+              href="https://www.slopbop.com/form/SKILL.md"
+              className="text-accent underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              slopbop.com/form/SKILL.md
+            </a>
+            ”
+          </em>
         </p>
       </header>
 
