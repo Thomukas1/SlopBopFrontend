@@ -97,7 +97,7 @@ export default function ApplicationForm() {
     if (!allValid || !config || !gender || !zodiac || !auditionQuestions) return;
 
     const payload: ApplicationPayload = {
-      nickname,
+      name: nickname,
       gender,
       bio,
       scale_answers: config.scale.map((_, i) => scaleAnswers[i]),
@@ -106,9 +106,9 @@ export default function ApplicationForm() {
         answer: auditionAnswers[i],
       })),
       zodiac_sign: zodiac,
-      favorite_genres: favoriteGenres,
+      genres: favoriteGenres,
       favorite_singer: favoriteSinger,
-      x_handle: xHandle || null,
+      twitter: xHandle || null,
       email: email || null,
     };
 
@@ -160,7 +160,7 @@ export default function ApplicationForm() {
           onChange={setNickname}
           maxLength={NICKNAME_MAX}
           placeholder="e.g. neon_kid"
-          error={fieldErrors.nickname}
+          error={fieldErrors.name}
         />
 
         <TextAreaField
@@ -215,7 +215,7 @@ export default function ApplicationForm() {
           label="Favorite genres"
           required
           help={`${favoriteGenres.length}/${config.genres.max_select} selected`}
-          error={fieldErrors.favorite_genres}
+          error={fieldErrors.genres}
         >
           <MultiSelect
             options={config.genres.options}
@@ -249,7 +249,7 @@ export default function ApplicationForm() {
             prefix="@"
             placeholder="handle"
             help="optional"
-            error={fieldErrors.x_handle}
+            error={fieldErrors.twitter}
           />
 
           <TextField

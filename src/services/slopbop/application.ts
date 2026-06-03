@@ -27,22 +27,22 @@ export interface AuditionAnswer {
 // Everything the form collects. Wire format is snake_case; the backend is the
 // trust boundary, so these mirror its validation rules in the comments only.
 export interface ApplicationPayload {
-  nickname: string;            // 1–32 chars, [a-zA-Z0-9_-] only
+  name: string;                // 1–32 chars, [a-zA-Z0-9_-] only
   gender: 'male' | 'female';
   bio: string;                 // 1–140 chars
   scale_answers: number[];     // exactly config.scale.length ints, each 1–5, in source order
   audition_answers: AuditionAnswer[]; // exactly 4
   zodiac_sign: string;         // one of config.zodiac
-  favorite_genres: string[];   // exactly 3 distinct, each from config.genres
+  genres: string[];            // exactly 3 distinct, each from config.genres
   favorite_singer: string;     // 1–32 chars
-  x_handle?: string | null;    // optional; leading @ stripped server-side; [a-zA-Z0-9_], <=32
+  twitter?: string | null;     // optional; leading @ stripped server-side; [a-zA-Z0-9_], <=32
   email?: string | null;       // optional; standard email, <=100
 }
 
 // Returned on a successful 201. `archetype` is the derived personality result —
 // show it on the thank-you screen. `scale_answers` are never returned.
 export interface ApplicationResult {
-  nickname: string;
+  name: string;
   archetype: string;
 }
 
