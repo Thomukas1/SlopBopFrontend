@@ -27,8 +27,8 @@ export function AuditionSection({
 
   return (
     <FormSection
-      title="Audition"
-      description="Answer each question in your own words. Tap a number to switch."
+      title="Open Questions"
+      description="Answer each question in your own words. This will strongly affect artist's personality"
       error={error}
     >
       <TextAreaField

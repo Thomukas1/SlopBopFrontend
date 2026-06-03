@@ -126,8 +126,14 @@ textarea.light::placeholder {
 .field-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   width: 100%;
+}
+
+/* Spacing between label and control is the flex gap above; drop the label's
+   own margin so the two don't stack into one large gap. */
+.field-wrapper label {
+  margin-bottom: 0;
 }
 
 .field-wrapper--inline {
@@ -352,6 +358,144 @@ select:hover:not(:disabled) {
 /* Active — ring on top of whatever fill it has */
 .step-nav__btn.is-active {
   box-shadow: 0 0 0 3px rgba(17, 60, 178, 0.35);
+}
+
+/* Likert — rapid-fire 1–5 rating, one statement at a time */
+.likert {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.likert__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.likert__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--track-bg);
+  overflow: hidden;
+}
+
+.likert__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width var(--transition-base);
+}
+
+.likert__count {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.likert__progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.likert__statement {
+  /* Reserve height so the layout doesn't jump between statements of differing
+     length as they auto-advance. */
+  min-height: 3.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--heading-h2-line-height);
+  text-align: center;
+}
+
+.likert__scale {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Colored agreement circles — unfilled with a colored border; fill + flash on
+   select. The diverging scale runs deep red → yellow → deep green. */
+.likert__opt {
+  --opt-color: var(--border-color);
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 3px solid var(--opt-color);
+  border-radius: var(--radius-full);
+  /* Faint tint of the circle's own color so it reads as "unfilled" without
+     blending into the section background. */
+  background: color-mix(in srgb, var(--opt-color) 18%, transparent);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.likert__opt--1 { --opt-color: #E8344A; } /* deep red — strongly disagree */
+.likert__opt--2 { --opt-color: #F2803E; } /* orange */
+.likert__opt--3 { --opt-color: #F5C518; } /* yellow — neutral */
+.likert__opt--4 { --opt-color: #8FC93A; } /* yellow-green */
+.likert__opt--5 { --opt-color: #2E9E5B; } /* deep green — strongly agree */
+
+.likert__opt:hover:not(.is-selected) {
+  transform: scale(1.08);
+}
+
+.likert__opt.is-selected {
+  background: var(--opt-color);
+  animation: likertPop 200ms ease;
+}
+
+@keyframes likertPop {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 var(--opt-color); }
+  50%  { transform: scale(1.2); box-shadow: 0 0 16px 2px var(--opt-color); }
+  100% { transform: scale(1.06); box-shadow: 0 0 0 0 transparent; }
+}
+
+.likert__anchors {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* Completed state — replaces the question/scale/progress once all answered */
+.likert__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl) 0;
+  text-align: center;
+}
+
+.likert__done-text {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  color: var(--accent);
+}
+
+.likert__reset {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: opacity var(--transition-base);
+}
+
+.likert__reset:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.likert__reset:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Multi-select — removable pills + an "add" picker */

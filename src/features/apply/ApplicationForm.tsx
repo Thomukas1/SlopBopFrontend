@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Field,
+  FormSection,
   TextField,
   TextAreaField,
   ButtonGroup,
@@ -9,6 +10,7 @@ import {
   type ButtonGroupOption,
 } from '../../primitives/form';
 import { AuditionSection } from './AuditionSection';
+import { LikertSection } from './LikertSection';
 import { toZodiacOptions } from './zodiac';
 import { useFormConfig } from '../../hooks/useFormConfig';
 import { useSubmitApplication } from '../../hooks/useSubmitApplication';
@@ -23,8 +25,9 @@ const AUDITION_MAX = 300;
 const X_HANDLE_MAX = 32;
 const EMAIL_MAX = 100;
 
-// Allowed-character / format rules, mirroring the backend.
-const NICKNAME_RE = /^[a-zA-Z0-9_-]+$/;
+// Allowed-character / format rules, mirroring the backend. Nickname is a stage
+// name, so spaces are allowed (the backend trims leading/trailing).
+const NICKNAME_RE = /^[a-zA-Z0-9 _-]+$/;
 const X_HANDLE_RE = /^[a-zA-Z0-9_]+$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,7 +40,7 @@ const GENDER_OPTIONS: ButtonGroupOption<Gender>[] = [
 
 export default function ApplicationForm() {
   const { config, loading, error } = useFormConfig();
-  const { submit, submitting, fieldErrors } = useSubmitApplication();
+  const { submit, submitting, fieldErrors, result } = useSubmitApplication();
   const { showToast } = useToast();
 
   const [nickname, setNickname] = useState('');
@@ -49,6 +52,7 @@ export default function ApplicationForm() {
   const [favoriteGenres, setFavoriteGenres] = useState<string[]>([]);
   const [xHandle, setXHandle] = useState('');
   const [email, setEmail] = useState('');
+  const [scaleAnswers, setScaleAnswers] = useState<Record<number, number>>({});
 
   // One random question per bucket, picked once config is in hand and held for
   // the form's lifetime (re-rolls only on remount, which is expected).
@@ -59,6 +63,10 @@ export default function ApplicationForm() {
 
   const setAnswer = (index: number, value: string) =>
     setAuditionAnswers(prev => prev.map((a, i) => (i === index ? value : a)));
+
+  const setScaleAnswer = (index: number, value: number) =>
+    setScaleAnswers(prev => ({ ...prev, [index]: value }));
+  const resetScale = () => setScaleAnswers({});
 
   // Per-field validity. Optional fields are valid when blank; a non-blank but
   // malformed optional field is invalid and blocks submission.
@@ -75,21 +83,24 @@ export default function ApplicationForm() {
   const auditionValid = !!auditionQuestions && auditionComplete.every(Boolean);
   const xHandleValid = xHandle === '' || (xHandle.length <= X_HANDLE_MAX && X_HANDLE_RE.test(xHandle));
   const emailValid = email === '' || (email.length <= EMAIL_MAX && EMAIL_RE.test(email));
+  // Every statement answered with a 1–5 value.
+  const scaleValid = !!config && config.scale.every((_, i) => {
+    const v = scaleAnswers[i];
+    return v >= 1 && v <= 5;
+  });
 
   const allValid =
     nicknameValid && bioValid && genderValid && zodiacValid &&
-    singerValid && genresValid && auditionValid && xHandleValid && emailValid;
+    singerValid && genresValid && scaleValid && auditionValid && xHandleValid && emailValid;
 
   async function handleApply() {
-    if (!allValid || !gender || !zodiac || !auditionQuestions) return;
+    if (!allValid || !config || !gender || !zodiac || !auditionQuestions) return;
 
-    // The form still omits some required tiers (scale, genres); they're sent
-    // empty and the backend's 400 will flag them.
     const payload: ApplicationPayload = {
       nickname,
       gender,
       bio,
-      scale_answers: [],
+      scale_answers: config.scale.map((_, i) => scaleAnswers[i]),
       audition_answers: auditionQuestions.map((question, i) => ({
         question,
         answer: auditionAnswers[i],
@@ -103,14 +114,26 @@ export default function ApplicationForm() {
 
     try {
       const outcome = await submit(payload);
-      if (outcome.ok) {
-        showToast(`Welcome, ${outcome.data.nickname} — ${outcome.data.archetype}!`, 'success');
-      } else {
-        showToast('Some fields need work — more steps coming soon.', 'warning');
+      // On success the hook's `result` flips us to the thank-you screen below.
+      if (!outcome.ok) {
+        showToast('Please fix the highlighted fields and try again.', 'warning');
       }
     } catch {
       showToast('Something went wrong. Please try again.');
     }
+  }
+
+  if (result) {
+    return (
+      <div className="flex flex-col items-center gap-lg py-4xl px-md text-center">
+        <img src="/Branding/cds_thankyou.png" alt="Thank you" className="w-full" />
+        <p className="text-base leading-relaxed">
+          Thanks for taking the time to apply.
+          <br />
+          Hope to see you come to life as an artist in the SlopBop show!
+        </p>
+      </div>
+    );
   }
 
   if (loading) {
@@ -123,10 +146,9 @@ export default function ApplicationForm() {
   return (
     <div className="flex flex-col gap-xl py-lg px-md">
       <header className="flex flex-col gap-sm">
-        <h1 className="font-display text-xl">Become an Artist</h1>
+        <h1 className="font-display text-xl">Application Form</h1>
         <p className="text-sm text-secondary leading-relaxed">
-          Apply to join the simulation. Fill in your details and we'll see what
-          kind of artist you'd be.
+          Apply for a chance to become a synthetic artist inside slopbop show. Feel free to answer either truthfully or roleplay as a character from your imagination!
         </p>
       </header>
 
@@ -171,13 +193,21 @@ export default function ApplicationForm() {
           />
         </Field>
 
+        <LikertSection
+          statements={config.scale}
+          answers={scaleAnswers}
+          onAnswer={setScaleAnswer}
+          onReset={resetScale}
+          error={fieldErrors.scale_answers}
+        />
+
         <TextField
           label="Favorite artist"
           required
           value={favoriteSinger}
           onChange={setFavoriteSinger}
           maxLength={SINGER_MAX}
-          placeholder="e.g. Björk"
+          placeholder="e.g. Kanye West"
           error={fieldErrors.favorite_singer}
         />
 
@@ -207,27 +237,32 @@ export default function ApplicationForm() {
           />
         )}
 
-        <TextField
-          label="X handle"
-          value={xHandle}
-          onChange={value => setXHandle(value.replace(/^@+/, ''))}
-          maxLength={X_HANDLE_MAX}
-          prefix="@"
-          placeholder="handle"
-          help="optional"
-          error={fieldErrors.x_handle}
-        />
+        <FormSection
+          title="Contacts"
+          description="Please provide your contact to be notified in case your application was selected."
+        >
+          <TextField
+            label="X handle"
+            value={xHandle}
+            onChange={value => setXHandle(value.replace(/^@+/, ''))}
+            maxLength={X_HANDLE_MAX}
+            prefix="@"
+            placeholder="handle"
+            help="optional"
+            error={fieldErrors.x_handle}
+          />
 
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={setEmail}
-          maxLength={EMAIL_MAX}
-          placeholder="you@example.com"
-          help="optional"
-          error={fieldErrors.email}
-        />
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            maxLength={EMAIL_MAX}
+            placeholder="you@example.com"
+            help="optional"
+            error={fieldErrors.email}
+          />
+        </FormSection>
 
         <button
           type="button"
