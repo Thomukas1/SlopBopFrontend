@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Field,
   FormSection,
@@ -15,7 +15,7 @@ import { toZodiacOptions } from './zodiac';
 import { useFormConfig } from '../../hooks/useFormConfig';
 import { useSubmitApplication } from '../../hooks/useSubmitApplication';
 import { useToast } from '../../context/ToastContext';
-import { pickAuditionQuestions, type ApplicationPayload } from '../../services/slopbop';
+import { type ApplicationPayload } from '../../services/slopbop';
 
 // Field length caps, mirroring the backend's validation rules.
 const NICKNAME_MAX = 32;
@@ -54,12 +54,9 @@ export default function ApplicationForm() {
   const [email, setEmail] = useState('');
   const [scaleAnswers, setScaleAnswers] = useState<Record<number, number>>({});
 
-  // One random question per bucket, picked once config is in hand and held for
-  // the form's lifetime (re-rolls only on remount, which is expected).
-  const auditionQuestions = useMemo(
-    () => (config ? pickAuditionQuestions(config.questions) : null),
-    [config],
-  );
+  // The 4 audition questions (one per bucket) come pre-randomized from the
+  // backend; just answer them in order.
+  const auditionQuestions = config?.open_questions ?? null;
 
   const setAnswer = (index: number, value: string) =>
     setAuditionAnswers(prev => prev.map((a, i) => (i === index ? value : a)));
@@ -149,6 +146,17 @@ export default function ApplicationForm() {
         <h1 className="font-display text-xl">Application Form</h1>
         <p className="text-sm text-secondary leading-relaxed">
           Apply for a chance to become a synthetic artist inside slopbop show. Feel free to answer either truthfully or roleplay as a character from your imagination!
+        </p>
+        <p className="text-sm text-secondary leading-relaxed">
+          Got an AI assistant? It can fill this in for you — just give it this link:{' '}
+          <a
+            href="https://www.slopbop.com/form/SKILL.md"
+            className="text-accent underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            slopbop.com/form/SKILL.md
+          </a>
         </p>
       </header>
 

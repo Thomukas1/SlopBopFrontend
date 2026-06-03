@@ -3,15 +3,10 @@ import { API_URL, apiFetch } from './client';
 // Static form data, served from memory by the backend. Fetch once on mount and
 // cache — Tiers 2–4 are rendered entirely from this.
 export interface FormConfig {
-  scale: string[];    // Likert statements, in source order (weights are server-side only)
-  questions: {        // audition buckets — pick one question from each
-    self: string[];
-    past: string[];
-    others: string[];
-    loves: string[];
-  };
-  zodiac: string[];   // 12 signs for the dropdown
-  genres: {           // multi-select options + how many may be picked
+  scale: string[];          // Likert statements, in source order (weights are server-side only)
+  open_questions: string[]; // exactly 4 audition questions, one randomized per bucket server-side
+  zodiac: string[];         // 12 signs for the dropdown
+  genres: {                 // multi-select options + how many may be picked
     max_select: number;
     options: string[];
   };
@@ -72,13 +67,4 @@ export async function submitApplication(
     return { ok: false, errors: (data.errors ?? {}) as Record<string, string> };
   }
   throw new Error(data.error || 'Submit failed');
-}
-
-const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-
-// One random question from each of the 4 audition buckets, in fixed order.
-// Hold the result in state for the form's lifetime and submit each as the
-// `question` field of an audition answer. Re-rolling on revisit is expected.
-export function pickAuditionQuestions(q: FormConfig['questions']): string[] {
-  return [pick(q.self), pick(q.past), pick(q.others), pick(q.loves)];
 }
