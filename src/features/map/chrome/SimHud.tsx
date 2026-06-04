@@ -1,5 +1,5 @@
-import { useSim } from '../../context/SimContext';
-import { isSimLive } from '../../services/slopbop';
+import { useSim } from '../../../context/SimContext';
+import { isSimLive } from '../../../services/slopbop';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

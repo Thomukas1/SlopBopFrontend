@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BottomSheet } from '../../primitives/BottomSheet';
-import { useSim } from '../../context/SimContext';
-import { Artist } from '../../services/slopbop';
+import { BottomSheet } from '../../../primitives/BottomSheet';
+import { useSim } from '../../../context/SimContext';
+import { Artist } from '../../../services/slopbop';
 import { ArtistStatus } from './ArtistStatus';
 import { ArtistBars } from './ArtistBars';
 import { ArtistJournal } from './ArtistJournal';

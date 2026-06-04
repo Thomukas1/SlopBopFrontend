@@ -1,28 +1,23 @@
-import { Location } from '../../services/slopbop';
-import { tileToPixel, WorldBounds } from './grid';
+import { Location } from '../../../services/slopbop';
 
-// A location pinned on the world board: an icon with its name underneath —
-// the Shadows-Over-Loathing look. When occupied, a small overlay sits above
-// the icon (mirroring the name label below). Tapping opens its panel.
+// A location's on-board face: an icon with its name underneath — the
+// Shadows-Over-Loathing look. When occupied, a small overlay sits above the
+// icon (mirroring the name label below). Tapping opens its panel. Positioning
+// is the <Sprite> wrapper's job; this is pure presentation.
 export function LocationIcon({
   location,
-  bounds,
   occupantCount,
   onClick,
 }: {
   location: Location;
-  bounds: WorldBounds;
   occupantCount: number;
   onClick: () => void;
 }) {
-  const { left, top } = tileToPixel(location.position, bounds);
-
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{ left, top }}
-      className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center active:opacity-70"
+      className="flex flex-col items-center active:opacity-70"
     >
       {/* Top overlay: someone is standing here. The slot is always reserved
           (invisible when empty) so the icon doesn't shift between states. */}

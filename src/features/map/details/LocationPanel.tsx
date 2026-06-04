@@ -1,5 +1,5 @@
-import { Modal } from '../../primitives/Modal';
-import { Artist, Location } from '../../services/slopbop';
+import { Modal } from '../../../primitives/Modal';
+import { Artist, Location } from '../../../services/slopbop';
 
 // One artist at a location: a compact clickable strip — icon on the left,
 // name beside it — that opens their bottom sheet.

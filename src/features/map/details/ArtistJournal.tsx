@@ -1,7 +1,7 @@
-import { useSimArtistJournal } from '../../hooks/useSimArtistJournal';
-import { useWorldMap } from '../../hooks/useWorldMap';
-import { useWorldItems } from '../../hooks/useWorldItems';
-import { ItemCatalogue, JournalEntry, Location } from '../../services/slopbop';
+import { useSimArtistJournal } from '../../../hooks/useSimArtistJournal';
+import { useWorldMap } from '../../../hooks/useWorldMap';
+import { useWorldItems } from '../../../hooks/useWorldItems';
+import { ItemCatalogue, JournalEntry, Location } from '../../../services/slopbop';
 
 interface Props {
   simulationId: string;

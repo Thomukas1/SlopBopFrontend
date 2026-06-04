@@ -1,6 +1,11 @@
-import { TILE_SIZE, GRIDLINE_OPACITY } from './grid';
+import { Camera } from './camera';
 
-export function GridLines() {
+// Development aid: draws the tile grid over the board so you can check that
+// icons line up with the background art. 0.0 = hidden, 1.0 = fully opaque.
+// Set to 0 once the art lines up.
+const GRIDLINE_OPACITY = 0.3;
+
+export function GridLines({ camera }: { camera: Camera }) {
   if (GRIDLINE_OPACITY <= 0) return null;
 
   return (
@@ -15,7 +20,7 @@ export function GridLines() {
           backgroundImage:
             'linear-gradient(to right, #fff 1px, transparent 1px), ' +
             'linear-gradient(to bottom, #fff 1px, transparent 1px)',
-          backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`,
+          backgroundSize: `${camera.tileSize}px ${camera.tileSize}px`,
         }}
       />
     </div>

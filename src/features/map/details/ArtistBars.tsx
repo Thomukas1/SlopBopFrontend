@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { useSimArtistNotes } from '../../hooks/useSimArtistNotes';
+import { useSimArtistNotes } from '../../../hooks/useSimArtistNotes';
 
 interface Props {
   simulationId: string;

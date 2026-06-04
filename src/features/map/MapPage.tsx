@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Artist, Location } from '../../services/slopbop';
-import { WorldBoard } from './WorldBoard';
-import { LocationPanel } from './LocationPanel';
-import { ArtistSheet } from './ArtistSheet';
-import { SimHud } from './SimHud';
-import { WelcomeModal, useWelcomeModal } from './WelcomeModal';
+import { WorldBoard } from './board/WorldBoard';
+import { LocationPanel } from './details/LocationPanel';
+import { ArtistSheet } from './details/ArtistSheet';
+import { SimHud } from './chrome/SimHud';
+import { WelcomeModal, useWelcomeModal } from './chrome/WelcomeModal';
 
 export default function MapPage() {
   const { open: welcomeOpen, dismiss: dismissWelcome, reopen: reopenWelcome } = useWelcomeModal();
