@@ -16,6 +16,8 @@
 @import './components/spinners.css';
 @import './components/stat-bar.css';
 @import './components/toast.css';
+@import './components/music-player.css';
+@import './components/bop-meter.css';
 
 /* Tailwind CSS */
 @tailwind base;

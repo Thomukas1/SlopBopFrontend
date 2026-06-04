@@ -64,17 +64,28 @@ Song visibility is gated by `release_date <= sim.sim_time`, using lexicographic 
 
 ---
 
+## The Application Form
+
+`/apply` is the audience's way *into* the show — a form to audition as a contestant for a future season. With song voting, it's one of only two surfaces that write rather than read.
+
+The form's content — the personality questions, the audition prompts, the option lists — is **served by the backend**, not hardcoded here. The frontend fetches a config once and renders the form's tiers from it, so the question bank changes without a frontend deploy. On submit, the backend is the trust boundary: it validates, derives the applicant's archetype, and returns it for a thank-you screen. The frontend mirrors the validation rules for instant feedback, but they're owned server-side.
+
+This is the front of the casting funnel. Everything downstream of a validated submission — screening, selection, turning a chosen application into a simulation artist — happens off the frontend entirely.
+
+---
+
 ## Routing
 
 ```
 /                  MapPage         — simulation home, world map
 /roster            RosterPage      — artist directory + top-rated song per artist
 /about             AboutPage       — project explainer
+/apply             ApplicationForm — audition form to join a future season
 /artists/:id       ArtistProfile   — static profile + discography
 /collections/:id   CollectionPage  — album/EP tracklist
 ```
 
-No simulation data appears on `/roster`, `/artists/:id`, or `/collections/:id`. Those routes are purely static.
+No simulation data appears on `/roster`, `/artists/:id`, `/collections/:id`, or `/apply`. Those routes are purely static (or, for `/apply`, write-only).
 
 ---
 
@@ -89,3 +100,5 @@ No simulation data appears on `/roster`, `/artists/:id`, or `/collections/:id`. 
 **No time-scrubbing UI yet.** The backend supports `GET /sim?at=` for arbitrary cutoffs, but the frontend always uses `/sim/current`. Time scrubbing is a future feature.
 
 **Pan/zoom deferred.** The map uses a CSS fit-scale (`grid.ts` → `computeBounds`) to make the whole world visible at once. Future pan/zoom would start from this as the default zoom level.
+
+**Styling is a token-driven hybrid.** Tailwind utilities for the everyday (layout, spacing, one-offs); central CSS under `src/styles/` for animations and reusable components with real visual identity, all reading the same design tokens in `theme.css` so a retheme is a palette swap. The operational "which do I use when" rule lives in `CLAUDE.md`; the decision here is that both exist on purpose and share one token source — they are not two competing systems.

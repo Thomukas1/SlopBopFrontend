@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import BopMeter from './BopMeter';
-import './music-player.css';
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);

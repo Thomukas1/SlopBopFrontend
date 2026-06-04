@@ -1,26 +1,14 @@
-import { useState, useEffect } from 'react';
-import { fetchWorldMap, WorldMap } from '../services/slopbop';
+import { fetchWorldMap } from '../services/slopbop';
 import { useToast } from '../context/ToastContext';
+import { useResource } from './useResource';
 
-let cachedMap: WorldMap | null = null;
-let inflight: Promise<WorldMap> | null = null;
-
+// The world map is static for a season — fetch once, cached + in-flight-deduped
+// by useResource's cache mode.
 export function useWorldMap() {
   const { showToast } = useToast();
-  const [map, setMap] = useState<WorldMap | null>(cachedMap);
-  const [loading, setLoading] = useState(!cachedMap);
-
-  useEffect(() => {
-    if (cachedMap) return;
-    if (!inflight) inflight = fetchWorldMap();
-    inflight
-      .then(result => {
-        cachedMap = result;
-        setMap(result);
-      })
-      .catch(() => showToast('Failed to load world map'))
-      .finally(() => setLoading(false));
-  }, []);
-
+  const { data: map, loading } = useResource(fetchWorldMap, 'world-map', {
+    cache: true,
+    onError: () => showToast('Failed to load world map'),
+  });
   return { map, loading };
 }
