@@ -1,15 +1,44 @@
+/* Layered track: a thin unplayed rail with a thicker "played" bar on top,
+   and a transparent native range input over it for interaction. */
+.music-player-progress {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+/* unplayed rail — thin */
+.music-player-progress::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bg-surface);
+}
+
+/* played portion — thicker */
+.music-player-progress::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: var(--progress, 0%);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--white);
+}
+
 .music-player-slider {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   -webkit-appearance: none;
   appearance: none;
-  height: 4px;
-  border-radius: 2px;
-  background: linear-gradient(
-    to right,
-    var(--white) 0%,
-    var(--white) var(--progress, 0%),
-    var(--bg-surface) var(--progress, 0%),
-    var(--bg-surface) 100%
-  );
+  background: transparent;
   outline: none;
   cursor: pointer;
 }

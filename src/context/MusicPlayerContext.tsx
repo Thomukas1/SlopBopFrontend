@@ -29,6 +29,7 @@ export interface Track {
 interface MusicPlayerContextValue {
   track: Track | null;
   playing: boolean;
+  loading: boolean;
   currentTime: number;
   duration: number;
   expanded: boolean;
@@ -47,6 +48,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -54,30 +56,43 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // Create a persistent audio element
   useEffect(() => {
     const audio = new Audio();
+    audio.preload = 'auto';
     audioRef.current = audio;
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => setDuration(audio.duration);
     const onEnded = () => setPlaying(false);
+    // Buffering / readiness — these drive the loading indicator.
+    const onWaiting = () => setLoading(true);
+    const onPlaying = () => setLoading(false);
+    const onCanPlay = () => setLoading(false);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
     audio.addEventListener('ended', onEnded);
+    audio.addEventListener('waiting', onWaiting);
+    audio.addEventListener('playing', onPlaying);
+    audio.addEventListener('canplay', onCanPlay);
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('waiting', onWaiting);
+      audio.removeEventListener('playing', onPlaying);
+      audio.removeEventListener('canplay', onCanPlay);
       audio.pause();
     };
   }, []);
 
-  // Sync play/pause with audio element
+  // Sync play/pause for toggles on the already-loaded track. The initial
+  // playback is kicked off directly in play() so it stays inside the user
+  // gesture (browsers block deferred autoplay).
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !track) return;
     if (playing) {
-      audio.play();
+      audio.play().catch(() => setPlaying(false));
     } else {
       audio.pause();
     }
@@ -87,12 +102,17 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
     audio.src = t.audioUrl;
-    audio.currentTime = 0;
     setTrack(t);
     setCurrentTime(0);
     setDuration(t.duration ?? 0);
     setPlaying(true);
+    setLoading(true);
     setExpanded(false);
+    // Start within the user gesture so autoplay policy doesn't block it.
+    audio.play().catch(() => {
+      setPlaying(false);
+      setLoading(false);
+    });
   }, []);
 
   const togglePlay = useCallback(() => setPlaying((p) => !p), []);
@@ -120,6 +140,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.currentTime = 0;
     }
     setPlaying(false);
+    setLoading(false);
     setCurrentTime(0);
     setTrack(null);
     setExpanded(false);
@@ -130,6 +151,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       value={{
         track,
         playing,
+        loading,
         currentTime,
         duration,
         expanded,

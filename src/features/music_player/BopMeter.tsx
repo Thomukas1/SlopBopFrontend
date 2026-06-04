@@ -70,10 +70,10 @@ export default function BopMeter() {
             onClick={() => handleVote('slop')}
             className={`flex-1 py-sm rounded-lg font-bold text-sm transition-base cursor-pointer
               ${userVote === 'slop'
-                ? 'bg-danger text-white'
+                ? 'bg-danger text-black'
                 : userVote
                   ? 'bg-surface text-muted cursor-not-allowed'
-                  : 'bg-surface text-danger active:scale-95'
+                  : 'bg-danger text-black active:scale-95'
               }`}
           >
             SLOP 🤮
@@ -87,7 +87,7 @@ export default function BopMeter() {
                 ? 'bg-accent text-black'
                 : userVote
                   ? 'bg-surface text-muted cursor-not-allowed'
-                  : 'bg-surface text-accent active:scale-95'
+                  : 'bg-accent text-black active:scale-95'
               }`}
           >
             BOP 🤩
