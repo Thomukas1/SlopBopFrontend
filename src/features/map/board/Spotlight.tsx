@@ -1,4 +1,4 @@
-import { Camera } from './camera';
+import { Camera } from '../scene';
 
 // Dims everything outside the content region with a huge spread shadow, so the
 // padded board edges fall away into darkness and attention stays on the world.

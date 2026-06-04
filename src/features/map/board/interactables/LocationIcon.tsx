@@ -1,4 +1,4 @@
-import { Location } from '../../../services/slopbop';
+import { Location } from '../../../../services/slopbop';
 
 // A location's on-board face: an icon with its name underneath — the
 // Shadows-Over-Loathing look. When occupied, a small overlay sits above the

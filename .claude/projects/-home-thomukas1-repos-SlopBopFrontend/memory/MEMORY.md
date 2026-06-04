@@ -1,3 +1,3 @@
 # Memory index
 
-- [Map rendering approach](map-rendering-approach.md) — why the map is a DOM scene layer, not Pixi/a game engine
+- [Map feature context](map-feature-context.md) — map architecture lives in src/features/map/_CONTEXT.md; read before map work

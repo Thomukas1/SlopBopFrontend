@@ -1,4 +1,4 @@
-import { Camera, Tile } from './camera';
+import { Camera, Tile } from '../scene';
 
 // The bottom render pass: a textured cell under every tile in the board —
 // content tiles *and* the filler tiles the camera padded in — so the world

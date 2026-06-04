@@ -1,4 +1,4 @@
-import { Artist } from '../../../services/slopbop';
+import { Artist } from '../../../../services/slopbop';
 
 // An agent's on-board face: avatar above a name label. Tapping opens their
 // bottom sheet. Positioning (and the glide when their tile changes) is the

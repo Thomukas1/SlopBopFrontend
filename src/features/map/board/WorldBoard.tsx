@@ -3,9 +3,12 @@ import { useWorldMap } from '../../../hooks/useWorldMap';
 import { useArtists } from '../../../hooks/useArtists';
 import { useSim } from '../../../context/SimContext';
 import { Artist, Location } from '../../../services/slopbop';
-import { Stage, Sprite, useCamera, Tile, GroundLayer, GridLines, Spotlight } from '../scene';
-import { LocationIcon } from './LocationIcon';
-import { AgentMarker } from './AgentMarker';
+import { Stage, Sprite, useCamera, Tile } from '../scene';
+import { GroundLayer } from './GroundLayer';
+import { GridLines } from './GridLines';
+import { Spotlight } from './Spotlight';
+import { LocationIcon } from './interactables/LocationIcon';
+import { AgentMarker } from './interactables/AgentMarker';
 import { terrainBackground } from './terrain';
 
 const tileKey = (t: Tile) => `${t[0]},${t[1]}`;

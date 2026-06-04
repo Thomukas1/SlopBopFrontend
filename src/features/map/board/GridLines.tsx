@@ -1,4 +1,4 @@
-import { Camera } from './camera';
+import { Camera } from '../scene';
 
 // Development aid: draws the tile grid over the board so you can check that
 // icons line up with the background art. 0.0 = hidden, 1.0 = fully opaque.
