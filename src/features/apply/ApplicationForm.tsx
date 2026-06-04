@@ -172,7 +172,6 @@ export default function ApplicationForm() {
           value={nickname}
           onChange={setNickname}
           maxLength={NICKNAME_MAX}
-          placeholder="e.g. neon_kid"
           error={fieldErrors.name}
         />
 
@@ -183,7 +182,7 @@ export default function ApplicationForm() {
           onChange={setBio}
           maxLength={BIO_MAX}
           rows={3}
-          placeholder="A line or two about you."
+          placeholder="Introduce yourself in a sentence or two"
           error={fieldErrors.bio}
         />
 
