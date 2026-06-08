@@ -88,12 +88,9 @@ function EntryRow({
           <div className="text-xs text-muted font-display tabular-nums pt-xs w-12 flex-shrink-0">
             {time}
           </div>
-          <div className="flex flex-col gap-xs flex-1">
-            <div className="text-sm text-white">
-              <span className="mr-1">{emoji}</span>
-              {verb} <span className="text-accent">{titleCaseSnake(entry.target)}</span>
-            </div>
-            <div className="text-sm text-muted italic">"{entry.intent}"</div>
+          <div className="text-sm text-white pt-xs">
+            <span className="mr-1">{emoji}</span>
+            {verb} <span className="text-accent">{titleCaseSnake(entry.target)}</span>
           </div>
         </div>
       );
