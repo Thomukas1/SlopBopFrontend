@@ -1,17 +1,18 @@
 import { useResource } from './useResource';
-import { fetchCollection, Song } from '../services/slopbop';
+import { fetchAlbum, Song } from '../services/slopbop';
 import { useToast } from '../context/ToastContext';
 
-export function useCollection(id: string) {
+export function useAlbum(id: string) {
   const { showToast } = useToast();
   const { data, loading, refetch } = useResource(
-    () => fetchCollection(id),
-    id ? `collection-${id}` : '',
-    { onError: () => showToast('Failed to load collection') },
+    () => fetchAlbum(id),
+    id ? `album-${id}` : '',
+    { onError: () => showToast('Failed to load album') },
   );
   return {
-    collection: data?.collection ?? null,
+    album: data?.album ?? null,
     songs: (data?.songs ?? []) as Song[],
+    requestStatus: data?.requestStatus ?? null,
     loading,
     refetch,
   };

@@ -1,12 +1,12 @@
 import { useResource } from './useResource';
-import { fetchCollections, Collection, CollectionType } from '../services/slopbop';
+import { fetchAlbums, Album } from '../services/slopbop';
 
-export function useCollections(artistId: string, type?: CollectionType) {
+export function useAlbums(artistId: string) {
   const { data, loading } = useResource(
-    () => fetchCollections(artistId, type),
-    artistId ? `collections-${artistId}-${type ?? 'all'}` : '',
+    () => fetchAlbums(artistId),
+    artistId ? `albums-${artistId}` : '',
     { onError: () => {} },
   );
-  const collections: Collection[] = data ?? [];
-  return { collections, loading };
+  const albums: Album[] = data ?? [];
+  return { albums, loading };
 }

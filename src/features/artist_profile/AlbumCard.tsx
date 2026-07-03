@@ -4,7 +4,7 @@ interface Props {
   onClick: () => void;
 }
 
-export default function CollectionCard({ coverUrl, title, onClick }: Props) {
+export default function AlbumCard({ coverUrl, title, onClick }: Props) {
   return (
     <button
       type="button"

@@ -27,7 +27,7 @@ import {
 
 import ArtistProfile from './features/artist_profile/ArtistProfile';
 import { NavBar } from './components/NavBar';
-import CollectionPage from './features/collection/CollectionPage';
+import AlbumPage from './features/album/AlbumPage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
 import RosterPage from './features/roster/RosterPage';
@@ -115,7 +115,7 @@ createRoot(container).render(
                 <Route path="/roster" element={<RosterPage />} />
                 <Route path="/apply" element={<ApplicationForm />} />
                 <Route path="/artists/:id" element={<ArtistProfile />} />
-                <Route path="/collections/:id" element={<CollectionPage />} />
+                <Route path="/albums/:id" element={<AlbumPage />} />
               </Routes>
               <NavBar />
               <MiniPlayer />
