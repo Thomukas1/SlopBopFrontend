@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { isSongReleased } from '../../services/slopbop';
 import { useAlbum } from '../../hooks/useAlbum';
 import { useArtist } from '../../hooks/useArtist';
 import { useSim } from '../../context/SimContext';
@@ -26,13 +27,10 @@ export default function AlbumPage() {
 
   const loading = albumLoading || artistLoading;
 
-  // Same release-gate as Discography: fixed-width "YYYY-MM-DDTHH:MM"
-  // string compare is correct chronological order.
-  const visibleSongs = useMemo(() => {
-    const cutoff = sim?.sim_time;
-    if (!cutoff) return [];
-    return songs.filter(s => s.release_date && s.release_date <= cutoff);
-  }, [songs, sim?.sim_time]);
+  const visibleSongs = useMemo(
+    () => songs.filter(s => isSongReleased(s, sim?.sim_time)),
+    [songs, sim?.sim_time],
+  );
 
   if (loading) {
     return (

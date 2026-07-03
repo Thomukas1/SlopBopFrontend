@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAlbums } from '../../hooks/useAlbums';
 import { useSongs } from '../../hooks/useSongs';
 import { useSim } from '../../context/SimContext';
+import { isSongReleased } from '../../services/slopbop';
 import type { Album, Song } from '../../services/slopbop';
 import AlbumCard from './AlbumCard';
 import SongList from './SongList';
@@ -24,13 +25,8 @@ function useDiscography(artistId: string): { discography: GroupedDiscography; lo
   const { sim } = useSim();
 
   const discography = useMemo<GroupedDiscography>(() => {
-    // `release_date` and `sim.sim_time` are both fixed-width "YYYY-MM-DDTHH:MM"
-    // — lexicographic compare == chronological. Songs without a release_date
-    // are treated as unreleased during the backfill window.
     const cutoff = sim?.sim_time;
-    const visible = cutoff
-      ? songs.filter(s => s.release_date && s.release_date <= cutoff)
-      : [];
+    const visible = songs.filter(s => isSongReleased(s, cutoff));
 
     const songsByAlbum = new Map<string, Song[]>();
     const singles: Song[] = [];

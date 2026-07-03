@@ -27,6 +27,18 @@ export interface Song {
   stats?: SongStats;
 }
 
+/**
+ * Release gate. A song with a `release_date` is sim-scheduled and only becomes
+ * visible once sim time reaches it (fixed-width "YYYY-MM-DDTHH:MM" strings, so
+ * lexicographic compare == chronological). A song with no `release_date` isn't
+ * part of a simulation, so it's always visible like a normal song. `cutoff` is
+ * the current `sim.sim_time` (undefined until the sim heartbeat loads).
+ */
+export function isSongReleased(song: Song, cutoff: string | undefined): boolean {
+  if (!song.release_date) return true;
+  return !!cutoff && song.release_date <= cutoff;
+}
+
 export type VoteType = 'bop' | 'slop';
 
 interface SongsResponse {
