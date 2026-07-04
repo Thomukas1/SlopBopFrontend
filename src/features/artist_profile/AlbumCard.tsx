@@ -1,3 +1,5 @@
+import Img from '../../primitives/Img';
+
 interface Props {
   coverUrl?: string;
   title: string;
@@ -12,10 +14,10 @@ export default function AlbumCard({ coverUrl, title, onClick }: Props) {
       className="flex flex-col rounded-t-lg overflow-hidden text-left cursor-pointer
                  active:scale-95 transition-base"
     >
-      <img
+      <Img
         src={coverUrl || '/Images/default_song_cover.png'}
         alt={title}
-        className="w-full aspect-square object-cover block"
+        className="w-full aspect-square"
       />
       <div className="w-full bg-surface-2 px-sm py-sm">
         <p className="text-sm truncate">{title}</p>

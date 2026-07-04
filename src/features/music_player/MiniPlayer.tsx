@@ -1,4 +1,5 @@
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
+import Img from '../../primitives/Img';
 
 export default function MiniPlayer() {
   const { track, playing, togglePlay, expand, close, expanded } = useMusicPlayer();
@@ -13,10 +14,10 @@ export default function MiniPlayer() {
                  active:opacity-80 transition-base"
       onClick={expand}
     >
-      <img
+      <Img
         src={track.coverUrl || '/Images/default_song_cover.png'}
         alt={track.title}
-        className="w-10 h-10 object-cover rounded-sm flex-shrink-0"
+        className="w-10 h-10 rounded-sm flex-shrink-0"
       />
 
       <span className="text-sm font-medium truncate flex-1 text-alt">{track.title}</span>

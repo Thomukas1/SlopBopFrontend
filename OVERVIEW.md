@@ -64,6 +64,20 @@ Song visibility is gated by `release_date <= sim.sim_time`, using lexicographic 
 
 ---
 
+## Images & Media Loading
+
+Cover art, artist photos, and album images are the heaviest thing the app loads. They live on **Arweave** (a decentralized, permanent store) and are served through the **`turbo-gateway.com`** gateway. Two facts drive the whole strategy: we **can't set response headers** on them (no `Cache-Control`, no server-side resize — it's not our server), and Arweave is **immutable and content-addressed** — a given URL's bytes can *never* change.
+
+The download size itself is fixed at **upload time**, not here. The upload pipeline saves images as 1024×1024 WebP (not 2048 PNG), which is the only place bytes actually get smaller. **The frontend cannot shrink a download** — a browser must fetch the whole file before it can show it. So the frontend solves the two things it *can*: how the wait feels, and never waiting twice.
+
+**Perceived speed — the `Img` primitive (`src/primitives/Img.tsx`).** Every remote image renders through `Img`, not a raw `<img>`. It decodes off-thread (`decoding="async"`) and fades the whole image in at once over a shimmer placeholder — killing the "image reveals slowly from the top" effect on slow connections. It also lazy-loads (offscreen grid/list images don't fetch until scrolled to) and reveals correctly for already-cached images. Styling lives in `src/styles/components/image.css`. It splits classes: `className` sizes the frame (aspect/rounding), `imgClassName` handles object-fit. This is *perceived* speed only — it does not reduce bytes. (It accepts an optional `placeholderSrc` for a true blurred low-res preview, unused today.)
+
+**Never waiting twice — the service worker (`vite.config.ts`, via `vite-plugin-pwa`).** A generated service worker intercepts every `turbo-gateway.com` request and serves it **CacheFirst** from the browser's Cache API. Because Arweave content is immutable, "cache forever, serve from cache" is completely safe — there is no staleness risk, ever — which is exactly why this is worth doing here and would be dangerous against a mutable server. First load hits the network; every load after is instant and offline-capable. This is the decentralized-storage equivalent of the `Cache-Control` header we can't set. It's off during `vite dev` (so it never serves stale assets while developing) and auto-updates on deploy.
+
+**If media storage ever changes**, the only coupling is the `IMAGE_HOST` regex at the top of `vite.config.ts` — point it at the new gateway/host and nothing else changes. The `Img` component and every call site stay identical, because the service worker intercepts at the network layer, below React.
+
+---
+
 ## The Application Form
 
 `/apply` is the audience's way *into* the show — a form to audition as a contestant for a future season. With song voting, it's one of only two surfaces that write rather than read.
@@ -100,5 +114,7 @@ No simulation data appears on `/roster`, `/artists/:id`, `/collections/:id`, or 
 **No time-scrubbing UI yet.** The backend supports `GET /sim?at=` for arbitrary cutoffs, but the frontend always uses `/sim/current`. Time scrubbing is a future feature.
 
 **Pan/zoom deferred.** The map uses a CSS fit-scale (`grid.ts` → `computeBounds`) to make the whole world visible at once. Future pan/zoom would start from this as the default zoom level.
+
+**Media is cached client-side, not server-side.** Images come from Arweave via `turbo-gateway.com`, whose headers we don't control — but its content is immutable, so a CacheFirst service worker (`vite.config.ts`) caches it forever, safely. The `Img` primitive handles perceived speed on top. See *Images & Media Loading*.
 
 **Styling is a token-driven hybrid.** Tailwind utilities for the everyday (layout, spacing, one-offs); central CSS under `src/styles/` for animations and reusable components with real visual identity, all reading the same design tokens in `theme.css` so a retheme is a palette swap. The operational "which do I use when" rule lives in `CLAUDE.md`; the decision here is that both exist on purpose and share one token source — they are not two competing systems.

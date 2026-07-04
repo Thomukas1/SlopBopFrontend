@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useArtist } from '../../hooks/useArtist';
 import ExpandableBio from '../../primitives/ExpandableBio';
+import Img from '../../primitives/Img';
 import Discography from './Discography';
 
 export default function ArtistProfile() {
@@ -31,10 +32,11 @@ export default function ArtistProfile() {
     <div className="flex flex-col relative">
       {/* Hero image — full width of the 430px container */}
       <div className="artist-hero">
-        <img
+        <Img
           src={heroSrc}
           alt={artist.name}
-          className="w-full h-full object-cover object-[center_50%]"
+          className="w-full h-full"
+          imgClassName="object-cover object-[center_50%]"
         />
         {/* Back button overlaid on top-left of hero */}
         <button

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import BopMeter from './BopMeter';
+import Img from '../../primitives/Img';
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -120,10 +121,10 @@ export default function MusicPlayer() {
       </div>
 
         {/* Cover art */}
-        <img
+        <Img
           src={track.coverUrl || '/Images/default_song_cover.png'}
           alt={track.title}
-          className="w-full aspect-square object-cover rounded-lg"
+          className="w-full aspect-square rounded-lg"
         />
 
         {/* Title — centered under the cover */}

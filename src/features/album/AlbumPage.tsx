@@ -6,6 +6,7 @@ import { useArtist } from '../../hooks/useArtist';
 import { useSim } from '../../context/SimContext';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import SongList from '../artist_profile/SongList';
+import Img from '../../primitives/Img';
 import Requests from './Requests';
 
 const MONTH_NAMES = [
@@ -50,10 +51,10 @@ export default function AlbumPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <img
+      <Img
         src={album.cover_url || '/Images/default_song_cover.png'}
         alt={album.title}
-        className="w-full aspect-square object-cover"
+        className="w-full aspect-square"
       />
 
       <div className="flex flex-col gap-xs p-lg">

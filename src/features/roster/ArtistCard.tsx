@@ -3,6 +3,7 @@ import { Artist } from '../../services/slopbop';
 import { useTopSong } from '../../hooks/useTopSong';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import SingleCard from '../artist_profile/SingleCard';
+import Img from '../../primitives/Img';
 
 export function ArtistCard({ artist }: { artist: Artist }) {
   const { topSong } = useTopSong(artist.artist_id);
@@ -14,13 +15,12 @@ export function ArtistCard({ artist }: { artist: Artist }) {
         to={`/artists/${artist.artist_id}`}
         className="block w-full active:opacity-70 transition-opacity"
       >
-        <div className="w-full aspect-video bg-surface-2 overflow-hidden">
-          <img
-            src={artist.image_url ?? '/Images/mystery-actor.png'}
-            alt={artist.name}
-            className="w-full h-full object-cover object-top"
-          />
-        </div>
+        <Img
+          src={artist.image_url ?? '/Images/mystery-actor.png'}
+          alt={artist.name}
+          className="w-full aspect-video"
+          imgClassName="object-cover object-top"
+        />
         <div className="px-lg py-sm bg-surface">
           <p className="font-display text-xl">{artist.name}</p>
         </div>

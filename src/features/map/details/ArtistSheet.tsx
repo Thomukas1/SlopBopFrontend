@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BottomSheet } from '../../../primitives/BottomSheet';
+import Img from '../../../primitives/Img';
 import { useSim } from '../../../context/SimContext';
 import { Artist } from '../../../services/slopbop';
 import { ArtistStatus } from './ArtistStatus';
@@ -42,10 +43,11 @@ export function ArtistSheet({
           {/* Fixed header — identity, profile link, tab switcher */}
           <div className="flex flex-col gap-md px-xl pt-lg pb-md shrink-0">
             <div className="flex items-start gap-md">
-              <img
+              <Img
                 src={artist.image_url ?? '/Images/mystery-actor.png'}
                 alt={artist.name}
-                className="w-24 h-24 rounded-lg object-cover object-top shrink-0"
+                className="w-24 h-24 rounded-lg shrink-0"
+                imgClassName="object-cover object-top"
               />
               <div className="flex flex-col gap-xs min-w-0">
                 <span className="font-display text-lg truncate">{artist.name}</span>

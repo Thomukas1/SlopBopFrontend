@@ -1,3 +1,5 @@
+import Img from '../../primitives/Img';
+
 interface SongStats {
   bops: number;
   slops: number;
@@ -37,10 +39,10 @@ export default function SingleCard({ coverUrl, title, duration, stats, onClick }
       onClick={onClick}
       className="flex items-center gap-sm w-full text-left cursor-pointer active:opacity-70 transition-base"
     >
-      <img
+      <Img
         src={coverUrl || '/Images/default_song_cover.png'}
         alt={title}
-        className="w-10 h-10 object-cover rounded-sm flex-shrink-0"
+        className="w-10 h-10 rounded-sm flex-shrink-0"
       />
       <div className="flex flex-col flex-1 min-w-0">
         <p className="text-sm truncate">{title}</p>
