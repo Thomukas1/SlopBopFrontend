@@ -13,6 +13,10 @@ export interface Song {
   title?: string;
   duration?: number;
   cover_url?: string;
+  // Media is withheld until release: an upcoming song (`released: false`) comes
+  // through with `audio_url`, `animation_url`, and `lyrics` all null — only the
+  // title and cover art are present, for the countdown card. Guard playback/
+  // download against the missing audio.
   audio_url?: string;
   animation_url?: string;
   lyrics?: string;
@@ -21,11 +25,26 @@ export interface Song {
   bpm?: number;
   keyscale?: string;
   lora?: string;
-  // Naive sim-local "YYYY-MM-DDTHH:MM". Retained as catalogue metadata and a
-  // sort key; the static music surfaces no longer gate visibility on it.
+  // Whether the song has dropped. The backend is authoritative here — an
+  // upcoming song is `released: false` with a future `release_date` and no
+  // media; it flips to `true` (and media populates) at release, so re-fetch to
+  // reveal rather than assuming the client already has the audio. See
+  // `isReleased`.
+  released?: boolean;
+  // Real-world release moment as a UTC ISO-8601 "Z" timestamp ("YYYY-MM-DDTHH:MM:SSZ",
+  // a Mongo BSON date). The countdown card ticks toward `new Date(release_date)`.
+  // Also the catalogue sort key. No longer tied to sim time in any way.
   release_date?: string;
   created_at?: string;
   stats?: SongStats;
+}
+
+// Whether a song has dropped, per the backend's authoritative `released` flag.
+// Upcoming songs arrive as `released: false` (future `release_date`, null media);
+// legacy/immediately-published songs omit the flag, so absent counts as released.
+// Not-yet-released songs are kept out of play queues and shown as countdown cards.
+export function isReleased(song: Song): boolean {
+  return song.released !== false;
 }
 
 export type VoteType = 'bop' | 'slop';

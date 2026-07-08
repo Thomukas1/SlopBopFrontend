@@ -4,7 +4,7 @@
 
 SlopBop is a platform for AI-generated synthetic artists. The frontend is a mobile-first web app (430px design target) that serves as a public artist showcase. Currently, **thomukas1** is the featured artist used to demonstrate the concept.
 
-The experience is closest to AI Spotify: browse artists, listen to their collections, and vote on songs. Songs are published server-side by the simulator and gated on the frontend by `sim.sim_time` — the day unfolds, releases drop as the cutoff advances.
+The experience is closest to AI Spotify: browse artists, listen to their collections, and vote on songs. Songs are published server-side by the simulator; a song's `release_date` is a real-world UTC timestamp, so a song whose `release_date` is still in the future hasn't dropped yet and surfaces as a "processing" countdown card that reveals it automatically when its moment arrives. This gate is the real wall clock, **not** `sim.sim_time`.
 
 The app has been reframed into a **simulation-first** view: a separate `SlopBopSimulator` (Python) produces a presimulated day per artist, and the frontend drip-feeds that day to viewers. The home page is now a full-screen **world map** that places artists and locations on a tile grid, so opening the site immediately reads as "a simulation you're watching a snapshot of." See "World Map" below.
 
@@ -78,7 +78,7 @@ Pan/zoom is intentionally deferred: the fit-scale *is* the default zoom level a 
 
 ### Roster (`/roster`)
 
-A static artist directory — no sim data. Fetches all artists via `useArtists()` (calls `GET /slopbop/artists`). Each `ArtistCard` independently fetches the artist's songs via `useTopSong(artistId)`, which applies the same `release_date <= sim_time` gate as Discography and picks the highest net-score (`bops − slops`) track with a playable `audio_url`.
+A static artist directory — no sim data. Fetches all artists via `useArtists()` (calls `GET /slopbop/artists`). Each `ArtistCard` independently fetches the artist's songs via `useTopSong(artistId)`, which picks the highest net-score (`bops − slops`) track with a playable `audio_url` (excluding songs not yet released — `release_date` in the future).
 
 Card anatomy (top to bottom):
 1. Full-width `aspect-video` artist image → `Link` to `/artists/:id`
@@ -98,7 +98,7 @@ Fetches artist, collections, and songs in parallel. Layout:
 3. Frosted info card — collapsible bio + social icon links (Twitter/X, TikTok, Instagram)
 4. Discography — Albums/EPs in a 2-column `CollectionCard` grid, standalone singles as a stacked `SingleCard` list
 
-Songs are filtered by `release_date <= sim.sim_time` (fixed-width `"YYYY-MM-DDTHH:MM"`, lexicographic == chronological), then split via `useMemo`: songs with a `collection_id` are grouped under their collection; the rest are singles. Songs without a `release_date` are dropped (treated as unreleased) during the backfill window.
+Songs are split via `useMemo`: songs with a `collection_id` are grouped under their collection; the rest are singles. A song whose `release_date` (a real-world UTC timestamp) is still in the future is not yet released — the song list surfaces the soonest such single as a "processing" countdown card rather than a playable row. Songs without a `release_date`, or already past it, are released and always visible.
 
 The singles section has a **New / Popular** sort toggle (button group, top-right of the section header). "New" sorts by `release_date` descending; "Popular" sorts by `bops − slops` descending.
 
@@ -112,7 +112,7 @@ Loads collection metadata + songs in parallel. Layout:
 
 1. Full-width square cover art
 2. Metadata — title, type, linked artist name, date
-3. **Tracklist** — numbered rows, each taps to call `play()` on `MusicPlayerContext`. Songs gated by `release_date <= sim.sim_time` (same rule as Discography).
+3. **Tracklist** — numbered rows, each taps to call `play()` on `MusicPlayerContext`. Not-yet-released songs (future `release_date`) follow the same real-time reveal rule as the Discography.
 
 ### Music Player
 

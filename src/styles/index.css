@@ -20,6 +20,7 @@
 @import './components/music-player.css';
 @import './components/mini-player.css';
 @import './components/bop-meter.css';
+@import './components/processing-card.css';
 
 /* Tailwind CSS */
 @tailwind base;

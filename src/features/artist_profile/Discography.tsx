@@ -16,9 +16,13 @@ export interface GroupedDiscography {
   singles: Song[];
 }
 
-function useDiscography(artistId: string): { discography: GroupedDiscography; loading: boolean } {
+function useDiscography(artistId: string): {
+  discography: GroupedDiscography;
+  loading: boolean;
+  refetch: () => void;
+} {
   const { albums, loading: albumsLoading } = useAlbums(artistId);
-  const { songs, loading: songsLoading } = useSongs(artistId);
+  const { songs, loading: songsLoading, refetch } = useSongs(artistId);
 
   const discography = useMemo<GroupedDiscography>(() => {
     const songsByAlbum = new Map<string, Song[]>();
@@ -42,11 +46,11 @@ function useDiscography(artistId: string): { discography: GroupedDiscography; lo
     return { albums: grouped, singles };
   }, [albums, songs]);
 
-  return { discography, loading: albumsLoading || songsLoading };
+  return { discography, loading: albumsLoading || songsLoading, refetch };
 }
 
 export default function Discography({ artistId, artistName }: Props) {
-  const { discography, loading } = useDiscography(artistId);
+  const { discography, loading, refetch } = useDiscography(artistId);
   const navigate = useNavigate();
 
   if (loading) return null;
@@ -74,6 +78,7 @@ export default function Discography({ artistId, artistName }: Props) {
         <SongList
           songs={discography.singles}
           header={<h2 className="font-display text-lg">Singles</h2>}
+          onRefetch={refetch}
           toTrack={song => ({
             id: song._id,
             title: song.title || 'Untitled',

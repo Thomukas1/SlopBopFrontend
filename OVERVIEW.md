@@ -61,7 +61,7 @@ The "View Profile" link in the sheet navigates to the static artist profile. Tha
 
 Global playback state lives in `MusicPlayerContext` — a single persistent `HTMLAudioElement`, not recreated per track. Songs can be played from the artist profile, the album page, or directly from a Roster card (which surfaces each artist's top-rated track as a one-tap shortcut). The MiniPlayer (sticky bottom bar) and full MusicPlayer overlay both read from this shared context.
 
-All catalogue songs are always visible — playback is a pure static-layer concern with no sim gating. `release_date` remains on the `Song` type as catalogue metadata and a sort key, but nothing filters on it.
+Playback is a pure static-layer concern with no *sim* gating. Visibility is instead gated on the **real wall clock**: `release_date` is a real-world UTC timestamp, and a song whose `release_date` is still in the future hasn't dropped yet — the song list renders the soonest such song as a "processing" countdown card that reveals it automatically when its moment arrives. Songs already past their `release_date` (or with none) are always visible. `release_date` doubles as the catalogue sort key.
 
 ---
 

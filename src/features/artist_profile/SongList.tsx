@@ -1,9 +1,14 @@
 import { useState, type ReactNode } from 'react';
-import type { Song } from '../../services/slopbop';
+import { isReleased, type Song } from '../../services/slopbop';
 import { useMusicPlayer, type Track } from '../../context/MusicPlayerContext';
 import SingleCard from '../../primitives/music/SingleCard';
+import ProcessingCard from '../../primitives/music/ProcessingCard';
 
 type SongSort = 'release' | 'popular';
+
+// Stable fallback when no re-fetch is wired in — keeps the countdown card's
+// poll effect from re-subscribing every render.
+const noop = () => {};
 
 interface Props {
   songs: Song[];
@@ -11,6 +16,13 @@ interface Props {
   toTrack: (song: Song) => Track;
   /** Optional left-aligned heading shown on the same row as the sort toggle. */
   header?: ReactNode;
+  /**
+   * Re-fetch the songs. Called when an upcoming song's countdown elapses — the
+   * released song (with its now-available audio) has to come back from the
+   * server before it can turn into a playable row. Should be referentially
+   * stable (it's a dependency of the countdown card's poll).
+   */
+  onRefetch?: () => void;
 }
 
 /**
@@ -22,18 +34,30 @@ interface Props {
  * snapshots the list in its *current* displayed order into the player's queue
  * (tapping song N starts there and plays through to the end). Switching the
  * sort afterwards only affects the next play — it never disturbs a live queue.
+ *
+ * An upcoming song (`released: false`) isn't playable yet — its audio isn't even
+ * on the client — so it's kept out of the list and the queue entirely. Only the
+ * *soonest* such song is surfaced, as a "processing" countdown card pinned below
+ * the released rows; when its timer elapses the card asks us to re-fetch, and the
+ * now-released song (with audio) comes back as a normal row.
  */
-export default function SongList({ songs, toTrack, header }: Props) {
+export default function SongList({ songs, toTrack, header, onRefetch }: Props) {
   const { playQueue, track, playing, togglePlay } = useMusicPlayer();
   const [sort, setSort] = useState<SongSort>('release');
 
+  const released = songs.filter(s => isReleased(s));
+  // The soonest still-unreleased song — the only one shown, as a countdown card.
+  const nextUp = songs
+    .filter(s => !isReleased(s))
+    .sort((a, b) => (a.release_date || '').localeCompare(b.release_date || ''))[0];
+
   const sorted = sort === 'popular'
-    ? [...songs].sort((a, b) => {
+    ? [...released].sort((a, b) => {
         const scoreA = (a.stats?.bops ?? 0) - (a.stats?.slops ?? 0);
         const scoreB = (b.stats?.bops ?? 0) - (b.stats?.slops ?? 0);
         return scoreB - scoreA;
       })
-    : [...songs].sort((a, b) => {
+    : [...released].sort((a, b) => {
         // Release order: oldest first (id 1 first). Fall back to created_at so
         // undated songs stay put rather than jumping around.
         const ka = a.release_date || a.created_at || '';
@@ -89,21 +113,34 @@ export default function SongList({ songs, toTrack, header }: Props) {
           )}
         </button>
       </div>
-      <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
-        {sorted.map((song, i) => (
-          <div key={song._id}>
-            {i > 0 && <div className="border-t border-white/10 my-xs" />}
-            <SingleCard
-              coverUrl={song.cover_url}
-              title={song.title || 'Untitled'}
-              duration={song.duration}
-              stats={song.stats}
-              active={track?.id === song._id}
-              onClick={() => playQueue(tracks, i)}
-            />
-          </div>
-        ))}
-      </div>
+      {sorted.length > 0 && (
+        <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
+          {sorted.map((song, i) => (
+            <div key={song._id}>
+              {i > 0 && <div className="border-t border-white/10 my-xs" />}
+              <SingleCard
+                coverUrl={song.cover_url}
+                title={song.title || 'Untitled'}
+                duration={song.duration}
+                stats={song.stats}
+                active={track?.id === song._id}
+                onClick={() => playQueue(tracks, i)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Pinned below the list and outside it: the soonest upcoming song, never
+          touched by the sort toggle — always the tail of the section. */}
+      {nextUp && (
+        <ProcessingCard
+          key={nextUp._id}
+          coverUrl={nextUp.cover_url}
+          title={nextUp.title}
+          releaseDate={nextUp.release_date!}
+          onReleaseElapsed={onRefetch ?? noop}
+        />
+      )}
     </div>
   );
 }

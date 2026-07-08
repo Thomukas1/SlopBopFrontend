@@ -63,6 +63,7 @@ export default function AlbumPage() {
       <div className="flex flex-col gap-lg px-lg pb-lg">
         <SongList
           songs={songs}
+          onRefetch={refetch}
           toTrack={song => ({
             id: song._id,
             title: song.title || 'Untitled',
