@@ -70,6 +70,7 @@ export default function AlbumPage() {
             audioUrl: song.audio_url || '',
             duration: song.duration,
             lyrics: song.lyrics,
+            author: song.author,
             stats: song.stats,
             artistId: song.artist_id,
             artistName: artist?.name,

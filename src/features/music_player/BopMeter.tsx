@@ -1,5 +1,6 @@
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import { useSongVote } from '../../hooks/useSongVote';
+import { ratingEmoji } from '../../primitives/music/ratingEmoji';
 
 export default function BopMeter() {
   const { track } = useMusicPlayer();
@@ -16,12 +17,8 @@ export default function BopMeter() {
       <div className="bop-meter-bg absolute inset-0 -z-10" />
 
       <div className="flex flex-col items-center gap-sm px-xl relative">
-        <p className="font-display text-2xl">
-          {bopPercent}% BOP
-        </p>
-
-        <p className="text-xs text-muted">
-          {stats.total_votes} Voted
+        <p className="font-display text-xl">
+          {bopPercent}% {ratingEmoji(bopPercent)} <span className="opacity-50">|</span> <span className="text-base">{stats.total_votes} votes</span>
         </p>
 
         <div className="flex gap-md w-full max-w-player">

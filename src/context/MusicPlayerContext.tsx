@@ -21,6 +21,7 @@ export interface Track {
   audioUrl: string;
   duration?: number;
   lyrics?: string;
+  author?: string;
   stats?: TrackStats;
   artistId?: string;
   artistName?: string;

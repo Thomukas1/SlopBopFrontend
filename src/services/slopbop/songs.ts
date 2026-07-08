@@ -16,6 +16,7 @@ export interface Song {
   audio_url?: string;
   animation_url?: string;
   lyrics?: string;
+  author?: string; // credited writer of the lyrics
   caption?: string;
   bpm?: number;
   keyscale?: string;

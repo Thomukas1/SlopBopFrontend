@@ -1,4 +1,5 @@
 import Img from '../Img';
+import { ratingEmoji } from './ratingEmoji';
 
 interface SongStats {
   bops: number;
@@ -20,13 +21,6 @@ function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function ratingEmoji(pct: number): string {
-  if (pct >= 90) return '🥶';
-  if (pct >= 70) return '🔥';
-  if (pct >= 40) return '😪';
-  return '💩';
 }
 
 export default function SingleCard({ coverUrl, title, duration, stats, onClick, active }: Props) {

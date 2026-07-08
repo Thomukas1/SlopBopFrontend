@@ -209,7 +209,15 @@ export default function MusicPlayer() {
           text itself stays left-aligned. */}
       {track.lyrics && (
         <div className="mx-auto w-full max-w-player px-lg pb-3xl">
-          <h3 className="font-display text-lg mb-md">Lyrics</h3>
+          <div className="flex items-center justify-between gap-md mb-xl">
+            <h3 className="font-display text-xl">Lyrics</h3>
+            {track.author && (
+              <div className="text-right text-sm text-muted min-w-0">
+                <div>Written by</div>
+                <div className="font-bold text-white truncate">{track.author}</div>
+              </div>
+            )}
+          </div>
           <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
             {normalizeLyrics(track.lyrics)}
           </p>

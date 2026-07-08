@@ -81,6 +81,7 @@ export default function Discography({ artistId, artistName }: Props) {
             audioUrl: song.audio_url || '',
             duration: song.duration,
             lyrics: song.lyrics,
+            author: song.author,
             stats: song.stats,
             artistId: song.artist_id,
             artistName,

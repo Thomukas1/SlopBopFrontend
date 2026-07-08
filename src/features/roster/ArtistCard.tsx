@@ -44,6 +44,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
                 audioUrl: topSong.audio_url!,
                 duration: topSong.duration,
                 lyrics: topSong.lyrics,
+                author: topSong.author,
                 stats: topSong.stats,
                 artistId: artist.artist_id,
                 artistName: artist.name,
