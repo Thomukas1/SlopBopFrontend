@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 type Tab = { path: string; emoji: string; label: string };
 
 const TABS: Tab[] = [
-  { path: '/', emoji: '🗺️', label: 'Map' },
+  { path: '/', emoji: '🎪', label: 'About' },
   { path: '/roster', emoji: '🎭', label: 'Roster' },
-  { path: '/about', emoji: '🎪', label: 'About' },
-  { path: '/apply', emoji: '🎙️', label: 'Apply' },
+  // Deferred features — routes still work, just hidden from the nav for now.
+  // Restore by re-adding these entries when Map and Apply come back.
+  // { path: '/map', emoji: '🗺️', label: 'Map' },
+  // { path: '/apply', emoji: '🎙️', label: 'Apply' },
 ];
 
 export function NavBar() {

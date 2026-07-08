@@ -12,6 +12,8 @@ interface Props {
   duration?: number;
   stats?: SongStats;
   onClick: () => void;
+  /** Highlight this row as the track currently playing. */
+  active?: boolean;
 }
 
 function formatDuration(seconds: number): string {
@@ -27,7 +29,7 @@ function ratingEmoji(pct: number): string {
   return '💩';
 }
 
-export default function SingleCard({ coverUrl, title, duration, stats, onClick }: Props) {
+export default function SingleCard({ coverUrl, title, duration, stats, onClick, active }: Props) {
   const approval =
     stats && stats.total_votes > 0
       ? Math.round((stats.bops / stats.total_votes) * 100)
@@ -45,7 +47,7 @@ export default function SingleCard({ coverUrl, title, duration, stats, onClick }
         className="w-10 h-10 rounded-sm flex-shrink-0"
       />
       <div className="flex flex-col flex-1 min-w-0">
-        <p className="text-sm truncate">{title}</p>
+        <p className={`text-sm truncate ${active ? 'text-accent font-medium' : ''}`}>{title}</p>
         {approval !== null && (
           <span className="text-xs text-muted">{approval}% {ratingEmoji(approval)}</span>
         )}

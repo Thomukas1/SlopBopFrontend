@@ -34,6 +34,7 @@ interface MusicPlayerContextValue {
   duration: number;
   expanded: boolean;
   play: (track: Track) => void;
+  playQueue: (tracks: Track[], startIndex?: number) => void;
   togglePlay: () => void;
   seek: (time: number) => void;
   skip: (delta: number) => void;
@@ -53,6 +54,30 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
+  // The active queue is a snapshot taken at play() time. Held in refs (not
+  // state) so the `ended` handler — registered once on mount — can advance it
+  // without going stale, and so re-sorting the source list can't disturb it.
+  const queueRef = useRef<Track[]>([]);
+  const indexRef = useRef(0);
+
+  // Load a track into the audio element and start it. Stable so the mount
+  // effect's `ended` handler can call it to auto-advance the queue.
+  const loadAndPlay = useCallback((t: Track) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.src = t.audioUrl;
+    setTrack(t);
+    setCurrentTime(0);
+    setDuration(t.duration ?? 0);
+    setPlaying(true);
+    setLoading(true);
+    // Start within the user gesture so autoplay policy doesn't block it.
+    audio.play().catch(() => {
+      setPlaying(false);
+      setLoading(false);
+    });
+  }, []);
+
   // Create a persistent audio element
   useEffect(() => {
     const audio = new Audio();
@@ -61,7 +86,16 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => setDuration(audio.duration);
-    const onEnded = () => setPlaying(false);
+    // Advance to the next queued track, or stop at the end of the queue.
+    const onEnded = () => {
+      const next = indexRef.current + 1;
+      if (next < queueRef.current.length) {
+        indexRef.current = next;
+        loadAndPlay(queueRef.current[next]);
+      } else {
+        setPlaying(false);
+      }
+    };
     // Buffering / readiness — these drive the loading indicator.
     const onWaiting = () => setLoading(true);
     const onPlaying = () => setLoading(false);
@@ -83,7 +117,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('canplay', onCanPlay);
       audio.pause();
     };
-  }, []);
+    // loadAndPlay is stable, so the audio element is still set up once.
+  }, [loadAndPlay]);
 
   // Sync play/pause for toggles on the already-loaded track. The initial
   // playback is kicked off directly in play() so it stays inside the user
@@ -98,22 +133,21 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }
   }, [playing, track]);
 
-  const play = useCallback((t: Track) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.src = t.audioUrl;
-    setTrack(t);
-    setCurrentTime(0);
-    setDuration(t.duration ?? 0);
-    setPlaying(true);
-    setLoading(true);
+  // Play an ordered list as a queue, starting at `startIndex`; each track
+  // auto-advances to the next when it ends. The list is snapshotted here, so
+  // the caller re-sorting/filtering its source afterwards won't affect what's
+  // playing — a new queue only forms on the next playQueue() call.
+  const playQueue = useCallback((tracks: Track[], startIndex = 0) => {
+    if (!tracks.length) return;
+    const i = Math.max(0, Math.min(startIndex, tracks.length - 1));
+    queueRef.current = tracks;
+    indexRef.current = i;
     setExpanded(false);
-    // Start within the user gesture so autoplay policy doesn't block it.
-    audio.play().catch(() => {
-      setPlaying(false);
-      setLoading(false);
-    });
-  }, []);
+    loadAndPlay(tracks[i]);
+  }, [loadAndPlay]);
+
+  // Convenience: play a single track as a one-item queue.
+  const play = useCallback((t: Track) => playQueue([t], 0), [playQueue]);
 
   const togglePlay = useCallback(() => setPlaying((p) => !p), []);
 
@@ -139,6 +173,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.pause();
       audio.currentTime = 0;
     }
+    queueRef.current = [];
+    indexRef.current = 0;
     setPlaying(false);
     setLoading(false);
     setCurrentTime(0);
@@ -156,6 +192,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         duration,
         expanded,
         play,
+        playQueue,
         togglePlay,
         seek,
         skip,

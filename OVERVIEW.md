@@ -10,37 +10,38 @@ For technical detail (routes, hooks, components, API surface) see `_CONTEXT.md`.
 
 The app holds two distinct data layers and keeps them deliberately separate:
 
-**Static layer** — who the artists are. Profiles, bios, discographies, cover art. This data is permanent and not tied to any simulation. It lives in the `artists`, `collections`, and `songs` MongoDB collections and is fetched directly.
+**Static layer** — who the artists are. Profiles, bios, discographies, cover art, released music. This data is permanent and not tied to any simulation. It lives in the `artists`, `collections`, and `songs` MongoDB collections and is fetched directly. It is the bulk of the app and the default experience.
 
-**Live layer** — what the artists are doing today. Location on the map, simulation stats (Energy / Focus / Inspiration), journal entries, song-idea notes. This data is simulation-scoped and ephemeral. It lives in the `simulations` collection and is fetched through the sim endpoints.
+**Live layer** — what the artists are doing today. Location on the map, simulation stats (Energy / Focus / Inspiration), journal entries, song-idea notes. This data is simulation-scoped and ephemeral. It lives in the `simulations` collection and is fetched through the sim endpoints. It is **entirely contained within the Map page** — nothing outside `/map` touches the sim.
 
 These two layers power two distinct parts of the UI:
 
 | UI surface | Data layer | Entry point |
 |---|---|---|
-| World Map (`/`) + ArtistSheet | Live (sim) | Landing page |
+| About (`/`) | Static | Landing page |
 | Roster (`/roster`) | Static | NavBar |
-| Artist Profile (`/artists/:id`) | Static | Map sheet or Roster card |
+| Artist Profile (`/artists/:id`) | Static | Roster card |
+| World Map (`/map`) + ArtistSheet | Live (sim) | NavBar (Map tab) |
 
-A user lands on the simulation, finds an artist on the map, inspects their live state in the bottom sheet, then optionally navigates to their static profile to listen to music. The sim is the primary door; the roster is a secondary one for users who want to browse artists and hear music directly without engaging the map first.
+A user lands on the About page, browses the roster, and listens to artists' music — all static, no simulation involved. The Map is a self-contained destination they can step into to watch a simulation unfold in real time; stepping off it tears the sim back down. The two layers meet only inside the ArtistSheet ("View Profile" links from the live map to the static profile), never the other way around.
 
 ---
 
-## Simulation-First Architecture
+## Static-First, Sim-Contained Architecture
 
-The home page is the world map, not an artist listing or a music browser. This is intentional: the product concept is a simulation you are watching, not a catalog you are browsing. Dropping users onto the map makes that premise legible immediately — something is happening, artists are somewhere, time is passing.
+The home page is the About page, and the roster + profiles + music are all static — the default experience is browsing artists and their catalogue, no simulation required. This is intentional: the music and the artists are permanent, the simulation is one live event layered on top.
 
-The simulation is the primary context. Artists exist within a simulation; their music was released during a simulation. The static profile is downstream of the sim, not parallel to it.
+The **Map is a self-contained simulation page**, reached from the NavBar. It owns the entire live layer: `SimProvider` mounts on `/map` and nowhere else, so the `/sim/current` heartbeat only runs while the map is on screen and stops the moment you leave. The static surfaces (roster, profile, album) never read the sim — their artists come straight from the `artists` collection and their songs are always visible, independent of any sim clock.
 
-The current UX problem to solve is **orientation** — a first-time visitor needs a sentence of context to make the map legible before they engage with it. The fix is an ambient label or brief onboarding moment, not a restructure.
+The layers meet in exactly one direction: the ArtistSheet on the live map links out to a static profile. The static side has no knowledge of the sim.
 
 ---
 
 ## The Drip-Feed Mechanic
 
-The simulation runs ahead of time and the frontend reveals it progressively. Everything gated by time — songs on the artist profile, entries in the journal, notes in the bars tab — is filtered by `sim_time`, the cutoff resolved by the backend. Nothing from the future leaks through.
+The simulation runs ahead of time and the frontend reveals it progressively. The live-layer streams gated by time — entries in the journal, notes in the bars tab — are filtered by `sim_time`, the cutoff resolved by the backend. Nothing from the future leaks through. (Songs are **not** part of this: the static music catalogue is always fully visible, decoupled from the sim clock.)
 
-`SimContext` holds the current sim snapshot and polls every 2 minutes while the sim is live. The rest of the app reads from this shared context via `useSim()` rather than each fetching independently. This is the heartbeat of the live layer.
+`SimContext` holds the current sim snapshot and polls every 2 minutes while the sim is live. Its provider is mounted by the Map page alone, so only the map's components read it via `useSim()`. This is the heartbeat of the live layer, and it beats only while you're watching the map.
 
 ---
 
@@ -58,9 +59,9 @@ The "View Profile" link in the sheet navigates to the static artist profile. Tha
 
 ## Music Player
 
-Global playback state lives in `MusicPlayerContext` — a single persistent `HTMLAudioElement`, not recreated per track. Songs can be played from the artist profile, the collection page, or directly from a Roster card (which surfaces each artist's top-rated track as a one-tap shortcut). The MiniPlayer (sticky bottom bar) and full MusicPlayer overlay both read from this shared context.
+Global playback state lives in `MusicPlayerContext` — a single persistent `HTMLAudioElement`, not recreated per track. Songs can be played from the artist profile, the album page, or directly from a Roster card (which surfaces each artist's top-rated track as a one-tap shortcut). The MiniPlayer (sticky bottom bar) and full MusicPlayer overlay both read from this shared context.
 
-Song visibility is gated by `release_date <= sim.sim_time`, using lexicographic comparison on the naive `YYYY-MM-DDTHH:MM` string format. Songs without a `release_date` are treated as unreleased and hidden.
+All catalogue songs are always visible — playback is a pure static-layer concern with no sim gating. `release_date` remains on the `Song` type as catalogue metadata and a sort key, but nothing filters on it.
 
 ---
 
@@ -91,21 +92,22 @@ This is the front of the casting funnel. Everything downstream of a validated su
 ## Routing
 
 ```
-/                  MapPage         — simulation home, world map
+/                  AboutPage       — project explainer, the landing page
+/about             AboutPage       — alias of /
 /roster            RosterPage      — artist directory + top-rated song per artist
-/about             AboutPage       — project explainer
+/map               MapPage         — self-contained live simulation, world map
 /apply             ApplicationForm — audition form to join a future season
 /artists/:id       ArtistProfile   — static profile + discography
-/collections/:id   CollectionPage  — album/EP tracklist
+/albums/:id        AlbumPage       — album/EP tracklist
 ```
 
-No simulation data appears on `/roster`, `/artists/:id`, `/collections/:id`, or `/apply`. Those routes are purely static (or, for `/apply`, write-only).
+The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply`, write-only) and never mounts `SimProvider` or reads `useSim()`.
 
 ---
 
 ## Key Architectural Decisions
 
-**Simulation loads once, shared via context.** `SimContext` fetches `/sim/current` at boot and polls while live. All map + sheet components consume this via `useSim()`. The world map and the sheet don't compete for the same data.
+**Simulation is scoped to the Map page.** `SimProvider` mounts on `/map`, fetches `/sim/current`, and polls while live; all map + sheet components consume it via `useSim()`. Leaving `/map` unmounts the provider and stops the heartbeat, so the sim never loads on the static routes.
 
 **Static artist data fetched per page.** Profile and collection pages fetch their own data independently. There is no global artist cache — each route is self-contained.
 

@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import { Artist, Location } from '../../services/slopbop';
+import { SimProvider } from '../../context/SimContext';
 import { WorldBoard } from './board/WorldBoard';
 import { LocationPanel } from './details/LocationPanel';
 import { ArtistSheet } from './details/ArtistSheet';
 import { SimHud } from './chrome/SimHud';
 import { WelcomeModal, useWelcomeModal } from './chrome/WelcomeModal';
 
+// The simulation is scoped to this page: SimProvider mounts here, so the live
+// /sim/current heartbeat only runs while the map is on screen. Nothing outside
+// the map consumes the sim anymore — the rest of the app is the static layer.
 export default function MapPage() {
+  return (
+    <SimProvider>
+      <MapView />
+    </SimProvider>
+  );
+}
+
+function MapView() {
   const { open: welcomeOpen, dismiss: dismissWelcome, reopen: reopenWelcome } = useWelcomeModal();
 
   const [selected, setSelected] = useState<Location | null>(null);

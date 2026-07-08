@@ -17,6 +17,9 @@
   height: 3px;
   border-radius: 2px;
   background: var(--bg-surface);
+  /* Purely decorative — the played bar paints over the input, so without this
+     it would swallow clicks in the played region. Let them reach the slider. */
+  pointer-events: none;
 }
 
 /* played portion — thicker */
@@ -28,6 +31,7 @@
   height: 6px;
   border-radius: 3px;
   background: var(--white);
+  pointer-events: none;
 }
 
 .music-player-slider {
@@ -39,8 +43,17 @@
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
+  /* Override the global input styling (forms.css): no grey resting border and
+     no blue focus ring — this is a bare seek track, not a form field. */
+  border: none;
   outline: none;
+  box-shadow: none;
   cursor: pointer;
+}
+
+.music-player-slider:focus {
+  border: none;
+  box-shadow: none;
 }
 
 .music-player-slider::-webkit-slider-thumb {

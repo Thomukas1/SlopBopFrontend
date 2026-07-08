@@ -1,10 +1,6 @@
-import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { isSongReleased } from '../../services/slopbop';
 import { useAlbum } from '../../hooks/useAlbum';
 import { useArtist } from '../../hooks/useArtist';
-import { useSim } from '../../context/SimContext';
-import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import SongList from '../artist_profile/SongList';
 import Img from '../../primitives/Img';
 import Submissions from './Submissions';
@@ -23,15 +19,8 @@ export default function AlbumPage() {
   const { id } = useParams<{ id: string }>();
   const { album, songs, requestStatus, loading: albumLoading, refetch } = useAlbum(id ?? '');
   const { artist, loading: artistLoading } = useArtist(album?.artist_id ?? '');
-  const { sim } = useSim();
-  const { play } = useMusicPlayer();
 
   const loading = albumLoading || artistLoading;
-
-  const visibleSongs = useMemo(
-    () => songs.filter(s => isSongReleased(s, sim?.sim_time)),
-    [songs, sim?.sim_time],
-  );
 
   if (loading) {
     return (
@@ -73,8 +62,8 @@ export default function AlbumPage() {
 
       <div className="flex flex-col gap-lg px-lg pb-lg">
         <SongList
-          songs={visibleSongs}
-          onPlay={song => play({
+          songs={songs}
+          toTrack={song => ({
             id: song._id,
             title: song.title || 'Untitled',
             coverUrl: song.cover_url || album.cover_url,

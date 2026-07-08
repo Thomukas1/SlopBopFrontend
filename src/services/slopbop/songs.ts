@@ -20,23 +20,11 @@ export interface Song {
   bpm?: number;
   keyscale?: string;
   lora?: string;
-  // Naive sim-local "YYYY-MM-DDTHH:MM" — fixed-width, so lexicographic
-  // comparison against `sim.sim_time` is correct chronological order.
+  // Naive sim-local "YYYY-MM-DDTHH:MM". Retained as catalogue metadata and a
+  // sort key; the static music surfaces no longer gate visibility on it.
   release_date?: string;
   created_at?: string;
   stats?: SongStats;
-}
-
-/**
- * Release gate. A song with a `release_date` is sim-scheduled and only becomes
- * visible once sim time reaches it (fixed-width "YYYY-MM-DDTHH:MM" strings, so
- * lexicographic compare == chronological). A song with no `release_date` isn't
- * part of a simulation, so it's always visible like a normal song. `cutoff` is
- * the current `sim.sim_time` (undefined until the sim heartbeat loads).
- */
-export function isSongReleased(song: Song, cutoff: string | undefined): boolean {
-  if (!song.release_date) return true;
-  return !!cutoff && song.release_date <= cutoff;
 }
 
 export type VoteType = 'bop' | 'slop';

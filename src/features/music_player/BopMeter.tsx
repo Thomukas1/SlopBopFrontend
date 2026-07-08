@@ -1,48 +1,9 @@
-import { useCallback, useState, useEffect } from 'react';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
-import { voteSong, VoteType, SongStats } from '../../services/slopbop';
-
-const VOTED_KEY = 'slopbop_votes';
-
-function getVotedSongs(): Record<string, VoteType> {
-  try {
-    return JSON.parse(localStorage.getItem(VOTED_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
-
-function markVoted(songId: string, type: VoteType) {
-  const voted = getVotedSongs();
-  voted[songId] = type;
-  localStorage.setItem(VOTED_KEY, JSON.stringify(voted));
-}
+import { useSongVote } from '../../hooks/useSongVote';
 
 export default function BopMeter() {
   const { track } = useMusicPlayer();
-
-  const [stats, setStats] = useState<SongStats | null>(null);
-  const [userVote, setUserVote] = useState<VoteType | null>(null);
-  const [voting, setVoting] = useState(false);
-
-  useEffect(() => {
-    if (!track) return;
-    setStats(track.stats ?? null);
-    setUserVote(getVotedSongs()[track.id] ?? null);
-  }, [track]);
-
-  const handleVote = useCallback(async (type: VoteType) => {
-    if (!track || userVote || voting) return;
-    setVoting(true);
-    try {
-      const updated = await voteSong(track.id, type);
-      setStats(updated);
-      setUserVote(type);
-      markVoted(track.id, type);
-    } finally {
-      setVoting(false);
-    }
-  }, [track, userVote, voting]);
+  const { stats, userVote, voting, vote } = useSongVote(track?.id, track?.stats);
 
   if (!stats) return null;
 
@@ -67,7 +28,7 @@ export default function BopMeter() {
           <button
             type="button"
             disabled={!!userVote || voting}
-            onClick={() => handleVote('slop')}
+            onClick={() => vote('slop')}
             className={`flex-1 py-sm rounded-lg font-bold text-sm transition-base cursor-pointer
               ${userVote === 'slop'
                 ? 'bg-danger text-black'
@@ -81,7 +42,7 @@ export default function BopMeter() {
           <button
             type="button"
             disabled={!!userVote || voting}
-            onClick={() => handleVote('bop')}
+            onClick={() => vote('bop')}
             className={`flex-1 py-sm rounded-lg font-bold text-sm transition-base cursor-pointer
               ${userVote === 'bop'
                 ? 'bg-accent text-black'

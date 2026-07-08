@@ -34,7 +34,6 @@ import RosterPage from './features/roster/RosterPage';
 import ApplicationForm from './features/apply/ApplicationForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
-import { SimProvider } from './context/SimContext';
 import { MusicPlayerProvider } from './context/MusicPlayerContext';
 import MusicPlayer from './features/music_player/MusicPlayer';
 import MiniPlayer from './features/music_player/MiniPlayer';
@@ -107,21 +106,20 @@ createRoot(container).render(
     <BrowserRouter>
       <WalletContextProvider>
         <ToastProvider>
-          <SimProvider>
-            <MusicPlayerProvider>
-              <Routes>
-                <Route path="/" element={<MapPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/roster" element={<RosterPage />} />
-                <Route path="/apply" element={<ApplicationForm />} />
-                <Route path="/artists/:id" element={<ArtistProfile />} />
-                <Route path="/albums/:id" element={<AlbumPage />} />
-              </Routes>
-              <NavBar />
-              <MiniPlayer />
-              <MusicPlayer />
-            </MusicPlayerProvider>
-          </SimProvider>
+          <MusicPlayerProvider>
+            <Routes>
+              <Route path="/" element={<AboutPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/roster" element={<RosterPage />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/apply" element={<ApplicationForm />} />
+              <Route path="/artists/:id" element={<ArtistProfile />} />
+              <Route path="/albums/:id" element={<AlbumPage />} />
+            </Routes>
+            <NavBar />
+            <MiniPlayer />
+            <MusicPlayer />
+          </MusicPlayerProvider>
         </ToastProvider>
       </WalletContextProvider>
     </BrowserRouter>
