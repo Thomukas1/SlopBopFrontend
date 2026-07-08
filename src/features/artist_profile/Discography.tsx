@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAlbums } from '../../hooks/useAlbums';
 import { useSongs } from '../../hooks/useSongs';
 import type { Album, Song } from '../../services/slopbop';
-import AlbumCard from './AlbumCard';
+import AlbumCard from '../../primitives/music/AlbumCard';
 import SongList from './SongList';
 
 interface Props {

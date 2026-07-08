@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Song } from '../../services/slopbop';
 import { useMusicPlayer, type Track } from '../../context/MusicPlayerContext';
-import SingleCard from './SingleCard';
+import SingleCard from '../../primitives/music/SingleCard';
 
 type SongSort = 'release' | 'popular';
 

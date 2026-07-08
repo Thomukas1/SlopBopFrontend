@@ -1,4 +1,4 @@
-import Img from '../../primitives/Img';
+import Img from '../Img';
 
 interface SongStats {
   bops: number;

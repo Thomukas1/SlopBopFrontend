@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useArtist } from '../../hooks/useArtist';
 import ExpandableBio from '../../primitives/ExpandableBio';
+import GenrePills from '../../primitives/GenrePills';
 import Img from '../../primitives/Img';
 import Discography from './Discography';
 
@@ -59,6 +60,8 @@ export default function ArtistProfile() {
             <ExpandableBio text={artist.bio} />
           </div>
         )}
+
+        <GenrePills genres={artist.genres} />
       </div>
 
       {/* Discography */}
