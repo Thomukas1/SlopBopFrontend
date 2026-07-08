@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/albums/:id",
+      "destination": "/api/albums/:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }
