@@ -15,6 +15,13 @@ function safeFilename(title: string): string {
   return `${cleaned || 'song'}.mp3`;
 }
 
+// Some lyrics land in the DB with literal escape sequences ("\n", "\r\n", "\t")
+// instead of real whitespace — usually a bad lyrics.txt write upstream. Convert
+// them back to real characters so `whitespace-pre-line` can break on them.
+function normalizeLyrics(lyrics: string): string {
+  return lyrics.replace(/\\r\\n|\\n|\\r/g, '\n').replace(/\\t/g, '\t');
+}
+
 export default function MusicPlayer() {
   const {
     track,
@@ -204,7 +211,7 @@ export default function MusicPlayer() {
         <div className="mx-auto w-full max-w-player px-lg pb-3xl">
           <h3 className="font-display text-lg mb-md">Lyrics</h3>
           <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
-            {track.lyrics}
+            {normalizeLyrics(track.lyrics)}
           </p>
         </div>
       )}
