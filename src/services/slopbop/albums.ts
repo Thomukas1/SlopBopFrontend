@@ -1,6 +1,6 @@
 import { apiFetch } from './client';
 import { Song } from './songs';
-import { RequestClosedReason } from './requests';
+import type { RequestClosedReason } from './requests';
 
 export interface Album {
   _id: string;
@@ -9,17 +9,26 @@ export interface Album {
   song_count?: number;
   cover_url?: string;
   created_at?: string;
+  // Submission-window fields (authored on the album doc). Prefer reading the
+  // evaluated `RequestStatus` off album detail; these are the raw source.
+  submission_start?: string;    // ISO or absent
+  submission_deadline?: string; // ISO or absent
+  submission_count?: number;    // seeds submitted so far
+  max_tracks?: number;
 }
 
-// Whether the album is currently accepting song requests, evaluated server-side
-// on album detail read. `open` gates the request form; when closed, `reason`
-// says why. `deadline` is an ISO string (null only when `not_configured`).
+// Whether the album is currently accepting song submissions, evaluated
+// server-side on album detail read. `open` gates the submission form; when
+// closed, `reason` says why. The window runs from `submission_start` to
+// `submission_deadline` (either may be null). `track_count` is the count of
+// submissions received (the capacity gauge is track_count / max_tracks).
 export interface RequestStatus {
   open: boolean;
   reason: RequestClosedReason | null;
   track_count: number;
   max_tracks: number;
-  deadline: string | null;
+  submission_start: string | null;
+  submission_deadline: string | null;
 }
 
 interface AlbumsResponse {

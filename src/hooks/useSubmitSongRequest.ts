@@ -16,11 +16,11 @@ export function useSubmitSongRequest() {
   const [result, setResult] = useState<SongRequestResult | null>(null);
 
   const submit = useCallback(
-    async (payload: SongRequestPayload): Promise<SongRequestOutcome> => {
+    async (albumId: string, payload: SongRequestPayload): Promise<SongRequestOutcome> => {
       setSubmitting(true);
       setFieldErrors({});
       try {
-        const outcome = await submitSongRequest(payload);
+        const outcome = await submitSongRequest(albumId, payload);
         if (outcome.ok) setResult(outcome.data);
         else if (outcome.kind === 'validation') setFieldErrors(outcome.errors);
         return outcome;

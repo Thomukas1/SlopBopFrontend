@@ -1,45 +1,50 @@
 import { API_URL } from './client';
+import { RequestStatus } from './albums';
 
-// A song request submitted against an artist. Wire format is camelCase; the
-// backend is the trust boundary, so these mirror its validation rules in the
-// comments only. `lyrics` preserves internal line breaks (server normalizes
-// \r\n / \r → \n and trims only the outer edges).
+// A song submission against an album. The album id travels in the URL, not the
+// body. Wire format mirrors the backend's validation rules (in comments only —
+// the backend is the trust boundary). `text` preserves internal line breaks
+// (server normalizes \r\n / \r → \n and trims only the outer edges).
 export interface SongRequestPayload {
-  artistId: string; // required, non-empty
-  albumId: string;  // required, non-empty — requests are album-scoped
-  author: string;   // required, ≤ 18 chars (trimmed)
-  lyrics: string;   // required, ≤ 280 chars
+  author: string; // required, ≤ 18 chars (trimmed)
+  text: string;   // required, ≤ 260 chars
 }
 
-// Returned on a successful 201.
+// Returned on a successful 201. The submit endpoint also echoes the freshly
+// re-evaluated window so the caller can update the capacity gauge without a
+// separate refetch.
 export interface SongRequestResult {
   request_id: string;
+  request_status: RequestStatus;
 }
 
-// Why an album isn't accepting requests. Shared by the album detail's
+// Why an album isn't accepting submissions. Shared by the album detail's
 // `request_status.reason` and the submit endpoint's 409 body.
 export type RequestClosedReason =
-  | 'deadline_passed' // past request_deadline
-  | 'album_full'      // track_count reached max_tracks
-  | 'not_configured'; // max_tracks + request_deadline never authored
+  | 'not_started'     // before submission_start
+  | 'deadline_passed' // past submission_deadline
+  | 'album_full'      // submission_count reached max_tracks
+  | 'not_configured'; // max_tracks never authored
 
 // Discriminated outcome of submit:
-//   ok         → the new request id
+//   ok         → the new request id + the updated window
 //   validation → field→message map from a 400 (same shape as the application form)
 //   closed     → the window closed server-side between load and submit (409); the
 //                caller should surface the message and refresh the album
-// A 404 (artist/album not found), 500, or network error rejects.
+// A 404 (album not found), 500, or network error rejects.
 export type SongRequestOutcome =
   | { ok: true; data: SongRequestResult }
   | { ok: false; kind: 'validation'; errors: Record<string, string> }
   | { ok: false; kind: 'closed'; reason: RequestClosedReason; message: string };
 
-// POST a song request. Bypasses `apiFetch` because the 400/409 responses carry
-// bodies (field errors / closed reason) we need to read rather than discard.
+// POST a song submission against an album. Bypasses `apiFetch` because the
+// 400/409 responses carry bodies (field errors / closed reason) we need to read
+// rather than discard.
 export async function submitSongRequest(
+  albumId: string,
   payload: SongRequestPayload,
 ): Promise<SongRequestOutcome> {
-  const res = await fetch(`${API_URL}/slopbop/requests`, {
+  const res = await fetch(`${API_URL}/slopbop/albums/${albumId}/submissions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -47,7 +52,10 @@ export async function submitSongRequest(
   const data = await res.json();
 
   if (res.status === 201) {
-    return { ok: true, data: { request_id: data.request_id } };
+    return {
+      ok: true,
+      data: { request_id: data.request_id, request_status: data.request_status },
+    };
   }
   if (res.status === 400) {
     return {
@@ -61,7 +69,7 @@ export async function submitSongRequest(
       ok: false,
       kind: 'closed',
       reason: data.reason as RequestClosedReason,
-      message: data.error || 'Song requests are closed for this album',
+      message: data.error || 'Song submissions are closed for this album',
     };
   }
   throw new Error(data.error || 'Request failed');

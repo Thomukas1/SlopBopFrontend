@@ -7,7 +7,7 @@ import { useSim } from '../../context/SimContext';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import SongList from '../artist_profile/SongList';
 import Img from '../../primitives/Img';
-import Requests from './Requests';
+import Submissions from './Submissions';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -72,19 +72,6 @@ export default function AlbumPage() {
       </div>
 
       <div className="flex flex-col gap-lg px-lg pb-lg">
-        {requestStatus && (
-          <>
-            <Requests
-              artistId={album.artist_id}
-              albumId={album._id}
-              artistName={artist?.name}
-              status={requestStatus}
-              onClosed={refetch}
-            />
-            <div className="border-t border-white/10" />
-          </>
-        )}
-
         <SongList
           songs={visibleSongs}
           onPlay={song => play({
@@ -99,6 +86,18 @@ export default function AlbumPage() {
             artistName: artist?.name,
           })}
         />
+
+        {requestStatus && (
+          <>
+            <div className="border-t border-white/10" />
+            <Submissions
+              albumId={album._id}
+              artistName={artist?.name}
+              status={requestStatus}
+              refresh={refetch}
+            />
+          </>
+        )}
       </div>
     </div>
   );
