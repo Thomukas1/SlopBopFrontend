@@ -11,7 +11,7 @@ To keep the public app pointed at this, two earlier surfaces are **hidden from t
 - **Simulation / Map (`/map`)** — the live "artist lives a day" loop. All the sim architecture in `OVERVIEW.md` still stands.
 - **Application (`/apply`)** — the audition funnel to become a synthetic artist.
 
-The nav is now **About · Roster · Contact**. The About page (`/`) pitches Creative Bootcamp and links to the **Contact page (`/contact`)** — an informal email inquiry (a `mailto:` to `slopboptv@gmail.com` for now; no payment or ordering flow yet). Everything about the sim and the application form in the docs remains accurate for when those surfaces come back.
+The nav is now **About · Roster · Bootcamp**. The About page (`/`) teases Creative Bootcamp; the **Bootcamp page (`/bootcamp`, `features/bootcamp/`)** explains the activity in full and ends with an informal email inquiry form (`ContactForm` → a `mailto:` to `slopboptv@gmail.com` for now; no payment or ordering flow yet). Everything about the sim and the application form in the docs remains accurate for when those surfaces come back.
 
 ## Stack
 

@@ -1,9 +1,9 @@
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 
-import { StrictMode, ReactNode, useMemo } from 'react';
+import { StrictMode, ReactNode, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import {
   ConnectionProvider,
@@ -31,7 +31,7 @@ import AlbumPage from './features/album/AlbumPage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
 import RosterPage from './features/roster/RosterPage';
-import ContactPage from './features/contact/ContactPage';
+import BootcampPage from './features/bootcamp/BootcampPage';
 import ApplicationForm from './features/apply/ApplicationForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
@@ -96,6 +96,19 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
  * ---------------------------------------------------------
  */
 
+/**
+ * Reset scroll to the top on every route change. The scroll container is the
+ * <html> element (see index.css), so React Router leaves it wherever the last
+ * page was — without this, navigating lands you mid-page.
+ */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.documentElement.scrollTo({ top: 0, left: 0 });
+  }, [pathname]);
+  return null;
+}
+
 const container = document.getElementById('root');
 
 if (!container) {
@@ -105,6 +118,7 @@ if (!container) {
 createRoot(container).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <WalletContextProvider>
         <ToastProvider>
           <MusicPlayerProvider>
@@ -112,7 +126,7 @@ createRoot(container).render(
               <Route path="/" element={<AboutPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/roster" element={<RosterPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/bootcamp" element={<BootcampPage />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/apply" element={<ApplicationForm />} />
               <Route path="/artists/:id" element={<ArtistProfile />} />

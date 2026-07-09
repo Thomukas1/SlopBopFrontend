@@ -15,7 +15,7 @@ So the public app has been trimmed to point at this. The NavBar is now **About �
 - **Simulation / Map (`/map`)** — the live layer described throughout this document. Everything below about the sim, the drip-feed, and the ArtistSheet remains accurate; it's just not linked from the nav yet.
 - **Application (`/apply`)** — the audition funnel (see *The Application Form*).
 
-The **About page (`/`)** now pitches Creative Bootcamp instead of the research/simulation phase, and closes with a link to the **Contact page (`/contact`)** — an informal inquiry form that opens a `mailto:` to `slopboptv@gmail.com`. There is no payment or ordering flow yet; that (and un-hiding the sim/apply surfaces) is the work ahead.
+The **About page (`/`)** now pitches SlopBop and teases Creative Bootcamp instead of the research/simulation phase, with a "Learn more" link to the **Bootcamp page (`/bootcamp`)**. That page explains the activity in full (what it is, how it works, group size) and closes with an informal inquiry form (`ContactForm`) that opens a `mailto:` to `slopboptv@gmail.com`. There is no payment or ordering flow yet; that (and un-hiding the sim/apply surfaces) is the work ahead.
 
 The rest of this document describes the full architecture as built — read the sim/apply sections as "present in the code, currently hidden from the public nav."
 
@@ -107,17 +107,17 @@ This is the front of the casting funnel. Everything downstream of a validated su
 ## Routing
 
 ```
-/                  AboutPage       — Creative Bootcamp pitch, the landing page   [nav]
+/                  AboutPage       — SlopBop explainer + Bootcamp teaser         [nav]
 /about             AboutPage       — alias of /
 /roster            RosterPage      — artist directory + top-rated song per artist [nav]
-/contact           ContactPage     — email inquiry form (mailto)                  [nav]
+/bootcamp          BootcampPage    — Creative Bootcamp detail + inquiry form      [nav]
 /map               MapPage         — self-contained live simulation, world map    (hidden)
 /apply             ApplicationForm — audition form to join a future season        (hidden)
 /artists/:id       ArtistProfile   — static profile + discography
 /albums/:id        AlbumPage       — album/EP tracklist
 ```
 
-`[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/contact`, write-only) and never mounts `SimProvider` or reads `useSim()`.
+`[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/bootcamp`, write-only) and never mounts `SimProvider` or reads `useSim()`. A `ScrollToTop` mounted in `main.tsx` resets the scroll container (the `<html>` element) on every route change.
 
 ---
 

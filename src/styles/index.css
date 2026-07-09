@@ -21,6 +21,7 @@
 @import './components/mini-player.css';
 @import './components/bop-meter.css';
 @import './components/processing-card.css';
+@import './components/testimonials.css';
 
 /* Tailwind CSS */
 @tailwind base;
