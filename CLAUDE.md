@@ -1,6 +1,17 @@
 # SlopBop Frontend
 
-Mobile-first React web app (430px design target) — the public window into the SlopBop simulation. The conceptual architecture and the *why* live in `OVERVIEW.md`; this file is the orientation map for working in the code.
+Mobile-first React web app (430px design target) — the public window into SlopBop. The conceptual architecture and the *why* live in `OVERVIEW.md`; this file is the orientation map for working in the code.
+
+## Current focus
+
+The product has narrowed to its breakout feature: **group album creation** ("Creative Bootcamp"). A host rents one of our synthetic artists for a private activity with a group (friends, a community, a small firm — ~10–15 people); everyone writes lyrics for a short song, the artist records them, and the songs release one-by-one on a shared album page for the group to listen, react, and vote on. The top-voted song gets a music video posted to our socials.
+
+To keep the public app pointed at this, two earlier surfaces are **hidden from the NavBar but still fully routed and functional** — deferred, not removed, while we build them out:
+
+- **Simulation / Map (`/map`)** — the live "artist lives a day" loop. All the sim architecture in `OVERVIEW.md` still stands.
+- **Application (`/apply`)** — the audition funnel to become a synthetic artist.
+
+The nav is now **About · Roster · Contact**. The About page (`/`) pitches Creative Bootcamp and links to the **Contact page (`/contact`)** — an informal email inquiry (a `mailto:` to `slopboptv@gmail.com` for now; no payment or ordering flow yet). Everything about the sim and the application form in the docs remains accurate for when those surfaces come back.
 
 ## Stack
 

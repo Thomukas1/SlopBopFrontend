@@ -1,8 +1,23 @@
 # SlopBop Frontend — Overview
 
-A mobile-first React SPA (430px design target) that serves as the public-facing window into the SlopBop simulation. The app has two jobs: let people watch a simulation unfold in real time, and let them browse the music those artists have released.
+A mobile-first React SPA (430px design target) that serves as the public-facing window into SlopBop. The app grew up around two jobs — let people watch a simulation unfold in real time, and let them browse the music those artists have released — and has since narrowed its public focus (see *Current Product Focus* below).
 
 For technical detail (routes, hooks, components, API surface) see `_CONTEXT.md`. This document covers the conceptual architecture and the decisions behind it.
+
+---
+
+## Current Product Focus
+
+The breakout feature turned out to be **group album creation** — sold as **"Creative Bootcamp"**. A host rents one of the synthetic artists for a private activity with a group (friends, a community, a small firm — ~10–15 people): everyone writes the lyrics for one short (~30s) song, the artist records them, and the finished songs release one-by-one on a shared **album page** for the group to listen, react, and vote on. The top-voted song earns a music video posted to our socials.
+
+So the public app has been trimmed to point at this. The NavBar is now **About · Roster · Contact**, and two earlier surfaces are **hidden from the nav but still fully routed and working** — deferred while we build them out, not removed:
+
+- **Simulation / Map (`/map`)** — the live layer described throughout this document. Everything below about the sim, the drip-feed, and the ArtistSheet remains accurate; it's just not linked from the nav yet.
+- **Application (`/apply`)** — the audition funnel (see *The Application Form*).
+
+The **About page (`/`)** now pitches Creative Bootcamp instead of the research/simulation phase, and closes with a link to the **Contact page (`/contact`)** — an informal inquiry form that opens a `mailto:` to `slopboptv@gmail.com`. There is no payment or ordering flow yet; that (and un-hiding the sim/apply surfaces) is the work ahead.
+
+The rest of this document describes the full architecture as built — read the sim/apply sections as "present in the code, currently hidden from the public nav."
 
 ---
 
@@ -92,16 +107,17 @@ This is the front of the casting funnel. Everything downstream of a validated su
 ## Routing
 
 ```
-/                  AboutPage       — project explainer, the landing page
+/                  AboutPage       — Creative Bootcamp pitch, the landing page   [nav]
 /about             AboutPage       — alias of /
-/roster            RosterPage      — artist directory + top-rated song per artist
-/map               MapPage         — self-contained live simulation, world map
-/apply             ApplicationForm — audition form to join a future season
+/roster            RosterPage      — artist directory + top-rated song per artist [nav]
+/contact           ContactPage     — email inquiry form (mailto)                  [nav]
+/map               MapPage         — self-contained live simulation, world map    (hidden)
+/apply             ApplicationForm — audition form to join a future season        (hidden)
 /artists/:id       ArtistProfile   — static profile + discography
 /albums/:id        AlbumPage       — album/EP tracklist
 ```
 
-The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply`, write-only) and never mounts `SimProvider` or reads `useSim()`.
+`[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/contact`, write-only) and never mounts `SimProvider` or reads `useSim()`.
 
 ---
 
