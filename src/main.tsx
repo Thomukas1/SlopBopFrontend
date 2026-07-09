@@ -31,6 +31,7 @@ import AlbumPage from './features/album/AlbumPage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
 import RosterPage from './features/roster/RosterPage';
+import ContactPage from './features/contact/ContactPage';
 import ApplicationForm from './features/apply/ApplicationForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
@@ -51,7 +52,7 @@ registerMwa({
   appIdentity: {
     name: 'Slop Bop',
     uri: window.location.origin,
-    icon: '/Branding/logo.png', // must exist in /public
+    icon: '/Branding/logo-full.png', // must exist in /public
   },
   authorizationCache: createDefaultAuthorizationCache(),
   chains: [SOLANA_CHAIN],
@@ -111,6 +112,7 @@ createRoot(container).render(
               <Route path="/" element={<AboutPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/roster" element={<RosterPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/apply" element={<ApplicationForm />} />
               <Route path="/artists/:id" element={<ArtistProfile />} />
