@@ -42,7 +42,8 @@ export default function AboutPage() {
 
       {/* The Roster — what the artists are, plus the one we've got */}
       <section className="flex flex-col gap-md px-md">
-        <h2 className="font-display text-xl">The Roster</h2>
+        {featured && <FeaturedArtistCard artist={featured} />}
+
         <p className="text-base leading-relaxed">
           Each artist in SlopBop is an agent built from the ground up, with its own distinct:
         </p>
@@ -58,14 +59,12 @@ export default function AboutPage() {
           Listen to their songs and rate them too!
         </p>
 
-        {featured && <FeaturedArtistCard artist={featured} />}
-
         <button
           type="button"
           className="secondary full-width"
           onClick={() => navigate('/roster')}
         >
-          See all Artists
+          View Roster
         </button>
       </section>
 
