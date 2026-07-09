@@ -32,45 +32,107 @@ interface Props {
   albumId: string;
   artistName?: string;
   status: RequestStatus;
+  /** Number of songs published on the album (released or upcoming). Once the
+   * first one exists, submissions are done and the whole panel hides. */
+  songCount: number;
   /** Refetch the album so the window is re-evaluated (start/deadline hits, or a
    * 409 closes it). */
   refresh: () => void;
 }
 
-// Song submissions for this album. Rendered on the album page. The stage shown
-// depends on the evaluated window: a countdown before it opens, the form while
-// it's open, or a reason-keyed notice once closed. A device that has already
-// submitted sees a thank-you notice instead of the form.
-export default function Submissions({ albumId, artistName, status, refresh }: Props) {
+// Song submissions for this album, rendered on the album page. Its lifecycle:
+//
+//   window open        → info panel + form (or "already submitted" once you have)
+//   window not started → countdown to the opening
+//   closed, songs → 0  → "being produced" wait (submissions came in, no song yet)
+//   first song exists  → nothing at all (its job is done)
+//   never any activity → nothing at all
+//
+// The panel owns its own top divider so that hiding it also removes the divider —
+// the album page just drops <Submissions/> in and lets it decide whether to show.
+export default function Submissions({ albumId, artistName, status, songCount, refresh }: Props) {
   const [submitted, setSubmitted] = useState(() => !!getSubmittedAlbums()[albumId]);
 
-  let body: React.ReactNode;
-  if (submitted) {
-    body = <SubmittedNotice />;
+  let body: React.ReactNode = null;
+  if (songCount > 0) {
+    // First song is published — the submission phase is over. Render nothing.
+    body = null;
   } else if (status.open) {
     body = (
-      <SubmissionForm
-        albumId={albumId}
-        artistName={artistName}
-        status={status}
-        refresh={refresh}
-        onSubmitted={() => setSubmitted(true)}
-      />
+      <InfoPanel status={status} artistName={artistName} refresh={refresh}>
+        {submitted ? (
+          <SubmittedNotice />
+        ) : (
+          <SubmissionForm
+            albumId={albumId}
+            refresh={refresh}
+            onSubmitted={() => setSubmitted(true)}
+          />
+        )}
+      </InfoPanel>
     );
   } else if (status.reason === 'not_started') {
     body = <PendingNotice status={status} onStart={refresh} />;
-  } else {
-    body = <ClosedNotice status={status} />;
+  } else if (status.track_count > 0) {
+    // Closed with submissions in hand but no song published yet — the production
+    // wait before the first track is generated.
+    body = <ProducingNotice />;
   }
 
-  return <div className="frosted-card">{body}</div>;
+  if (!body) return null;
+
+  return (
+    <>
+      <div className="border-t border-white/10" />
+      <div className="frosted-card">{body}</div>
+    </>
+  );
 }
 
-interface FormProps extends Props {
+// The persistent header shown while the window is open: intro, capacity gauge and
+// deadline countdown. Stays put whether the viewer sees the form or the
+// already-submitted notice, so they always know how this period is tracking.
+function InfoPanel({
+  status,
+  artistName,
+  refresh,
+  children,
+}: {
+  status: RequestStatus;
+  artistName?: string;
+  refresh: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-lg">
+      <p className="text-sm text-secondary leading-relaxed">
+        Help {artistName ?? 'this artist'} produce this album by submitting a
+        song with your own custom lyrics.
+      </p>
+
+      <div className="flex items-center justify-between text-xs font-semibold text-accent">
+        <span>{status.track_count} / {status.max_tracks} songs</span>
+        {status.submission_deadline && (
+          <Countdown
+            target={status.submission_deadline}
+            onExpire={refresh}
+            render={r => `${r} left`}
+          />
+        )}
+      </div>
+
+      {children}
+    </div>
+  );
+}
+
+interface FormProps {
+  albumId: string;
+  refresh: () => void;
   onSubmitted: () => void;
 }
 
-function SubmissionForm({ albumId, artistName, status, refresh, onSubmitted }: FormProps) {
+function SubmissionForm({ albumId, refresh, onSubmitted }: FormProps) {
   const { submit, submitting, fieldErrors } = useSubmitSongRequest();
   const { showToast } = useToast();
 
@@ -105,65 +167,50 @@ function SubmissionForm({ albumId, artistName, status, refresh, onSubmitted }: F
   }
 
   return (
-    <div className="flex flex-col gap-lg">
-      <p className="text-sm text-secondary leading-relaxed">
-        Help {artistName ?? 'this artist'} produce this album by submitting a
-        song with your own custom lyrics.
-      </p>
+    <div className="form">
+      <TextField
+        label="Your name"
+        required
+        value={author}
+        onChange={setAuthor}
+        maxLength={AUTHOR_MAX}
+        help={`${author.length}/${AUTHOR_MAX}`}
+        error={fieldErrors.author}
+      />
 
-      <div className="flex items-center justify-between text-xs font-semibold text-accent">
-        <span>{status.track_count} / {status.max_tracks} songs</span>
-        {status.submission_deadline && (
-          <Countdown
-            target={status.submission_deadline}
-            onExpire={refresh}
-            render={r => `${r} left`}
-          />
-        )}
-      </div>
+      <TextAreaField
+        label="Lyrics"
+        required
+        value={text}
+        onChange={setText}
+        maxLength={TEXT_MAX}
+        rows={5}
+        placeholder="Write the lyrics you'd like them to sing…"
+        help={`${text.length}/${TEXT_MAX}`}
+        error={fieldErrors.text}
+      />
 
-      <div className="form">
-        <TextField
-          label="Your name"
-          required
-          value={author}
-          onChange={setAuthor}
-          maxLength={AUTHOR_MAX}
-          help={`${author.length}/${AUTHOR_MAX}`}
-          error={fieldErrors.author}
-        />
-
-        <TextAreaField
-          label="Lyrics"
-          required
-          value={text}
-          onChange={setText}
-          maxLength={TEXT_MAX}
-          rows={5}
-          placeholder="Write the lyrics you'd like them to sing…"
-          help={`${text.length}/${TEXT_MAX}`}
-          error={fieldErrors.text}
-        />
-
-        <button
-          type="button"
-          className="special full-width"
-          disabled={!allValid || submitting}
-          onClick={handleSend}
-        >
-          {submitting ? 'Sending…' : 'Send submission'}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="special full-width"
+        disabled={!allValid || submitting}
+        onClick={handleSend}
+      >
+        {submitting ? 'Submitting…' : 'Submit'}
+      </button>
     </div>
   );
 }
 
+// Shown in place of the form once this device has submitted. The info panel above
+// still carries the count and countdown, so this only has to confirm the state.
 function SubmittedNotice() {
   return (
-    <p className="text-sm text-secondary leading-relaxed">
-      Thanks — you've already submitted a song for this album. Only one
-      submission per person is allowed.
-    </p>
+    <div className="flex flex-col items-center gap-xs text-center rounded-lg border border-accent/30 bg-accent/5 py-lg px-md">
+      <span className="text-2xl">🎉</span>
+      <p className="text-sm font-semibold text-accent">Thanks for your submission!</p>
+      <p className="text-xs text-muted">Only one submission per person is allowed.</p>
+    </div>
   );
 }
 
@@ -171,18 +218,18 @@ function SubmittedNotice() {
 // when it elapses, refresh so the form takes over.
 function PendingNotice({ status, onStart }: { status: RequestStatus; onStart: () => void }) {
   return (
-    <div className="flex flex-col gap-sm">
+    <div className="flex flex-col items-center gap-sm text-center">
       <p className="text-sm text-secondary leading-relaxed">
-        Submissions for this album haven't opened yet.
+        The song submissions for this album opens in…
       </p>
       {status.submission_start ? (
-        <div className="text-xs font-semibold text-accent">
-          <Countdown
-            target={status.submission_start}
-            onExpire={onStart}
-            render={r => `Opens in ${r}`}
-          />
-        </div>
+        <Countdown
+          target={status.submission_start}
+          onExpire={onStart}
+          render={r => (
+            <span className="text-2xl font-bold text-accent">{r}</span>
+          )}
+        />
       ) : (
         <p className="text-xs text-muted">Check back soon.</p>
       )}
@@ -190,21 +237,17 @@ function PendingNotice({ status, onStart }: { status: RequestStatus; onStart: ()
   );
 }
 
-function ClosedNotice({ status }: { status: RequestStatus }) {
-  let message: string;
-  switch (status.reason) {
-    case 'deadline_passed':
-      message = status.submission_deadline
-        ? `Submissions closed on ${formatDate(status.submission_deadline)}`
-        : 'Submissions are closed for this album';
-      break;
-    case 'album_full':
-      message = `This album is full (${status.track_count}/${status.max_tracks})`;
-      break;
-    default: // 'not_configured' or any unknown reason
-      message = 'Not accepting song submissions';
-  }
-  return <p className="text-sm text-muted">{message}</p>;
+// Submissions are in and closed, but no song has been generated yet — the album
+// is being produced. Disappears entirely once the first song publishes.
+function ProducingNotice() {
+  return (
+    <div className="flex flex-col items-center gap-md text-center py-sm">
+      <div className="spinner large processing" />
+      <p className="text-sm text-secondary leading-relaxed">
+        The album is being produced — hang tight!
+      </p>
+    </div>
+  );
 }
 
 // Live countdown to a target time, ticking each second. Once it elapses it calls
@@ -216,7 +259,7 @@ function Countdown({
 }: {
   target: string;
   onExpire: () => void;
-  render: (remaining: string) => string;
+  render: (remaining: string) => React.ReactNode;
 }) {
   const [remaining, setRemaining] = useState(() => Date.parse(target) - Date.now());
 
@@ -250,14 +293,4 @@ function formatRemaining(ms: number): string {
   if (h > 0) return `${h}h ${m}m ${s}s`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
-}
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }

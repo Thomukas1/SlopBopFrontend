@@ -74,6 +74,10 @@ export default function SongList({ songs, toTrack, header, onRefetch }: Props) {
   const isCurrentList = !!track && sorted.some(s => s._id === track.id);
   const showPause = isCurrentList && playing;
 
+  // Nothing released and nothing upcoming — an empty section with a dead
+  // play-all button just looks broken, so render nothing at all.
+  if (sorted.length === 0 && !nextUp) return null;
+
   return (
     <div className="flex flex-col gap-md">
       <div className="flex items-center justify-between gap-md">

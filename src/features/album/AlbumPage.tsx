@@ -12,7 +12,7 @@ const MONTH_NAMES = [
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return `${MONTH_NAMES[d.getMonth()] } ${d.getFullYear()}`;
+  return `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
 export default function AlbumPage() {
@@ -79,15 +79,13 @@ export default function AlbumPage() {
         />
 
         {requestStatus && (
-          <>
-            <div className="border-t border-white/10" />
-            <Submissions
-              albumId={album._id}
-              artistName={artist?.name}
-              status={requestStatus}
-              refresh={refetch}
-            />
-          </>
+          <Submissions
+            albumId={album._id}
+            artistName={artist?.name}
+            status={requestStatus}
+            songCount={songs.length}
+            refresh={refetch}
+          />
         )}
       </div>
     </div>
