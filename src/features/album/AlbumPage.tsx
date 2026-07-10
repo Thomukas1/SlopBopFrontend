@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAlbum } from '../../hooks/useAlbum';
 import { useArtist } from '../../hooks/useArtist';
 import SongList from '../artist_profile/SongList';
@@ -20,6 +22,10 @@ export default function AlbumPage() {
   const { album, songs, requestStatus, loading: albumLoading, refetch } = useAlbum(id ?? '');
   const { artist, loading: artistLoading } = useArtist(album?.artist_id ?? '');
 
+  // Toggles the cover image out for a QR code pointing at this same page, so a
+  // host can put the album on screen and let a room scan their way in.
+  const [showQR, setShowQR] = useState(false);
+
   const loading = albumLoading || artistLoading;
 
   if (loading) {
@@ -40,11 +46,35 @@ export default function AlbumPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Img
-        src={album.cover_url || '/Images/default_song_cover.png'}
-        alt={album.title}
-        className="w-full aspect-square"
-      />
+      <div className="relative w-full aspect-square">
+        {showQR ? (
+          <div className="w-full h-full flex items-center justify-center bg-white p-lg">
+            <QRCodeSVG
+              value={window.location.href}
+              level="M"
+              marginSize={2}
+              className="w-full h-full"
+            />
+          </div>
+        ) : (
+          <Img
+            src={album.cover_url || '/Images/default_song_cover.png'}
+            alt={album.title}
+            className="w-full h-full"
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => setShowQR(v => !v)}
+          aria-pressed={showQR}
+          aria-label="Toggle QR code"
+          className={`absolute top-sm right-sm rounded px-xs text-xs font-bold transition-colors ${
+            showQR ? 'text-accent' : 'text-white/40 hover:text-white/80'
+          }`}
+        >
+          QR
+        </button>
+      </div>
 
       <div className="flex flex-col gap-xs p-lg">
         <h1 className="font-display text-xl">{album.title || 'Untitled'}</h1>
