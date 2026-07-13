@@ -16,6 +16,10 @@ import { useEffect, useRef, useState } from 'react';
 // happens is purely WebKit's native media pipeline, not our code.
 const REDIRECT_URL = 'https://turbo-gateway.com/HoEHJTs-r3kw5h2XkINfiSUDx-kLFJys_ae3rW8aQzs';
 const FINAL_URL = 'https://d2aqojj3h2xxsmhgdwlzba27resqhr7jbmkjzlh5u63223y2im5q.turbo-gateway.com/HoEHJTs-r3kw5h2XkINfiSUDx-kLFJys_ae3rW8aQzs';
+// /raw/ serves the bytes directly — no 302 sandbox redirect, 206 + audio/mpeg.
+// This is the candidate fix: if it plays clean from 0 on iOS, we rewrite the
+// app's audio URLs to this form.
+const RAW_URL = 'https://turbo-gateway.com/raw/HoEHJTs-r3kw5h2XkINfiSUDx-kLFJys_ae3rW8aQzs';
 
 export default function AudioDebug() {
   const [lines, setLines] = useState<string[]>([]);
@@ -144,6 +148,12 @@ export default function AudioDebug() {
           style={{ background: '#33aaff', color: '#000', border: 0, padding: '3px 8px', fontWeight: 700, borderRadius: 4 }}
         >
           ▶ FINAL url
+        </button>
+        <button
+          onClick={() => playBare(RAW_URL, 'RAW')}
+          style={{ background: '#39ff14', color: '#000', border: 0, padding: '3px 8px', fontWeight: 700, borderRadius: 4 }}
+        >
+          ▶ RAW url
         </button>
         <button
           onClick={() => testRef.current?.pause()}
