@@ -48,14 +48,20 @@ body {
   padding: 0 var(--space-lg);
 }
 
-/* Animated diagonal stripes background */
+/* Animated diagonal stripes background.
+   Oversized to 300% and anchored off-viewport (-50% inset) so there's always a
+   ~50vw/50vh overscan margin on every edge. The scroll distance is unchanged
+   (one viewport diagonal per cycle — see the keyframes), so it looks identical
+   to a 200% element, but the edges never reach the viewport. Without this,
+   mobile browsers expose a white strip from the right as the dynamic toolbar +
+   sub-pixel rounding make the exact-fit edge fall short mid-animation. */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 200%;
+  top: -50%;
+  left: -50%;
+  width: 300%;
+  height: 300%;
   z-index: -1;
   background: repeating-linear-gradient(
     45deg,
@@ -64,6 +70,9 @@ body::before {
     var(--p-cobalt) 50px,
     var(--p-cobalt) 100px
   );
+  /* Keep the layer GPU-composited and stable so mobile doesn't drop its tiles. */
+  will-change: transform;
+  backface-visibility: hidden;
   animation: diagonalScroll 50s linear infinite;
 }
 

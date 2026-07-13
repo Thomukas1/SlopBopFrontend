@@ -67,6 +67,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
     audio.src = t.audioUrl;
+    // iOS Safari reuses the buffered ranges/position of the previously played
+    // src unless we force a fresh load — that's why tracks there start ~2s in
+    // (and clip the last second). Desktop Chrome resets on its own; Safari won't.
+    audio.load();
     setTrack(t);
     setCurrentTime(0);
     setDuration(t.duration ?? 0);
@@ -87,6 +91,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => setDuration(audio.duration);
+    // Safari safety net: if the new track's head landed anywhere but 0 (its
+    // reused-element bug), snap it back before playback becomes audible. Fires
+    // once per load, so it never fights a deliberate user seek during playback.
+    const onLoadedData = () => {
+      if (audio.currentTime > 0.05) audio.currentTime = 0;
+    };
     // Advance to the next queued track, or stop at the end of the queue.
     const onEnded = () => {
       const next = indexRef.current + 1;
@@ -104,6 +114,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('loadeddata', onLoadedData);
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('playing', onPlaying);
@@ -112,6 +123,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('loadeddata', onLoadedData);
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('playing', onPlaying);

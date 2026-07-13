@@ -137,8 +137,11 @@
    ============================================================ */
 
 @keyframes diagonalScroll {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-50%, -50%); }
+  /* -33.333% of the 300%-sized element == one full viewport (same travel
+     distance as the old -50% of a 200% element), so the motion is unchanged.
+     translate3d keeps it on the compositor. */
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-33.333%, -33.333%, 0); }
 }
 
 @keyframes shine {
