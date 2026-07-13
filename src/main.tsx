@@ -38,7 +38,6 @@ import { ToastProvider } from './context/ToastContext';
 import { MusicPlayerProvider } from './context/MusicPlayerContext';
 import MusicPlayer from './features/music_player/MusicPlayer';
 import MiniPlayer from './features/music_player/MiniPlayer';
-import AudioDebug from './features/music_player/AudioDebug'; // TEMP: iOS audio debug overlay
 
 import './styles/index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -136,7 +135,6 @@ createRoot(container).render(
             <NavBar />
             <MiniPlayer />
             <MusicPlayer />
-            <AudioDebug /> {/* TEMP: iOS audio debug overlay — remove with its import + file */}
           </MusicPlayerProvider>
         </ToastProvider>
       </WalletContextProvider>

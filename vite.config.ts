@@ -6,11 +6,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 // Where our media (artist / album / song art) is stored. Arweave content is
 // immutable + content-addressed, so a URL's bytes can never change — which makes
 // "cache forever, serve from cache first" completely safe (no staleness risk).
+// The host regex lives inline in the runtimeCaching rule below (it's serialized
+// into the generated SW, which can't see this module's scope).
 //
-// If image storage ever moves (new gateway, a plain server, etc.), change ONLY
-// this host. Nothing in the app/components needs to change — the service worker
-// intercepts the network request regardless of which component made it.
-const IMAGE_HOST = /^https:\/\/.*turbo-gateway\.com\/.*/i
+// IMPORTANT: audio/video live on this SAME host, so the rule matches on the
+// request *destination* too, NOT host alone. Caching audio was what broke iOS
+// playback: <audio> issues Range requests and iOS *requires* a 206 Partial
+// Content back, but CacheFirst replays a full 200 / opaque response, so
+// CoreMedia clips the first ~second (desktop/Android tolerate it). Restricting
+// the rule to `image` requests keeps audio/video going straight to the network.
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -35,7 +39,12 @@ export default defineConfig({
         globIgnores: ['**/Branding/cds_thankyou.png'],
         runtimeCaching: [
           {
-            urlPattern: IMAGE_HOST,
+            // Only image-destination requests — never audio/video (see above).
+            // NOTE: this fn is serialized into the generated SW, so it can't
+            // reference outer scope (IMAGE_HOST) — the host regex is inlined.
+            urlPattern: ({ url, request }) =>
+              request.destination === 'image' &&
+              /^https:\/\/.*turbo-gateway\.com\/.*/i.test(url.href),
             handler: 'CacheFirst',
             options: {
               cacheName: 'arweave-images',
