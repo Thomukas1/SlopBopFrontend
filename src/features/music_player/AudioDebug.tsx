@@ -14,8 +14,8 @@ import { useEffect, useRef, useState } from 'react';
 // today (a 302 → text/plain → sandbox). FINAL is that redirect pre-resolved.
 // Tapping each plays a BARE new Audio() — no context/queue/effects — so whatever
 // happens is purely WebKit's native media pipeline, not our code.
-const REDIRECT_URL = 'https://turbo-gateway.com/YwZmG57CyRghG7zoigZsrT5PjJH8K7vQ8dmfa_pPDNY';
-const FINAL_URL = 'https://mmdgmg46ylerqii3xtuiubtmvu7e7der7qv3xuhr3gpwx6spbtla.turbo-gateway.com/YwZmG57CyRghG7zoigZsrT5PjJH8K7vQ8dmfa_pPDNY';
+const REDIRECT_URL = 'https://turbo-gateway.com/HoEHJTs-r3kw5h2XkINfiSUDx-kLFJys_ae3rW8aQzs';
+const FINAL_URL = 'https://d2aqojj3h2xxsmhgdwlzba27resqhr7jbmkjzlh5u63223y2im5q.turbo-gateway.com/HoEHJTs-r3kw5h2XkINfiSUDx-kLFJys_ae3rW8aQzs';
 
 export default function AudioDebug() {
   const [lines, setLines] = useState<string[]>([]);
