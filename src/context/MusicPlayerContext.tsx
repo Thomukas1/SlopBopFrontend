@@ -60,17 +60,27 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // without going stale, and so re-sorting the source list can't disturb it.
   const queueRef = useRef<Track[]>([]);
   const indexRef = useRef(0);
+  // Bumped on every load. A play() that rejects only touches state if it's still
+  // the current load — otherwise a superseded track's late AbortError would
+  // clobber the new track's `playing`/`loading` when switching quickly.
+  const loadGenRef = useRef(0);
 
   // Load a track into the audio element and start it. Stable so the mount
   // effect's `ended` handler can call it to auto-advance the queue.
   const loadAndPlay = useCallback((t: Track) => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.src = t.audioUrl;
-    // iOS Safari reuses the buffered ranges/position of the previously played
-    // src unless we force a fresh load — that's why tracks there start ~2s in
-    // (and clip the last second). Desktop Chrome resets on its own; Safari won't.
+    const gen = ++loadGenRef.current;
+    // Fully tear the previous source down before attaching the next one. On
+    // WebKit/iOS a bare `src =` reassignment leaves the old file's buffered head
+    // in the decode pipeline — it leaks out as ~2s of the previous song on a
+    // switch, and the new track starts ~2s in with its last second clipped.
+    // pause → clear src → load() flushes it; Chrome doesn't need this but it's
+    // harmless there.
+    audio.pause();
+    audio.removeAttribute('src');
     audio.load();
+    audio.src = t.audioUrl;
     setTrack(t);
     setCurrentTime(0);
     setDuration(t.duration ?? 0);
@@ -78,6 +88,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     // Start within the user gesture so autoplay policy doesn't block it.
     audio.play().catch(() => {
+      if (gen !== loadGenRef.current) return; // superseded by a newer load
       setPlaying(false);
       setLoading(false);
     });
@@ -133,18 +144,20 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     // loadAndPlay is stable, so the audio element is still set up once.
   }, [loadAndPlay]);
 
-  // Sync play/pause for toggles on the already-loaded track. The initial
-  // playback is kicked off directly in play() so it stays inside the user
-  // gesture (browsers block deferred autoplay).
+  // Sync play/pause for toggles on the already-loaded track. Deliberately keyed
+  // on `playing` alone: track switches are driven entirely by loadAndPlay (which
+  // starts playback inside the user gesture). Including `track` here would fire a
+  // second, redundant play() on every switch — two overlapping play() calls on a
+  // mid-load element is what glitches the start position on WebKit.
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !track) return;
+    if (!audio) return;
     if (playing) {
       audio.play().catch(() => setPlaying(false));
     } else {
       audio.pause();
     }
-  }, [playing, track]);
+  }, [playing]);
 
   // Play an ordered list as a queue, starting at `startIndex`; each track
   // auto-advances to the next when it ends. The list is snapshotted here, so
