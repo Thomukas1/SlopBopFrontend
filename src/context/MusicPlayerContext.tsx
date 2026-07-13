@@ -60,31 +60,18 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // without going stale, and so re-sorting the source list can't disturb it.
   const queueRef = useRef<Track[]>([]);
   const indexRef = useRef(0);
-  // Set by loadAndPlay so the play/pause sync effect skips its redundant
-  // play() on the render where playback was already kicked off directly —
-  // a second play() on a still-loading iOS element re-introduces the clip.
-  const justLoadedRef = useRef(false);
 
   // Load a track into the audio element and start it. Stable so the mount
   // effect's `ended` handler can call it to auto-advance the queue.
   const loadAndPlay = useCallback((t: Track) => {
     const audio = audioRef.current;
     if (!audio) return;
-    // iOS/WebKit reuses one persistent element (needed to keep the autoplay
-    // unlock from the user gesture). Reassigning `src` alone doesn't fully tear
-    // down the previous media pipeline there, so playback starts on a
-    // partially-buffered stream and clips the first ~1-2s. pause()+load()
-    // forces a clean reset so it starts at 0 — desktop/Android don't need it
-    // but it's harmless for them.
-    audio.pause();
     audio.src = t.audioUrl;
-    audio.load();
     setTrack(t);
     setCurrentTime(0);
     setDuration(t.duration ?? 0);
     setPlaying(true);
     setLoading(true);
-    justLoadedRef.current = true;
     // Start within the user gesture so autoplay policy doesn't block it.
     audio.play().catch(() => {
       setPlaying(false);
@@ -140,12 +127,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !track) return;
-    // loadAndPlay already started this track directly; don't fire a second
-    // play() on the same render (it re-clips the start on iOS).
-    if (justLoadedRef.current) {
-      justLoadedRef.current = false;
-      return;
-    }
     if (playing) {
       audio.play().catch(() => setPlaying(false));
     } else {
