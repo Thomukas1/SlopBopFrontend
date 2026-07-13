@@ -60,40 +60,23 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // without going stale, and so re-sorting the source list can't disturb it.
   const queueRef = useRef<Track[]>([]);
   const indexRef = useRef(0);
-  // True from the moment a load starts until its data is ready. Playback is
-  // deliberately deferred to onCanPlay (iOS drops audio "played" during the
-  // buffering wait); this both fires that start once and tells the [playing]
-  // effect to stay out of the way until then.
-  const pendingStartRef = useRef(false);
 
   // Load a track into the audio element and start it. Stable so the mount
   // effect's `ended` handler can call it to auto-advance the queue.
   const loadAndPlay = useCallback((t: Track) => {
     const audio = audioRef.current;
     if (!audio) return;
-    // Fully tear the previous source down before attaching the next one — on
-    // WebKit/iOS a bare `src =` reassignment leaks the old file's buffered head
-    // out on a switch. Harmless on Chrome.
-    audio.pause();
-    audio.removeAttribute('src');
-    audio.load();
     audio.src = t.audioUrl;
     setTrack(t);
     setCurrentTime(0);
     setDuration(t.duration ?? 0);
     setPlaying(true);
     setLoading(true);
-    pendingStartRef.current = true;
-    // Crucial for iOS: never play *through* the buffering wait. iOS lets the
-    // element "play" while it's still fetching and silently drops the audio for
-    // that whole interval, so the song starts however many seconds in (= the
-    // fetch time — invisible on Chrome/Android where the fetch is ~instant). We
-    // only *touch* play() here to satisfy iOS's autoplay unlock, which must
-    // happen inside the user's tap, then immediately pause. Real playback starts
-    // from 0 in onCanPlay, once the data is actually ready.
-    const p = audio.play();
-    if (p) p.then(() => audio.pause()).catch(() => {});
-    audio.pause();
+    // Start within the user gesture so autoplay policy doesn't block it.
+    audio.play().catch(() => {
+      setPlaying(false);
+      setLoading(false);
+    });
   }, []);
 
   // Create a persistent audio element
@@ -104,12 +87,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => setDuration(audio.duration);
-    // Safari safety net: if the new track's head landed anywhere but 0 (its
-    // reused-element bug), snap it back before playback becomes audible. Fires
-    // once per load, so it never fights a deliberate user seek during playback.
-    const onLoadedData = () => {
-      if (audio.currentTime > 0.05) audio.currentTime = 0;
-    };
     // Advance to the next queued track, or stop at the end of the queue.
     const onEnded = () => {
       const next = indexRef.current + 1;
@@ -123,63 +100,39 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     // Buffering / readiness — these drive the loading indicator.
     const onWaiting = () => setLoading(true);
     const onPlaying = () => setLoading(false);
-    // Data is ready: NOW start playback for real, from 0, with no buffering gap
-    // for iOS to skip over. Gated to once per load via pendingStartRef.
-    const onCanPlay = () => {
-      setLoading(false);
-      if (!pendingStartRef.current) return;
-      pendingStartRef.current = false;
-      if (audio.currentTime > 0.05) audio.currentTime = 0;
-      setPlaying(true);
-      audio.play().catch(() => setPlaying(false));
-    };
-    // A failed load must not leave us stuck on a spinner with playback pending.
-    const onError = () => {
-      pendingStartRef.current = false;
-      setLoading(false);
-      setPlaying(false);
-    };
+    const onCanPlay = () => setLoading(false);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
-    audio.addEventListener('loadeddata', onLoadedData);
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('canplay', onCanPlay);
-    audio.addEventListener('error', onError);
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-      audio.removeEventListener('loadeddata', onLoadedData);
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('canplay', onCanPlay);
-      audio.removeEventListener('error', onError);
       audio.pause();
     };
     // loadAndPlay is stable, so the audio element is still set up once.
   }, [loadAndPlay]);
 
-  // Sync play/pause for toggles on the already-loaded track. Deliberately keyed
-  // on `playing` alone: track switches are driven entirely by loadAndPlay (which
-  // starts playback inside the user gesture). Including `track` here would fire a
-  // second, redundant play() on every switch — two overlapping play() calls on a
-  // mid-load element is what glitches the start position on WebKit.
+  // Sync play/pause for toggles on the already-loaded track. The initial
+  // playback is kicked off directly in play() so it stays inside the user
+  // gesture (browsers block deferred autoplay).
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
-    // While a load is still buffering, onCanPlay owns the start — staying out
-    // here is what prevents iOS from "playing" (and dropping) the buffer window.
-    if (pendingStartRef.current) return;
+    if (!audio || !track) return;
     if (playing) {
       audio.play().catch(() => setPlaying(false));
     } else {
       audio.pause();
     }
-  }, [playing]);
+  }, [playing, track]);
 
   // Play an ordered list as a queue, starting at `startIndex`; each track
   // auto-advances to the next when it ends. The list is snapshotted here, so
@@ -223,7 +176,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }
     queueRef.current = [];
     indexRef.current = 0;
-    pendingStartRef.current = false;
     setPlaying(false);
     setLoading(false);
     setCurrentTime(0);
