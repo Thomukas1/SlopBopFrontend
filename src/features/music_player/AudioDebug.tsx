@@ -10,9 +10,27 @@ import { useEffect, useRef, useState } from 'react';
  * element's currentTime — so the "starts at ~2s" behaviour is visible live on
  * the phone. Tap a song, then hit COPY and paste the log back.
  */
+// Same song, two forms of its URL. REDIRECT is what the DB/app hands <audio>
+// today (a 302 → text/plain → sandbox). FINAL is that redirect pre-resolved.
+// Tapping each plays a BARE new Audio() — no context/queue/effects — so whatever
+// happens is purely WebKit's native media pipeline, not our code.
+const REDIRECT_URL = 'https://turbo-gateway.com/YwZmG57CyRghG7zoigZsrT5PjJH8K7vQ8dmfa_pPDNY';
+const FINAL_URL = 'https://mmdgmg46ylerqii3xtuiubtmvu7e7der7qv3xuhr3gpwx6spbtla.turbo-gateway.com/YwZmG57CyRghG7zoigZsrT5PjJH8K7vQ8dmfa_pPDNY';
+
 export default function AudioDebug() {
   const [lines, setLines] = useState<string[]>([]);
   const t0 = useRef<number | null>(null);
+  const testRef = useRef<HTMLAudioElement | null>(null);
+
+  const playBare = (url: string, label: string) => {
+    testRef.current?.pause();
+    const a = new Audio(url);
+    testRef.current = a;
+    a.addEventListener('playing', () =>
+      // eslint-disable-next-line no-console
+      console.log(`[TEST ${label}] playing ct=${a.currentTime.toFixed(2)}`));
+    a.play().catch(() => {});
+  };
 
   useEffect(() => {
     const proto = HTMLMediaElement.prototype as any;
@@ -112,7 +130,27 @@ export default function AudioDebug() {
         >
           CLEAR
         </button>
-        <span style={{ color: '#888', alignSelf: 'center' }}>audio debug — tap a song</span>
+        <span style={{ color: '#888', alignSelf: 'center' }}>audio debug</span>
+      </div>
+      <div style={{ position: 'sticky', top: 30, display: 'flex', gap: 8, marginBottom: 4 }}>
+        <button
+          onClick={() => playBare(REDIRECT_URL, 'REDIRECT')}
+          style={{ background: '#ff5533', color: '#000', border: 0, padding: '3px 8px', fontWeight: 700, borderRadius: 4 }}
+        >
+          ▶ REDIRECT url
+        </button>
+        <button
+          onClick={() => playBare(FINAL_URL, 'FINAL')}
+          style={{ background: '#33aaff', color: '#000', border: 0, padding: '3px 8px', fontWeight: 700, borderRadius: 4 }}
+        >
+          ▶ FINAL url
+        </button>
+        <button
+          onClick={() => testRef.current?.pause()}
+          style={{ background: '#333', color: '#fff', border: 0, padding: '3px 8px', borderRadius: 4 }}
+        >
+          ■ stop
+        </button>
       </div>
       {lines.map((l, i) => <div key={i}>{l}</div>)}
     </div>
