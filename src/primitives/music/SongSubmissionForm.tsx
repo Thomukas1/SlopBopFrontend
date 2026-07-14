@@ -30,29 +30,33 @@ function markSubmitted(collectionId: string) {
 interface Props {
   /** The collection (album or mixtape) this submission is written against. */
   collectionId: string;
+  /** Submissions received so far — shown centered at the top of the card. */
+  trackCount: number;
+  /** Capacity — the denominator of the count header. */
+  maxTracks: number;
   /** Refetch the collection so the window is re-evaluated (capacity hit, or a
    * 409 closes it). */
   refresh: () => void;
 }
 
 /**
- * The generic "write a song" form, shared by albums and mixtapes. It owns only
- * the submission itself: the two fields, validation, the POST, and the
- * per-device dedup that swaps the form for a thank-you once you've submitted.
+ * The generic "write a song" card, shared verbatim by albums and mixtapes. It's
+ * a self-contained card: a centered `count / max songs` header, then the two
+ * fields + submit (or a thank-you once this device has submitted). It owns only
+ * the submission itself — the POST, validation, and per-device dedup.
  *
- * Everything *around* it — the capacity gauge, any countdown, the lifecycle
- * gating that decides whether this form should show at all — lives in the
- * per-type manager that renders it (album `Submissions`, mixtape submissions).
+ * Everything *around* it — the intro copy, any deadline countdown, the lifecycle
+ * gating that decides whether the card shows at all — lives in the per-type
+ * manager that renders it (album `Submissions`, `MixtapeSubmissions`), so this
+ * stays identical for every collection type.
  */
-export default function SongSubmissionForm({ collectionId, refresh }: Props) {
+export default function SongSubmissionForm({ collectionId, trackCount, maxTracks, refresh }: Props) {
   const [submitted, setSubmitted] = useState(() => !!getSubmittedCollections()[collectionId]);
   const { submit, submitting, fieldErrors } = useSubmitSongRequest();
   const { showToast } = useToast();
 
   const [author, setAuthor] = useState('');
   const [text, setText] = useState('');
-
-  if (submitted) return <SubmittedNotice />;
 
   const authorValid = author.trim().length > 0 && author.length <= AUTHOR_MAX;
   const textValid = text.trim().length > 0 && text.length <= TEXT_MAX;
@@ -82,37 +86,48 @@ export default function SongSubmissionForm({ collectionId, refresh }: Props) {
   }
 
   return (
-    <div className="form">
-      <TextField
-        label="Your name"
-        required
-        value={author}
-        onChange={setAuthor}
-        maxLength={AUTHOR_MAX}
-        help={`${author.length}/${AUTHOR_MAX}`}
-        error={fieldErrors.author}
-      />
+    <div className="frosted-card flex flex-col gap-lg">
+      <div className="flex items-baseline justify-between">
+        <h3 className="font-display text-base">Write a song</h3>
+        <span className="text-sm font-semibold text-accent">{trackCount} / {maxTracks} songs</span>
+      </div>
 
-      <TextAreaField
-        label="Lyrics"
-        required
-        value={text}
-        onChange={setText}
-        maxLength={TEXT_MAX}
-        rows={5}
-        placeholder="Write the lyrics you'd like them to sing…"
-        help={`${text.length}/${TEXT_MAX}`}
-        error={fieldErrors.text}
-      />
+      {submitted ? (
+        <SubmittedNotice />
+      ) : (
+        <div className="form">
+          <TextField
+            label="Your name"
+            required
+            value={author}
+            onChange={setAuthor}
+            maxLength={AUTHOR_MAX}
+            help={`${author.length}/${AUTHOR_MAX}`}
+            error={fieldErrors.author}
+          />
 
-      <button
-        type="button"
-        className="special full-width"
-        disabled={!allValid || submitting}
-        onClick={handleSend}
-      >
-        {submitting ? 'Submitting…' : 'Submit'}
-      </button>
+          <TextAreaField
+            label="Lyrics"
+            required
+            value={text}
+            onChange={setText}
+            maxLength={TEXT_MAX}
+            rows={5}
+            placeholder="Write the lyrics you'd like them to sing…"
+            help={`${text.length}/${TEXT_MAX}`}
+            error={fieldErrors.text}
+          />
+
+          <button
+            type="button"
+            className="special full-width"
+            disabled={!allValid || submitting}
+            onClick={handleSend}
+          >
+            {submitting ? 'Submitting…' : 'Submit'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

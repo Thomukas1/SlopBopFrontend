@@ -16,31 +16,46 @@ interface Props {
 
 // Song submissions for this album, rendered on the album page. Its lifecycle:
 //
-//   window open        → info panel + form (or "already submitted" once you have)
+//   window open        → intro + deadline strip + form card
 //   window not started → countdown to the opening
 //   closed, songs → 0  → "being produced" wait (submissions came in, no song yet)
 //   first song exists  → nothing at all (its job is done)
 //   never any activity → nothing at all
 //
-// The panel owns its own top divider so that hiding it also removes the divider —
-// the album page just drops <Submissions/> in and lets it decide whether to show.
+// Owns its own top divider so that hiding it also removes the divider — the album
+// page just drops <Submissions/> in and lets it decide whether to show.
 export default function Submissions({ albumId, artistName, status, songCount, refresh }: Props) {
   let body: React.ReactNode = null;
   if (songCount > 0) {
     // First song is published — the submission phase is over. Render nothing.
     body = null;
   } else if (status.open) {
+    // Intro copy and the deadline strip sit *above* the form card, which is a
+    // generic self-contained card (count header + fields). Keeping them out is
+    // what lets the same card serve albums and mixtapes.
     body = (
-      <InfoPanel status={status} artistName={artistName} refresh={refresh}>
-        <SongSubmissionForm collectionId={albumId} refresh={refresh} />
-      </InfoPanel>
+      <div className="flex flex-col gap-md">
+        <p className="text-sm text-secondary leading-relaxed">
+          Help {artistName ?? 'this artist'} produce this album by submitting a
+          song with your own custom lyrics.
+        </p>
+        {status.submission_deadline && (
+          <DeadlineStrip deadline={status.submission_deadline} onExpire={refresh} />
+        )}
+        <SongSubmissionForm
+          collectionId={albumId}
+          trackCount={status.track_count}
+          maxTracks={status.max_tracks}
+          refresh={refresh}
+        />
+      </div>
     );
   } else if (status.reason === 'not_started') {
-    body = <PendingNotice status={status} onStart={refresh} />;
+    body = <div className="frosted-card"><PendingNotice status={status} onStart={refresh} /></div>;
   } else if (status.track_count > 0) {
     // Closed with submissions in hand but no song published yet — the production
     // wait before the first track is generated.
-    body = <ProducingNotice />;
+    body = <div className="frosted-card"><ProducingNotice /></div>;
   }
 
   if (!body) return null;
@@ -48,44 +63,24 @@ export default function Submissions({ albumId, artistName, status, songCount, re
   return (
     <>
       <div className="border-t border-white/10" />
-      <div className="frosted-card">{body}</div>
+      {body}
     </>
   );
 }
 
-// The persistent header shown while the window is open: intro, capacity gauge and
-// deadline countdown. Stays put whether the viewer sees the form or the
-// already-submitted notice, so they always know how this period is tracking.
-function InfoPanel({
-  status,
-  artistName,
-  refresh,
-  children,
-}: {
-  status: RequestStatus;
-  artistName?: string;
-  refresh: () => void;
-  children: React.ReactNode;
-}) {
+// The countdown strip pinned above the form while a dated album is taking
+// submissions: how long is left to get one in. A pulsing red so the room can't
+// miss it. Albums with a deadline only — mixtapes have no window, so they never
+// render this.
+function DeadlineStrip({ deadline, onExpire }: { deadline: string; onExpire: () => void }) {
   return (
-    <div className="flex flex-col gap-lg">
-      <p className="text-sm text-secondary leading-relaxed">
-        Help {artistName ?? 'this artist'} produce this album by submitting a
-        song with your own custom lyrics.
-      </p>
-
-      <div className="flex items-center justify-between text-xs font-semibold text-accent">
-        <span>{status.track_count} / {status.max_tracks} songs</span>
-        {status.submission_deadline && (
-          <Countdown
-            target={status.submission_deadline}
-            onExpire={refresh}
-            render={r => `${r} left`}
-          />
-        )}
-      </div>
-
-      {children}
+    <div className="deadline-strip">
+      <span>Closing in:</span>
+      <Countdown
+        target={deadline}
+        onExpire={onExpire}
+        render={r => <span className="deadline-strip__time">{r}</span>}
+      />
     </div>
   );
 }
