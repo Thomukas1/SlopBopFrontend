@@ -23,7 +23,7 @@ export interface SongRequestResult {
 export type RequestClosedReason =
   | 'not_started'     // before submission_start
   | 'deadline_passed' // past submission_deadline
-  | 'album_full'      // submission_count reached max_tracks
+  | 'full'      // submission_count reached max_tracks
   | 'not_configured'  // max_tracks never authored
   | 'not_an_album';   // the collection is not an album type (submit only applies to albums)
 

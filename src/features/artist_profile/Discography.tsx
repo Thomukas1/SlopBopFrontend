@@ -13,6 +13,7 @@ interface Props {
 
 export interface GroupedDiscography {
   albums: { album: Collection; songs: Song[] }[];
+  mixtapes: { album: Collection; songs: Song[] }[];
   singles: Song[];
 }
 
@@ -22,6 +23,7 @@ function useDiscography(artistId: string): {
   refetch: () => void;
 } {
   const { collections: albums, loading: albumsLoading } = useCollections(artistId, 'album');
+  const { collections: mixtapes, loading: mixtapesLoading } = useCollections(artistId, 'mixtape');
   const { songs, loading: songsLoading, refetch } = useSongs(artistId);
 
   const discography = useMemo<GroupedDiscography>(() => {
@@ -38,15 +40,20 @@ function useDiscography(artistId: string): {
       }
     }
 
-    const grouped = albums.map(album => ({
-      album,
-      songs: songsByCollection.get(album._id) ?? [],
-    }));
+    const group = (collections: Collection[]) =>
+      collections.map(album => ({
+        album,
+        songs: songsByCollection.get(album._id) ?? [],
+      }));
 
-    return { albums: grouped, singles };
-  }, [albums, songs]);
+    return { albums: group(albums), mixtapes: group(mixtapes), singles };
+  }, [albums, mixtapes, songs]);
 
-  return { discography, loading: albumsLoading || songsLoading, refetch };
+  return {
+    discography,
+    loading: albumsLoading || mixtapesLoading || songsLoading,
+    refetch,
+  };
 }
 
 export default function Discography({ artistId, artistName }: Props) {
@@ -54,7 +61,8 @@ export default function Discography({ artistId, artistName }: Props) {
   const navigate = useNavigate();
 
   if (loading) return null;
-  if (!discography.albums.length && !discography.singles.length) return null;
+  if (!discography.albums.length && !discography.mixtapes.length && !discography.singles.length)
+    return null;
 
   return (
     <div className="flex flex-col gap-lg">
@@ -68,6 +76,22 @@ export default function Discography({ artistId, artistName }: Props) {
                 coverUrl={album.cover_url}
                 title={album.title || 'Untitled'}
                 onClick={() => navigate(`/albums/${album._id}`)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {discography.mixtapes.length > 0 && (
+        <div className="flex flex-col gap-md">
+          <h2 className="font-display text-lg">Mixtapes</h2>
+          <div className="grid grid-cols-2 gap-md">
+            {discography.mixtapes.map(({ album }) => (
+              <AlbumCard
+                key={album._id}
+                coverUrl={album.cover_url}
+                title={album.title || 'Untitled'}
+                onClick={() => navigate(`/mixtapes/${album._id}`)}
               />
             ))}
           </div>

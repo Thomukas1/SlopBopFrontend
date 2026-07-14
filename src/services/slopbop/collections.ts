@@ -2,11 +2,11 @@ import { apiFetch } from './client';
 import { Song } from './songs';
 import type { RequestClosedReason } from './requests';
 
-// How a collection resolves its songs and which extra fields it carries. Today
-// every collection is an `album`; the union is the seam for future kinds (e.g. a
-// `playlist` that resolves an explicit song_id list instead of a collection_id
-// back-reference).
-export type CollectionType = 'album';
+// How a collection resolves its songs and which extra fields it carries. Both
+// `album` and `mixtape` resolve their songs by collection_id back-reference and
+// carry the same shape; the union is the seam for future kinds (e.g. a
+// `playlist` that resolves an explicit song_id list instead).
+export type CollectionType = 'album' | 'mixtape';
 
 // The generic container for an artist's songs. `type` discriminates the kind.
 export interface Collection {
