@@ -1,16 +1,19 @@
 import { useResource } from './useResource';
-import { fetchAlbum, Song } from '../services/slopbop';
+import { fetchCollection, Song } from '../services/slopbop';
 import { useToast } from '../context/ToastContext';
 
+// Loads a single album — an album-type collection — for the album page. The
+// detail read is generic (`fetchCollection`); this maps it onto the album shape
+// the page renders, including the album-only `requestStatus`.
 export function useAlbum(id: string) {
   const { showToast } = useToast();
   const { data, loading, refetch } = useResource(
-    () => fetchAlbum(id),
-    id ? `album-${id}` : '',
+    () => fetchCollection(id),
+    id ? `collection-${id}` : '',
     { onError: () => showToast('Failed to load album') },
   );
   return {
-    album: data?.album ?? null,
+    album: data?.collection ?? null,
     songs: (data?.songs ?? []) as Song[],
     requestStatus: data?.requestStatus ?? null,
     loading,

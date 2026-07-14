@@ -1,10 +1,10 @@
 import { API_URL } from './client';
-import { RequestStatus } from './albums';
+import { RequestStatus } from './collections';
 
-// A song submission against an album. The album id travels in the URL, not the
-// body. Wire format mirrors the backend's validation rules (in comments only —
-// the backend is the trust boundary). `text` preserves internal line breaks
-// (server normalizes \r\n / \r → \n and trims only the outer edges).
+// A song submission against a collection. The collection id travels in the URL,
+// not the body. Wire format mirrors the backend's validation rules (in comments
+// only — the backend is the trust boundary). `text` preserves internal line
+// breaks (server normalizes \r\n / \r → \n and trims only the outer edges).
 export interface SongRequestPayload {
   author: string; // required, ≤ 18 chars (trimmed)
   text: string;   // required, ≤ 260 chars
@@ -18,33 +18,34 @@ export interface SongRequestResult {
   request_status: RequestStatus;
 }
 
-// Why an album isn't accepting submissions. Shared by the album detail's
-// `request_status.reason` and the submit endpoint's 409 body.
+// Why a collection isn't accepting submissions. Shared by the collection
+// detail's `request_status.reason` and the submit endpoint's 409 body.
 export type RequestClosedReason =
   | 'not_started'     // before submission_start
   | 'deadline_passed' // past submission_deadline
   | 'album_full'      // submission_count reached max_tracks
-  | 'not_configured'; // max_tracks never authored
+  | 'not_configured'  // max_tracks never authored
+  | 'not_an_album';   // the collection is not an album type (submit only applies to albums)
 
 // Discriminated outcome of submit:
 //   ok         → the new request id + the updated window
 //   validation → field→message map from a 400 (same shape as the application form)
 //   closed     → the window closed server-side between load and submit (409); the
-//                caller should surface the message and refresh the album
-// A 404 (album not found), 500, or network error rejects.
+//                caller should surface the message and refresh the collection
+// A 404 (collection not found), 500, or network error rejects.
 export type SongRequestOutcome =
   | { ok: true; data: SongRequestResult }
   | { ok: false; kind: 'validation'; errors: Record<string, string> }
   | { ok: false; kind: 'closed'; reason: RequestClosedReason; message: string };
 
-// POST a song submission against an album. Bypasses `apiFetch` because the
+// POST a song submission against a collection. Bypasses `apiFetch` because the
 // 400/409 responses carry bodies (field errors / closed reason) we need to read
 // rather than discard.
 export async function submitSongRequest(
-  albumId: string,
+  collectionId: string,
   payload: SongRequestPayload,
 ): Promise<SongRequestOutcome> {
-  const res = await fetch(`${API_URL}/slopbop/albums/${albumId}/submissions`, {
+  const res = await fetch(`${API_URL}/slopbop/collections/${collectionId}/submissions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -69,7 +70,7 @@ export async function submitSongRequest(
       ok: false,
       kind: 'closed',
       reason: data.reason as RequestClosedReason,
-      message: data.error || 'Song submissions are closed for this album',
+      message: data.error || 'Song submissions are closed for this collection',
     };
   }
   throw new Error(data.error || 'Request failed');

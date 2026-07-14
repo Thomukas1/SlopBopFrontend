@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAlbums } from '../../hooks/useAlbums';
+import { useCollections } from '../../hooks/useCollections';
 import { useSongs } from '../../hooks/useSongs';
-import type { Album, Song } from '../../services/slopbop';
+import type { Collection, Song } from '../../services/slopbop';
 import AlbumCard from '../../primitives/music/AlbumCard';
 import SongList from './SongList';
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export interface GroupedDiscography {
-  albums: { album: Album; songs: Song[] }[];
+  albums: { album: Collection; songs: Song[] }[];
   singles: Song[];
 }
 
@@ -21,18 +21,18 @@ function useDiscography(artistId: string): {
   loading: boolean;
   refetch: () => void;
 } {
-  const { albums, loading: albumsLoading } = useAlbums(artistId);
+  const { collections: albums, loading: albumsLoading } = useCollections(artistId, 'album');
   const { songs, loading: songsLoading, refetch } = useSongs(artistId);
 
   const discography = useMemo<GroupedDiscography>(() => {
-    const songsByAlbum = new Map<string, Song[]>();
+    const songsByCollection = new Map<string, Song[]>();
     const singles: Song[] = [];
 
     for (const song of songs) {
-      if (song.album_id) {
-        const list = songsByAlbum.get(song.album_id) ?? [];
+      if (song.collection_id) {
+        const list = songsByCollection.get(song.collection_id) ?? [];
         list.push(song);
-        songsByAlbum.set(song.album_id, list);
+        songsByCollection.set(song.collection_id, list);
       } else {
         singles.push(song);
       }
@@ -40,7 +40,7 @@ function useDiscography(artistId: string): {
 
     const grouped = albums.map(album => ({
       album,
-      songs: songsByAlbum.get(album._id) ?? [],
+      songs: songsByCollection.get(album._id) ?? [],
     }));
 
     return { albums: grouped, singles };

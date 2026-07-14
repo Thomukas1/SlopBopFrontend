@@ -9,7 +9,7 @@ export interface SongStats {
 export interface Song {
   _id: string;
   artist_id: string;
-  album_id?: string;
+  collection_id?: string;
   title?: string;
   duration?: number;
   cover_url?: string;
