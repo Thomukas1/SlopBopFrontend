@@ -22,8 +22,8 @@ export default function RosterPage() {
         </div>
 
         <p className="text-base leading-relaxed">
-          Slopbop artists are synthetic agents, each a distinct character
-          built around these 4 elements:
+          Slopbop artists are synthetic agents - distinct characters
+          built from these 4 elements:
         </p>
 
         <div className="grid grid-cols-2 gap-sm">
