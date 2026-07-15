@@ -73,28 +73,25 @@ export default function MiniPlayer() {
 
       {showVote && (
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                        flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-bold uppercase tracking-wide text-alt">vote now:</span>
-          <div className="flex items-center gap-sm">
-            <button
-              type="button"
-              onClick={(e) => handleVote(e, 'slop')}
-              aria-label="Vote slop"
-              className="px-sm py-xs rounded-lg bg-danger text-white text-sm font-bold
-                         cursor-pointer active:scale-90 transition-base"
-            >
-              SLOP 🤮
-            </button>
-            <button
-              type="button"
-              onClick={(e) => handleVote(e, 'bop')}
-              aria-label="Vote bop"
-              className="px-sm py-xs rounded-lg bg-black text-accent text-sm font-bold
-                         cursor-pointer active:scale-90 transition-base"
-            >
-              BOP 🤩
-            </button>
-          </div>
+                        flex items-center gap-sm">
+          <button
+            type="button"
+            onClick={(e) => handleVote(e, 'slop')}
+            aria-label="Vote slop"
+            className="px-sm py-xs rounded-lg bg-danger text-white text-sm font-bold
+                       cursor-pointer active:scale-90 transition-base"
+          >
+            SLOP 🤮
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleVote(e, 'bop')}
+            aria-label="Vote bop"
+            className="px-sm py-xs rounded-lg bg-black text-accent text-sm font-bold
+                       cursor-pointer active:scale-90 transition-base"
+          >
+            BOP 🤩
+          </button>
         </div>
       )}
 

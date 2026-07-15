@@ -73,3 +73,41 @@
   border: none;
   cursor: pointer;
 }
+
+/* Full-screen sheet slide. `is-open` plays on mount (slide up from the bottom),
+   `is-closing` plays when the arrow collapses it (slide back down); the TSX
+   unmounts on the closing animation's end. `forwards` holds the off-screen
+   frame so it doesn't flash back before React removes it. */
+.music-player-sheet.is-open {
+  animation: sheetUp 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.music-player-sheet.is-closing {
+  animation: sheetDown 220ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes sheetDown {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+/* Respect reduced-motion: appear/disappear instantly, no slide. The closing
+   state still runs a 1ms no-movement animation so onAnimationEnd fires and the
+   TSX unmounts the sheet — without it, animation:none means no event and the
+   (hidden) sheet would linger in the DOM. */
+@media (prefers-reduced-motion: reduce) {
+  .music-player-sheet.is-open {
+    animation: none;
+  }
+  .music-player-sheet.is-closing {
+    animation: sheetInstant 1ms linear forwards;
+  }
+  @keyframes sheetInstant {
+    to { opacity: 0; }
+  }
+}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { useSongVote } from '../hooks/useSongVote';
@@ -56,6 +56,14 @@ export default function MusicPlayer() {
 
   const [downloading, setDownloading] = useState(false);
 
+  // Keep the sheet mounted for the slide-down: `expanded` flips to false the
+  // instant the arrow is tapped, but we hold the element in the DOM (rendered)
+  // until its exit animation finishes, then unmount on animationEnd below.
+  const [rendered, setRendered] = useState(false);
+  useEffect(() => {
+    if (expanded) setRendered(true);
+  }, [expanded]);
+
   // Songs are free to use — pull the file cross-origin (gateway allows it)
   // and hand the user a real download with a sensible filename. Falls back
   // to opening the URL if the fetch is blocked.
@@ -80,24 +88,40 @@ export default function MusicPlayer() {
     }
   }, [track, downloading]);
 
-  if (!track || !expanded) return null;
+  if (!track || (!expanded && !rendered)) return null;
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-modal bg-black overflow-y-auto">
-      {/* Header */}
-      <div className="flex justify-end p-lg">
-        <button type="button" onClick={collapse} className="cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
-          </svg>
-        </button>
-      </div>
+    <div
+      className={`music-player-sheet fixed inset-0 z-modal bg-black overflow-y-auto ${
+        expanded ? 'is-open' : 'is-closing'
+      }`}
+      onAnimationEnd={(e) => {
+        // Ignore bubbled animations from children (spinners, bop-meter) — only
+        // the sheet's own slide-down should trigger the unmount.
+        if (e.target === e.currentTarget && !expanded) setRendered(false);
+      }}
+    >
+      {/* Minimize handle — same lime as the MiniPlayer this collapses back
+          into, so it reads unmistakably as "tap here to go back down". The
+          whole strip is the tap target, and it's sticky so it stays reachable
+          after scrolling through long lyrics. */}
+      <button
+        type="button"
+        onClick={collapse}
+        className="sticky top-0 z-10 w-full rounded-none bg-accent text-alt flex items-center justify-end gap-xs
+                   py-sm px-lg cursor-pointer active:opacity-80 transition-base"
+      >
+        <span className="text-xs font-bold uppercase tracking-wider">press to minimize</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
+        </svg>
+      </button>
 
       {/* Content column — constrained to the cover's width and centered, so
           on desktop the meta/controls don't sprawl to the screen edges. */}
-      <div className="mx-auto w-full max-w-player px-lg">
+      <div className="mx-auto w-full max-w-player px-lg pt-3xl">
         {/* Artist (left) + download (right) — above the cover */}
         <div className="flex items-center justify-between gap-md mb-md">
         {track.artistId && track.artistName ? (

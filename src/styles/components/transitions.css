@@ -1,0 +1,31 @@
+/* ============================================================
+   Page transitions — View Transitions API
+   Opt-in per navigation via navigate(path, { viewTransition: true }).
+   `root` is the browser's default name for the whole-page snapshot, so
+   this cross-fades the outgoing page out and the incoming page in.
+   Browsers without the API just navigate instantly — no fallback needed.
+   ============================================================ */
+
+@keyframes vtFadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes vtFadeOut {
+  to { opacity: 0; }
+}
+
+::view-transition-old(root) {
+  animation: vtFadeOut 200ms ease both;
+}
+
+::view-transition-new(root) {
+  animation: vtFadeIn 240ms ease both;
+}
+
+/* Honour reduced-motion: swap instantly, no fade. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

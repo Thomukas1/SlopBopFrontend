@@ -25,7 +25,7 @@ export function NavBar() {
             <button
               key={path}
               type="button"
-              onClick={() => navigate(path)}
+              onClick={() => navigate(path, { viewTransition: true })}
               className={`flex flex-col items-center gap-0.5 px-8 h-full justify-center transition-base ${
                 active ? 'text-accent' : 'text-muted'
               }`}

@@ -4,16 +4,18 @@
 
 @font-face {
   font-family: 'Masicu';
-  src: url('/Fonts/Masicu-Medium.ttf') format('truetype');
+  src: url('/Fonts/Masicu-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Xirod';
-  src: url('/Fonts/Xirod - new rubian font.otf') format('opentype');
+  src: url('/Fonts/Xirod.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 /* Base heading & text styles in Tailwind base layer */
