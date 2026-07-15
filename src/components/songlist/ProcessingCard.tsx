@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Img from '../Img';
+import Img from '../../primitives/Img';
 
 interface Props {
   coverUrl?: string;

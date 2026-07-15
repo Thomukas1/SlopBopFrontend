@@ -1,7 +1,7 @@
 import { useSim } from '../../../context/SimContext';
 import { useWorldMap } from '../../../hooks/useWorldMap';
 import { useWorldItems } from '../../../hooks/useWorldItems';
-import { StatBar } from '../../../primitives/StatBar';
+import { StatBar } from './StatBar';
 import { Item, Location, SnapshotState } from '../../../services/slopbop';
 
 // The three tracked stats, in display order, each with its own emoji + color.

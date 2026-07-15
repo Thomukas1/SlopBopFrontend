@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCollections } from '../../hooks/useCollections';
 import { useSongs } from '../../hooks/useSongs';
 import type { Collection, Song } from '../../services/slopbop';
-import AlbumCard from '../../primitives/music/AlbumCard';
-import SongList from './SongList';
+import AlbumCard from './AlbumCard';
+import SongList from '../../components/songlist/SongList';
 
 interface Props {
   artistId: string;

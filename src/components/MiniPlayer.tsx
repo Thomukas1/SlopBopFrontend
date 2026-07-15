@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
-import { useMusicPlayer } from '../../context/MusicPlayerContext';
-import { useSongVote } from '../../hooks/useSongVote';
-import type { VoteType } from '../../services/slopbop';
-import Img from '../../primitives/Img';
+import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { useSongVote } from '../hooks/useSongVote';
+import type { VoteType } from '../services/slopbop';
+import Img from '../primitives/Img';
 
 // Pre-computed spark trajectories — a fan of upward vectors so the burst
 // sprays across the top of the bar. Colours alternate lime / white to pop.

@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { isReleased, type Song } from '../../services/slopbop';
 import { useMusicPlayer, type Track } from '../../context/MusicPlayerContext';
-import SingleCard from '../../primitives/music/SingleCard';
-import ProcessingCard from '../../primitives/music/ProcessingCard';
+import SingleCard from './SingleCard';
+import ProcessingCard from './ProcessingCard';
 
 type SongSort = 'release' | 'popular';
 

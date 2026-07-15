@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { Artist } from '../../services/slopbop';
 import { useTopSong } from '../../hooks/useTopSong';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
-import SingleCard from '../../primitives/music/SingleCard';
+import SingleCard from '../../components/songlist/SingleCard';
 import Img from '../../primitives/Img';
-import GenrePills from '../../primitives/GenrePills';
+import TagPills from '../../primitives/TagPills';
 
 export function ArtistCard({ artist }: { artist: Artist }) {
   const { topSong } = useTopSong(artist.artist_id);
@@ -24,7 +24,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
         />
         <div className="px-lg py-sm bg-surface flex flex-col gap-sm">
           <p className="font-display text-xl">{artist.name}</p>
-          <GenrePills genres={artist.genres} />
+          <TagPills tags={artist.genres} />
         </div>
       </Link>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FAQItem } from '../../primitives/FAQItem';
+import { FAQItem } from './FAQItem';
 import { FAQ_ITEMS } from './faq-data';
 
 export function FAQ() {

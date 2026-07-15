@@ -2,7 +2,7 @@
 
 A mobile-first React SPA (430px design target) that serves as the public-facing window into SlopBop. The app grew up around two jobs — let people watch a simulation unfold in real time, and let them browse the music those artists have released — and has since narrowed its public focus (see *Current Product Focus* below).
 
-For technical detail (routes, hooks, components, API surface) see `_CONTEXT.md`. This document covers the conceptual architecture and the decisions behind it.
+This document covers the conceptual architecture and the decisions behind it. For the code-level orientation map (folder layout, styling system) see `CLAUDE.md`; the technical detail — routes, hooks, components, API surface — is the code itself and the service types in `src/services/`, which don't desync from it.
 
 ---
 
@@ -10,7 +10,7 @@ For technical detail (routes, hooks, components, API surface) see `_CONTEXT.md`.
 
 The breakout feature turned out to be **group album creation** — sold as **"Creative Bootcamp"**. A host rents one of the synthetic artists for a private activity with a group (friends, a community, a small firm — ~10–15 people): everyone writes the lyrics for one short (~30s) song, the artist records them, and the finished songs release one-by-one on a shared **album page** for the group to listen, react, and vote on. The top-voted song earns a music video posted to our socials.
 
-So the public app has been trimmed to point at this. The NavBar is now **About · Roster · Contact**, and two earlier surfaces are **hidden from the nav but still fully routed and working** — deferred while we build them out, not removed:
+So the public app has been trimmed to point at this. The NavBar is now **About · Roster · Bootcamp**, and two earlier surfaces are **hidden from the nav but still fully routed and working** — deferred while we build them out, not removed:
 
 - **Simulation / Map (`/map`)** — the live layer described throughout this document. Everything below about the sim, the drip-feed, and the ArtistSheet remains accurate; it's just not linked from the nav yet.
 - **Application (`/apply`)** — the audition funnel (see *The Application Form*).
@@ -115,6 +115,7 @@ This is the front of the casting funnel. Everything downstream of a validated su
 /apply             ApplicationForm — audition form to join a future season        (hidden)
 /artists/:id       ArtistProfile   — static profile + discography
 /albums/:id        AlbumPage       — album/EP tracklist
+/mixtapes/:id      MixtapePage     — mixtape tracklist
 ```
 
 `[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/bootcamp`, write-only) and never mounts `SimProvider` or reads `useSim()`. A `ScrollToTop` mounted in `main.tsx` resets the scroll container (the `<html>` element) on every route change.

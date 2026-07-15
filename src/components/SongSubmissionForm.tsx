@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { TextField, TextAreaField } from '../form';
-import { useSubmitSongRequest } from '../../hooks/useSubmitSongRequest';
-import { useToast } from '../../context/ToastContext';
+import { TextField, TextAreaField } from '../primitives/form';
+import { useSubmitSongRequest } from '../hooks/useSubmitSongRequest';
+import { useToast } from '../context/ToastContext';
 
 // Field length caps, mirroring the backend's validation rules.
 const AUTHOR_MAX = 18;

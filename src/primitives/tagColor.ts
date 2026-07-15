@@ -1,7 +1,7 @@
 /**
- * Deterministic genre → colour, in the spirit of Pokémon type pills.
+ * Deterministic tag → colour, in the spirit of Pokémon type pills.
  *
- * Each genre name is hashed into a single HUE. The fill holds saturation and
+ * Each tag string is hashed into a single HUE. The fill holds saturation and
  * lightness CONSTANT — that fixed pair is what keeps the pills feeling like one
  * family and anchored to the theme, instead of a random rainbow that drifts out
  * of context. (Consistency needs one of hue / saturation / lightness to stay
@@ -12,7 +12,7 @@
  * fills, a bright vivid tone on dark fills, chosen by luminance so it never
  * disappears. We deliberately avoid near-white / near-black labels (they read
  * as washed and boring); legibility on the awkward mid-luminance fills instead
- * comes from a thin contrasting {@link GenreColor.outline} — the Pokémon-pill
+ * comes from a thin contrasting {@link TagColor.outline} — the Pokémon-pill
  * halo — which lets the label stay colourful without sacrificing readability.
  */
 
@@ -62,7 +62,7 @@ function contrast(a: number, b: number): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-export interface GenreColor {
+export interface TagColor {
   /** Pill fill colour. */
   bg: string;
   /** Label colour — the complement, at whichever vivid tone reads best on the fill. */
@@ -71,8 +71,8 @@ export interface GenreColor {
   outline: string;
 }
 
-export function genreColor(genre: string): GenreColor {
-  const hue = hashString(genre.trim().toLowerCase()) % 360;
+export function tagColor(tag: string): TagColor {
+  const hue = hashString(tag.trim().toLowerCase()) % 360;
   const fillLum = relativeLuminance(hslToRgb(hue, FILL_SATURATION, FILL_LIGHTNESS));
 
   const labelHue = (hue + 180) % 360;

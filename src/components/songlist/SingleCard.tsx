@@ -1,4 +1,4 @@
-import Img from '../Img';
+import Img from '../../primitives/Img';
 import { ratingEmoji } from './ratingEmoji';
 
 interface SongStats {

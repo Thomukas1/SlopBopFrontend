@@ -1,25 +1,25 @@
-import { genreColor } from './genreColor';
+import { tagColor } from './tagColor';
 
 /**
- * A wrap of Pokémon-style genre pills. Each genre gets a deterministic colour
- * (see {@link genreColor}) so the same genre always looks the same everywhere.
+ * A wrap of Pokémon-style tag pills. Each tag gets a deterministic colour
+ * (see {@link tagColor}) so the same tag always looks the same everywhere.
  */
-export default function GenrePills({
-  genres,
+export default function TagPills({
+  tags,
   className = '',
 }: {
-  genres?: string[];
+  tags?: string[];
   className?: string;
 }) {
-  if (!genres?.length) return null;
+  if (!tags?.length) return null;
 
   return (
     <div className={`flex flex-wrap gap-xs ${className}`}>
-      {genres.map(genre => {
-        const { bg, fg, outline } = genreColor(genre);
+      {tags.map(tag => {
+        const { bg, fg, outline } = tagColor(tag);
         return (
           <span
-            key={genre}
+            key={tag}
             className="inline-flex items-center px-md py-xs text-xs font-bold uppercase tracking-wide leading-none"
             style={{
               backgroundColor: bg,
@@ -29,7 +29,7 @@ export default function GenrePills({
               textShadow: `-0.5px -0.5px 0 ${outline}, 0.5px -0.5px 0 ${outline}, -0.5px 0.5px 0 ${outline}, 0.5px 0.5px 0 ${outline}`,
             }}
           >
-            {genre}
+            {tag}
           </span>
         );
       })}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { RequestStatus } from '../../services/slopbop';
-import SongSubmissionForm from '../../primitives/music/SongSubmissionForm';
+import SongSubmissionForm from '../../components/SongSubmissionForm';
 
 interface Props {
   albumId: string;

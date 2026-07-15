@@ -7,8 +7,8 @@ import { FeaturedArtistCard } from './FeaturedArtistCard';
 import { Testimonials } from './Testimonials';
 
 const PROJECT_SOCIALS: Record<string, string> = {
-  twitter: 'https://x.com/slopboptv',
-  youtube: 'https://www.youtube.com/@slopboptv',
+  instagram: 'https://www.instagram.com/slopboptv/',
+  tiktok: 'https://www.tiktok.com/@slopboptv'
 };
 
 export default function AboutPage() {
@@ -31,9 +31,6 @@ export default function AboutPage() {
         <p className="text-base leading-relaxed">
           We want to find out if AI music can actually <span className="highlight">bop</span> if
           there's a synthetic artist behind its production.
-        </p>
-        <p className="text-sm uppercase tracking-wider highlight">
-          Is it slop, or does it bop?
         </p>
 
         {/* Socials, lifted up right under the introduction */}

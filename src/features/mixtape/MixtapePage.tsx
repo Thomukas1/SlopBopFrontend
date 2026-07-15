@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useMixtape } from '../../hooks/useMixtape';
 import { useArtist } from '../../hooks/useArtist';
-import SongList from '../artist_profile/SongList';
+import SongList from '../../components/songlist/SongList';
 import Img from '../../primitives/Img';
 import MixtapeSubmissions from './MixtapeSubmissions';
 
