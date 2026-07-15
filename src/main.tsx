@@ -3,7 +3,12 @@ window.Buffer = Buffer;
 
 import { StrictMode, ReactNode, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  useLocation,
+} from 'react-router-dom';
 
 import {
   ConnectionProvider,
@@ -110,6 +115,41 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Persistent app shell. The routed page renders in <Outlet />; the chrome
+ * around it (nav, players) and ScrollToTop live here so they stay mounted
+ * across navigations — the MusicPlayer's audio element in particular must not
+ * remount. This is the layout route that wraps every page below.
+ */
+function RootLayout() {
+  return (
+    <>
+      <ScrollToTop />
+      <Outlet />
+      <NavBar />
+      <MiniPlayer />
+      <MusicPlayer />
+    </>
+  );
+}
+
+const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    children: [
+      { path: '/', element: <AboutPage /> },
+      { path: '/about', element: <AboutPage /> },
+      { path: '/roster', element: <RosterPage /> },
+      { path: '/commission', element: <CommissionPage /> },
+      { path: '/map', element: <MapPage /> },
+      { path: '/apply', element: <ApplicationForm /> },
+      { path: '/artists/:id', element: <ArtistProfile /> },
+      { path: '/albums/:id', element: <AlbumPage /> },
+      { path: '/mixtapes/:id', element: <MixtapePage /> },
+    ],
+  },
+]);
+
 const container = document.getElementById('root');
 
 if (!container) {
@@ -118,28 +158,12 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <BrowserRouter>
-      <ScrollToTop />
-      <WalletContextProvider>
-        <ToastProvider>
-          <MusicPlayerProvider>
-            <Routes>
-              <Route path="/" element={<AboutPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/roster" element={<RosterPage />} />
-              <Route path="/commission" element={<CommissionPage />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/apply" element={<ApplicationForm />} />
-              <Route path="/artists/:id" element={<ArtistProfile />} />
-              <Route path="/albums/:id" element={<AlbumPage />} />
-              <Route path="/mixtapes/:id" element={<MixtapePage />} />
-            </Routes>
-            <NavBar />
-            <MiniPlayer />
-            <MusicPlayer />
-          </MusicPlayerProvider>
-        </ToastProvider>
-      </WalletContextProvider>
-    </BrowserRouter>
+    <WalletContextProvider>
+      <ToastProvider>
+        <MusicPlayerProvider>
+          <RouterProvider router={router} />
+        </MusicPlayerProvider>
+      </ToastProvider>
+    </WalletContextProvider>
   </StrictMode>
 );
