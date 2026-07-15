@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Footer } from '../../primitives/Footer';
+import { Footer } from '../../components/Footer';
 import { SocialLinks } from '../../primitives/SocialLinks';
 import { Flourish } from '../../primitives/Flourish';
 import { useArtists } from '../../hooks/useArtists';
@@ -37,54 +37,38 @@ export default function AboutPage() {
         <SocialLinks socials={PROJECT_SOCIALS} className="justify-center pt-sm" />
       </section>
 
-      {/* The Roster — what the artists are, plus the one we've got */}
+      {/* Featured artist — a taste of the roster; the full list lives on /roster */}
       <section className="flex flex-col gap-md px-md">
         {featured && <FeaturedArtistCard artist={featured} />}
-
-        <p className="text-base leading-relaxed">
-          Each artist in SlopBop is an agent built from the ground up, with its own distinct:
-        </p>
-
-        <ul className="flex flex-col gap-sm text-base">
-          <li className="flex items-center gap-md"><span aria-hidden="true">🧠</span> Personality</li>
-          <li className="flex items-center gap-md"><span aria-hidden="true">🎨</span> Appearance</li>
-          <li className="flex items-center gap-md"><span aria-hidden="true">🎤</span> Voice</li>
-          <li className="flex items-center gap-md"><span aria-hidden="true">🎧</span> Music taste</li>
-        </ul>
-
-        <p className="text-base leading-relaxed">
-          Listen to their songs and rate them too!
-        </p>
 
         <button
           type="button"
           className="secondary full-width"
           onClick={() => navigate('/roster')}
         >
-          View Roster
+          View all artists
         </button>
       </section>
 
       <Flourish />
 
-      {/* Creative Bootcamp teaser — full detail lives on /bootcamp */}
+      {/* Commission teaser — full detail lives on /commission */}
       <section className="flex flex-col gap-md px-md">
         <div className="flex flex-col gap-xs">
-          <p className="text-sm uppercase tracking-wider highlight">Introducing</p>
-          <h2 className="font-display text-2xl">Creative Bootcamp</h2>
+          <p className="eyebrow">Private commissions</p>
+          <h2 className="font-display text-2xl">Hire an artist for your group</h2>
         </div>
         <p className="text-base leading-relaxed">
-          Get ready for an unforgettable attraction for you and a group of friends:
-          <br /><br />
-          Rent one of our artists to produce a custom music album based on your ideas, and see who
-          can come up with the most viral song!
+          For a day, one of our artists is yours. Your group writes the lyrics, the artist records
+          them in its own voice, and the songs release one by one on a custom album — with a music
+          video for the group's favourite.
         </p>
 
         <div className="flex justify-end pt-sm">
           <button
             type="button"
             className="secondary"
-            onClick={() => navigate('/bootcamp')}
+            onClick={() => navigate('/commission')}
           >
             Learn more
           </button>

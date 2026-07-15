@@ -54,7 +54,7 @@ export default function MixtapeSubmissions({ mixtapeId, artistName, status, refr
 
   return (
     <>
-      <div className="border-t border-white/10" />
+      <div className="border-t border-divider" />
       {body}
     </>
   );

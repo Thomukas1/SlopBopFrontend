@@ -9,7 +9,7 @@ interface FAQItemProps {
 
 export function FAQItem({ question, answer, open, onToggle }: FAQItemProps) {
   return (
-    <div className="border-b border-white/15 last:border-b-0">
+    <div className="border-b border-divider last:border-b-0">
       <button
         type="button"
         onClick={onToggle}

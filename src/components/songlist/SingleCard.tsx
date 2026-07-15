@@ -43,11 +43,11 @@ export default function SingleCard({ coverUrl, title, duration, stats, onClick, 
       <div className="flex flex-col flex-1 min-w-0">
         <p className={`text-sm truncate ${active ? 'text-accent font-medium' : ''}`}>{title}</p>
         {approval !== null && (
-          <span className="text-xs text-muted">{approval}% {ratingEmoji(approval)}</span>
+          <span className="text-xs subtle">{approval}% {ratingEmoji(approval)}</span>
         )}
       </div>
       {duration != null && (
-        <span className="text-sm text-muted flex-shrink-0">{formatDuration(duration)}</span>
+        <span className="text-sm subtle flex-shrink-0">{formatDuration(duration)}</span>
       )}
     </button>
   );

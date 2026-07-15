@@ -17,14 +17,20 @@ export function ContactForm() {
     if (!canSend) return;
     const mailto =
       `mailto:${CONTACT_EMAIL}` +
-      `?subject=${encodeURIComponent('SlopBop — Creative Bootcamp inquiry')}` +
+      `?subject=${encodeURIComponent('SlopBop — Commission inquiry')}` +
       `&body=${encodeURIComponent(`${message}\n\nReply to: ${email}`)}`;
     window.location.href = mailto;
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-lg px-md">
-      <h2 className="font-display text-2xl">Write Us</h2>
+      <div className="flex flex-col gap-sm">
+        <h2 className="font-display text-2xl">Commission an artist</h2>
+        <p className="text-sm leading-relaxed text-muted">
+          Every commission is bespoke — no price list. Tell us about your group and the occasion,
+          and we'll take it from there.
+        </p>
+      </div>
 
       <TextField
         label="Your email"

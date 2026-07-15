@@ -62,7 +62,7 @@ export default function Submissions({ albumId, artistName, status, songCount, re
 
   return (
     <>
-      <div className="border-t border-white/10" />
+      <div className="border-t border-divider" />
       {body}
     </>
   );

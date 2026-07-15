@@ -20,7 +20,7 @@ export function FeaturedArtistCard({ artist }: { artist: Artist }) {
         imgClassName="object-cover object-top"
       />
       <div className="px-lg py-md bg-surface flex flex-col gap-xs">
-        <p className="text-xs text-accent uppercase tracking-wider font-medium">Featured Artist</p>
+        <p className="eyebrow">Featured Artist</p>
         <p className="font-display text-xl">{artist.name}</p>
       </div>
     </Link>

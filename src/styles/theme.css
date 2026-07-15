@@ -40,13 +40,20 @@
   --text-alt:     var(--p-navy);    /* Deep Navy — text on accent backgrounds */
 
   /* Border */
-  --border-color: rgba(119, 147, 158, 0.3);   /* Cool Steel at 30% */
+  --border-color: rgba(119, 147, 158, 0.3);   /* Cool Steel at 30% — structural card/nav edges */
+  --divider:      rgba(255, 255, 255, 0.2);   /* Hairline separator between list rows & sections */
 
   /* Status */
   --color-error:   var(--p-error);
   --color-success: var(--p-lime);   /* success shares the accent */
   --color-warning: var(--p-warning);
   --color-info:    var(--p-blue);
+
+  /* Trait accents — the four elements each artist is built from */
+  --facet-personality: var(--p-warning);   /* amber  */
+  --facet-appearance:  #B98CFF;            /* violet */
+  --facet-voice:       #4F9DE0;            /* sky    */
+  --facet-taste:       var(--p-sage);      /* sage   */
 
   /* Data visualization — stat bar colors (palette-derived) */
   --stat-energy:      var(--accent);       /* Lime Green — vitality */
@@ -157,6 +164,18 @@
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Weak breathing glow for the eyebrow kicker (.eyebrow). currentColor keeps it
+   tied to the accent token, so it stays correct if the palette is reswapped.
+   A soft dark shadow underneath keeps the label legible on the busy bg. */
+@keyframes accentPulse {
+  0%, 100% {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 2px currentColor;
+  }
+  50% {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 9px currentColor;
+  }
 }
 
 /* Responsive Typography */

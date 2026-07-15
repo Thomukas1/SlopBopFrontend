@@ -121,7 +121,7 @@ export default function SongList({ songs, toTrack, header, onRefetch }: Props) {
         <div className="flex flex-col bg-surface-2 rounded-lg p-sm">
           {sorted.map((song, i) => (
             <div key={song._id}>
-              {i > 0 && <div className="border-t border-white/10 my-xs" />}
+              {i > 0 && <div className="border-t border-divider my-xs" />}
               <SingleCard
                 coverUrl={song.cover_url}
                 title={song.title || 'Untitled'}

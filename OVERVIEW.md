@@ -10,12 +10,12 @@ This document covers the conceptual architecture and the decisions behind it. Fo
 
 The breakout feature turned out to be **group album creation** — sold as **"Creative Bootcamp"**. A host rents one of the synthetic artists for a private activity with a group (friends, a community, a small firm — ~10–15 people): everyone writes the lyrics for one short (~30s) song, the artist records them, and the finished songs release one-by-one on a shared **album page** for the group to listen, react, and vote on. The top-voted song earns a music video posted to our socials.
 
-So the public app has been trimmed to point at this. The NavBar is now **About · Roster · Bootcamp**, and two earlier surfaces are **hidden from the nav but still fully routed and working** — deferred while we build them out, not removed:
+So the public app has been trimmed to point at this. The NavBar is now **About · Roster · Commission**, and two earlier surfaces are **hidden from the nav but still fully routed and working** — deferred while we build them out, not removed:
 
 - **Simulation / Map (`/map`)** — the live layer described throughout this document. Everything below about the sim, the drip-feed, and the ArtistSheet remains accurate; it's just not linked from the nav yet.
 - **Application (`/apply`)** — the audition funnel (see *The Application Form*).
 
-The **About page (`/`)** now pitches SlopBop and teases Creative Bootcamp instead of the research/simulation phase, with a "Learn more" link to the **Bootcamp page (`/bootcamp`)**. That page explains the activity in full (what it is, how it works, group size) and closes with an informal inquiry form (`ContactForm`) that opens a `mailto:` to `slopboptv@gmail.com`. There is no payment or ordering flow yet; that (and un-hiding the sim/apply surfaces) is the work ahead.
+The **About page (`/`)** now pitches SlopBop and teases the commission offer instead of the research/simulation phase, with a "Learn more" link to the **Commission page (`/commission`, `CommissionPage`)** — internal codename "Creative Bootcamp". That page sells commissioning an artist as a bespoke service across multiple occasions (celebrations, teams, hackathons) and closes with an informal inquiry form (`ContactForm`) that opens a `mailto:` to `slopboptv@gmail.com`. There is no payment or ordering flow yet; that (and un-hiding the sim/apply surfaces) is the work ahead.
 
 The rest of this document describes the full architecture as built — read the sim/apply sections as "present in the code, currently hidden from the public nav."
 
@@ -107,10 +107,10 @@ This is the front of the casting funnel. Everything downstream of a validated su
 ## Routing
 
 ```
-/                  AboutPage       — SlopBop explainer + Bootcamp teaser         [nav]
+/                  AboutPage       — SlopBop explainer + commission teaser       [nav]
 /about             AboutPage       — alias of /
 /roster            RosterPage      — artist directory + top-rated song per artist [nav]
-/bootcamp          BootcampPage    — Creative Bootcamp detail + inquiry form      [nav]
+/commission        CommissionPage  — commission an artist: offer + inquiry form   [nav]
 /map               MapPage         — self-contained live simulation, world map    (hidden)
 /apply             ApplicationForm — audition form to join a future season        (hidden)
 /artists/:id       ArtistProfile   — static profile + discography
@@ -118,7 +118,7 @@ This is the front of the casting funnel. Everything downstream of a validated su
 /mixtapes/:id      MixtapePage     — mixtape tracklist
 ```
 
-`[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/bootcamp`, write-only) and never mounts `SimProvider` or reads `useSim()`. A `ScrollToTop` mounted in `main.tsx` resets the scroll container (the `<html>` element) on every route change.
+`[nav]` marks the three tabs in the NavBar today; `(hidden)` routes still work if visited directly but are not linked (see *Current Product Focus*). The simulation lives entirely on `/map`. Every other route is purely static (or, for `/apply` and `/commission`, write-only) and never mounts `SimProvider` or reads `useSim()`. A `ScrollToTop` mounted in `main.tsx` resets the scroll container (the `<html>` element) on every route change.
 
 ---
 

@@ -32,7 +32,7 @@ import MixtapePage from './features/mixtape/MixtapePage';
 import MapPage from './features/map/MapPage';
 import AboutPage from './features/about/AboutPage';
 import RosterPage from './features/roster/RosterPage';
-import BootcampPage from './features/bootcamp/BootcampPage';
+import CommissionPage from './features/commission/CommissionPage';
 import ApplicationForm from './features/apply/ApplicationForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { ToastProvider } from './context/ToastContext';
@@ -127,7 +127,7 @@ createRoot(container).render(
               <Route path="/" element={<AboutPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/roster" element={<RosterPage />} />
-              <Route path="/bootcamp" element={<BootcampPage />} />
+              <Route path="/commission" element={<CommissionPage />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/apply" element={<ApplicationForm />} />
               <Route path="/artists/:id" element={<ArtistProfile />} />

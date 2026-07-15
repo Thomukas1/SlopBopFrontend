@@ -6,7 +6,7 @@ interface Testimonial {
 }
 
 /**
- * Real quotes from people who've done a Creative Bootcamp. Add entries here as
+ * Real quotes from people whose group commissioned an album. Add entries here as
  * they come in; the card hides itself entirely while the list is empty, so
  * there is never any placeholder/fake social proof on the page.
  */
@@ -54,7 +54,7 @@ export function Testimonials() {
     <div className="mx-md bg-surface border border-border rounded-lg p-lg flex flex-col gap-md overflow-hidden">
       {/* Header: label on the left, position dots on the right */}
       <div className="flex items-center justify-between">
-        <span className="text-sm uppercase tracking-wider highlight">Testimonials</span>
+        <span className="eyebrow">Testimonials</span>
         {count > 1 && (
           <div className="flex gap-sm" aria-hidden="true">
             {TESTIMONIALS.map((_, i) => (

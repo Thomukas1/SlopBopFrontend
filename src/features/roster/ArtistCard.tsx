@@ -30,7 +30,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
 
       {topSong && (
         <div className="px-lg pb-lg pt-sm bg-surface flex flex-col gap-xs">
-          <p className="text-xs text-accent uppercase tracking-wider font-medium">Top Rated Song</p>
+          <p className="eyebrow">Top Rated Song</p>
           <div className="bg-surface-2 rounded-lg p-sm">
             <SingleCard
               coverUrl={topSong.cover_url}

@@ -42,6 +42,8 @@ export default {
 
         // Border — enables `border-border` class
         'border': 'var(--border-color)',
+        // Divider — hairline list/section separators (enables `border-divider`)
+        'divider': 'var(--divider)',
 
         // States
         'danger': 'var(--color-error)',    // Coral Red — errors & SLOP

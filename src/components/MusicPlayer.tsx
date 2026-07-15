@@ -23,6 +23,18 @@ function normalizeLyrics(lyrics: string): string {
   return lyrics.replace(/\\r\\n|\\n|\\r/g, '\n').replace(/\\t/g, '\t');
 }
 
+// Split lyrics into structural tags ([Verse], [Chorus - whispered], …) and the
+// sung lines, so the tags recede (muted) while the words pop in sage.
+function renderLyrics(text: string) {
+  return text.split(/(\[[^\]]*\])/g).map((part, i) =>
+    /^\[[^\]]*\]$/.test(part) ? (
+      <span key={i} className="subtle">{part}</span>
+    ) : (
+      part
+    ),
+  );
+}
+
 export default function MusicPlayer() {
   const {
     track,
@@ -92,7 +104,7 @@ export default function MusicPlayer() {
           <Link
             to={`/artists/${track.artistId}`}
             onClick={collapse}
-            className="text-sm text-muted underline truncate"
+            className="text-sm subtle underline truncate"
           >
             by {track.artistName}
           </Link>
@@ -145,7 +157,7 @@ export default function MusicPlayer() {
           <button
             type="button"
             onClick={() => skip(-15)}
-            className="text-muted text-sm font-bold cursor-pointer active:scale-90 transition-base"
+            className="subtle text-sm font-bold cursor-pointer active:scale-90 transition-base"
           >
             -15s
           </button>
@@ -176,7 +188,7 @@ export default function MusicPlayer() {
           <button
             type="button"
             onClick={() => skip(15)}
-            className="text-muted text-sm font-bold cursor-pointer active:scale-90 transition-base"
+            className="subtle text-sm font-bold cursor-pointer active:scale-90 transition-base"
           >
             +15s
           </button>
@@ -197,7 +209,7 @@ export default function MusicPlayer() {
               className="music-player-slider"
             />
           </div>
-          <div className="flex justify-between text-xs text-muted">
+          <div className="flex justify-between text-xs subtle">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -213,14 +225,14 @@ export default function MusicPlayer() {
           <div className="flex items-center justify-between gap-md mb-xl">
             <h3 className="font-display text-xl">Lyrics</h3>
             {track.author && (
-              <div className="text-right text-sm text-muted min-w-0">
+              <div className="text-right text-sm subtle min-w-0">
                 <div>Written by</div>
-                <div className="font-bold text-white truncate">{track.author}</div>
+                <div className="font-bold text-soft truncate">{track.author}</div>
               </div>
             )}
           </div>
-          <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
-            {normalizeLyrics(track.lyrics)}
+          <p className="text-sm text-soft whitespace-pre-line leading-relaxed">
+            {renderLyrics(normalizeLyrics(track.lyrics))}
           </p>
         </div>
       )}

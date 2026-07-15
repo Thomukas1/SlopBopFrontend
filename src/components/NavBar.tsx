@@ -5,7 +5,7 @@ type Tab = { path: string; emoji: string; label: string };
 const TABS: Tab[] = [
   { path: '/', emoji: '🎪', label: 'About' },
   { path: '/roster', emoji: '🎭', label: 'Roster' },
-  { path: '/bootcamp', emoji: '👩‍🎤', label: 'Bootcamp' },
+  { path: '/commission', emoji: '👩🏻‍🎤', label: 'Commission' },
   // Deferred features — routes still work, just hidden from the nav for now.
   // Restore by re-adding these entries when Map and Apply come back.
   // { path: '/map', emoji: '🗺️', label: 'Map' },
