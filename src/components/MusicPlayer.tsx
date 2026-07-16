@@ -94,7 +94,7 @@ export default function MusicPlayer() {
 
   return (
     <div
-      className={`music-player-sheet fixed inset-0 z-modal bg-black overflow-y-auto ${
+      className={`music-player-sheet fixed inset-0 z-modal bg-black overflow-y-auto overflow-x-hidden ${
         expanded ? 'is-open' : 'is-closing'
       }`}
       onAnimationEnd={(e) => {
@@ -119,6 +119,12 @@ export default function MusicPlayer() {
         </svg>
       </button>
 
+      {/* Wraps everything below the handle so the base glow can anchor to the
+          bottom of the player's *content*. Anchoring it to the sheet wouldn't
+          work — the sheet is the scroll container, so an absolute layer there
+          pins to the visible box and scrolls away instead of sitting at the end. */}
+      <div className="music-player-body">
+      <div className="music-player-stars" aria-hidden="true" />
       {/* Content column — constrained to the cover's width and centered, so
           on desktop the meta/controls don't sprawl to the screen edges. */}
       <div className="mx-auto w-full max-w-player px-lg pt-3xl">
@@ -164,12 +170,15 @@ export default function MusicPlayer() {
         </button>
       </div>
 
-        {/* Cover art */}
-        <Img
-          src={track.coverUrl || '/Images/default_song_cover.png'}
-          alt={track.title}
-          className="w-full aspect-square rounded-lg"
-        />
+        {/* Cover art — the glow behind it is a ::before on the wrapper, so the
+            halo bleeds past the artwork's edges and lifts it off the flat bg. */}
+        <div className="song-cover-glow">
+          <Img
+            src={track.coverUrl || '/Images/default_song_cover.png'}
+            alt={track.title}
+            className="w-full aspect-square rounded-lg"
+          />
+        </div>
 
         {/* Title — centered under the cover */}
         <p className="mt-lg text-center text-2xl font-bold truncate">{track.title}</p>
@@ -260,6 +269,7 @@ export default function MusicPlayer() {
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }

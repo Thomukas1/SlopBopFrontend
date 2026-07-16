@@ -74,6 +74,171 @@
   cursor: pointer;
 }
 
+/* Radial shine behind the cover art — lifts the artwork off the flat bg and
+   makes the top of the sheet the focal point. Deliberately scoped to the cover:
+   the lyrics below stay on plain black, undistracted.
+
+   The wrapper stays unpositioned (no z-index of its own), so z-index:-1 escapes
+   to the sheet's stacking context and paints above its bg-black but beneath all
+   the in-flow content — the halo bleeds out around the artwork, and the opaque
+   cover hides the middle of the gradient. */
+.song-cover-glow {
+  position: relative;
+}
+
+.song-cover-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 210%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(17, 60, 178, 0.60) 0%,
+    rgba(17, 60, 178, 0.40) 45%,
+    rgba(12, 40, 111, 0) 70%
+  );
+}
+
+/* Smoke rising off the base of the player. `.music-player-body` wraps the
+   content below the handle, so this anchors to the end of the content (where
+   the lyrics happen to sit) rather than to any one section.
+
+   Two stacked layers, both darker than the navy bg so they read as depth and
+   can only ever subtract contrast from text that already reads against it:
+
+   1. `::after` — a flat wash across the full width, anchored to the bottom
+      edge. This is what "covers the entire bottom"; it's static, and it's what
+      keeps the effect from ever looking like a detached blob.
+   2. `::before` — three soft plumes drifting sideways above that wash on one
+      shared keyframe track (separate animations can't drive the same property).
+      Each plume takes its own path, so they slide past each other and the
+      silhouette never repeats.
+
+   Both sit at z-index:-2 under an unpositioned wrapper, so they escape to the
+   sheet's stacking context: above its bg-black, below the stars at -1, and
+   below all the content. */
+.music-player-body {
+  position: relative;
+}
+
+.music-player-body::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(2, 8, 26, 0.85) 0%, rgba(2, 8, 26, 0) 100%);
+}
+
+.music-player-body::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 75%;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse at 50% 100%, rgba(2, 8, 26, 0.60) 0%, rgba(2, 8, 26, 0) 70%),
+    radial-gradient(ellipse at 50% 100%, rgba(2, 8, 26, 0.50) 0%, rgba(2, 8, 26, 0) 70%),
+    radial-gradient(ellipse at 50% 100%, rgba(2, 8, 26, 0.45) 0%, rgba(2, 8, 26, 0) 70%);
+  background-repeat: no-repeat;
+  /* Wider than tall and overlapping, so the plumes read as one continuous band
+     of smoke rather than three separate shapes. */
+  background-size: 85% 90%, 70% 65%, 60% 100%;
+  background-position: 5% 100%, 55% 100%, 90% 100%;
+  animation: smokeDrift 32s ease-in-out infinite alternate;
+}
+
+@keyframes smokeDrift {
+  0%   { background-position:  5% 100%, 55% 100%,  90% 100%; }
+  33%  { background-position: 32% 100%, 18% 100%,  68% 100%; }
+  66%  { background-position: 12% 100%, 78% 100%, 100% 100%; }
+  100% { background-position: 45% 100%, 35% 100%,  75% 100%; }
+}
+
+/* Embers — faint stars drifting up through the smoke and fading as they climb.
+
+   The fade is done with a mask on the container rather than by animating
+   opacity: a layer-wide opacity would pulse every star in unison, whereas the
+   mask makes brightness a function of *height*, so each star fades on its own
+   as it rises through it. That also means the loop is seamless — stars are
+   already invisible at the top edge when the tile wraps around.
+
+   Two tiling fields at different sizes and speeds gives a bit of parallax. Each
+   field's dots share one tile, so a single background-position animation moves
+   the whole field; travelling exactly one tile height makes the wrap invisible. */
+.music-player-stars {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80%;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 18%, #000 42%, transparent 92%);
+  mask-image: linear-gradient(to top, transparent 0%, #000 18%, #000 42%, transparent 92%);
+}
+
+.music-player-stars::before,
+.music-player-stars::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+}
+
+/* Near field — larger, slightly brighter, moves faster. */
+.music-player-stars::before {
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 12%, rgba(255, 255, 255, 0.55), transparent 100%),
+    radial-gradient(1.2px 1.2px at 62% 30%, rgba(193, 212, 156, 0.50), transparent 100%),
+    radial-gradient(1.6px 1.6px at 84% 62%, rgba(255, 255, 255, 0.45), transparent 100%),
+    radial-gradient(1.2px 1.2px at 34% 78%, rgba(255, 255, 255, 0.40), transparent 100%),
+    radial-gradient(1.4px 1.4px at 8% 54%, rgba(193, 212, 156, 0.42), transparent 100%);
+  background-size: 210px 280px;
+  animation: starRise 26s linear infinite;
+}
+
+/* Far field — smaller, dimmer, slower. */
+.music-player-stars::after {
+  background-image:
+    radial-gradient(1px 1px at 44% 20%, rgba(255, 255, 255, 0.32), transparent 100%),
+    radial-gradient(1px 1px at 76% 46%, rgba(193, 212, 156, 0.28), transparent 100%),
+    radial-gradient(1px 1px at 12% 68%, rgba(255, 255, 255, 0.30), transparent 100%),
+    radial-gradient(1px 1px at 92% 88%, rgba(255, 255, 255, 0.26), transparent 100%);
+  background-size: 150px 190px;
+  animation: starRiseFar 41s linear infinite;
+}
+
+/* One tile of travel each, so the field wraps seamlessly. */
+@keyframes starRise {
+  from { background-position: 0 0; }
+  to   { background-position: 0 -280px; }
+}
+
+@keyframes starRiseFar {
+  from { background-position: 0 0; }
+  to   { background-position: 0 -190px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-player-body::before,
+  .music-player-stars::before,
+  .music-player-stars::after {
+    animation: none;
+  }
+}
+
 /* Full-screen sheet slide. `is-open` plays on mount (slide up from the bottom),
    `is-closing` plays when the arrow collapses it (slide back down); the TSX
    unmounts on the closing animation's end. `forwards` holds the off-screen
