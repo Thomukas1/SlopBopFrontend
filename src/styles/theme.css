@@ -66,6 +66,9 @@
   /* Typography - Font Families */
   --font-display: 'Xirod', sans-serif;
   --font-body: 'Masicu', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  /* Secondary display face — soft geometric, for labels and short headings that
+     need weight without the density of --font-display. */
+  --font-accent: 'GeometrySoft', var(--font-display);
 
   /* Typography - Sizes (Mobile-first) */
   --font-size-xs: 12px;

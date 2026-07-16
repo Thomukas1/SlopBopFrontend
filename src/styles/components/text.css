@@ -18,6 +18,17 @@
   font-display: swap;
 }
 
+/* Converted from 'GeometrySoftPro-BoldN.otf'. Ships a single master that is
+   already the Bold cut, so declare it at 700 and let it answer for bold rather
+   than letting the browser synthesise a heavier one on top. */
+@font-face {
+  font-family: 'GeometrySoft';
+  src: url('/Fonts/GeometrySoftPro-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Base heading & text styles in Tailwind base layer */
 @layer base {
   h1 {

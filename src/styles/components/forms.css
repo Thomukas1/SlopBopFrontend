@@ -79,6 +79,19 @@ select:disabled {
   background: var(--bg-input);
 }
 
+/* Read-only — a value the form filled in for you, not one you type. Unlike
+   :disabled this stays at full strength and picks up the accent, so it reads as
+   a confirmed choice and matches whatever control is driving it. */
+input:read-only {
+  color: var(--accent);
+  cursor: default;
+}
+
+input:read-only:focus {
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
 /* Error State */
 input.error,
 textarea.error,

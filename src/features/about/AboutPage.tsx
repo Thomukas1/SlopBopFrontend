@@ -5,11 +5,7 @@ import { Flourish } from '../../primitives/Flourish';
 import { useArtists } from '../../hooks/useArtists';
 import { FeaturedArtistCard } from './FeaturedArtistCard';
 import { Testimonials } from './Testimonials';
-
-const PROJECT_SOCIALS: Record<string, string> = {
-  instagram: 'https://www.instagram.com/slopboptv/',
-  tiktok: 'https://www.tiktok.com/@slopboptv'
-};
+import { PROJECT_SOCIALS } from '../../config/socials';
 
 export default function AboutPage() {
   const navigate = useNavigate();

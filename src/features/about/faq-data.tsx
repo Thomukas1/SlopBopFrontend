@@ -1,9 +1,10 @@
-import React from 'react';
+import type { FAQEntry } from '../../primitives/FAQ';
 
-export interface FAQEntry {
-  question: string;
-  answer: React.ReactNode;
-}
+// Parked: the About page dropped its FAQ when the nav narrowed to
+// About · Roster · Commission. Kept for when that surface comes back — render
+// with <FAQ items={FAQ_ITEMS} />. The booking questions are a separate set in
+// features/commission/commission-faq-data.tsx; this lore voice doesn't belong
+// next to the contact form.
 
 // TODO: replace the X href below with the dev's actual handle.
 const DEV_X_URL = 'https://x.com/thomukas1';

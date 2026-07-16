@@ -1,5 +1,5 @@
 import { useArtists } from '../../hooks/useArtists';
-import { ArtistCard } from './ArtistCard';
+import { ArtistCard } from '../../components/ArtistCard';
 
 // The four elements every artist is built from — each its own emoji + colour so
 // the roster reads as a designed system, not a random generator.

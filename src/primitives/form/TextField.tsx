@@ -15,6 +15,10 @@ interface TextFieldProps {
   // Fixed, non-editable text shown inside the field, before the input (e.g.
   // an "@" for a handle). Not part of the value.
   prefix?: string;
+  // Shows a value the form set for the user rather than one they type (e.g. a
+  // carousel selection). Deliberately not `disabled` — the value is meaningful
+  // content, so it stays legible and gets read out.
+  readOnly?: boolean;
 }
 
 // Labeled single-line text input. `maxLength` is enforced by the browser, so
@@ -30,6 +34,7 @@ export function TextField({
   placeholder,
   type = 'text',
   prefix,
+  readOnly,
 }: TextFieldProps) {
   const id = useId();
   const input = (
@@ -39,6 +44,7 @@ export function TextField({
       value={value}
       maxLength={maxLength}
       placeholder={placeholder}
+      readOnly={readOnly}
       onChange={e => onChange(e.target.value)}
       // With a prefix the wrapper carries the error styling instead.
       className={!prefix && error ? 'error' : undefined}

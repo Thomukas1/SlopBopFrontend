@@ -6,7 +6,13 @@ import { TextField, TextAreaField } from '../../primitives/form';
 // flow is built out.
 const CONTACT_EMAIL = 'slopboptv@gmail.com';
 
-export function ContactForm() {
+interface Props {
+  // Driven by the carousel above the form. Shown read-only and carried into the
+  // email, so an inquiry arrives already naming the artist they picked.
+  selectedArtistName?: string;
+}
+
+export function ContactForm({ selectedArtistName }: Props) {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
@@ -15,22 +21,27 @@ export function ContactForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSend) return;
+    const artistLine = selectedArtistName ? `Selected artist: ${selectedArtistName}\n\n` : '';
     const mailto =
       `mailto:${CONTACT_EMAIL}` +
       `?subject=${encodeURIComponent('SlopBop — Commission inquiry')}` +
-      `&body=${encodeURIComponent(`${message}\n\nReply to: ${email}`)}`;
+      `&body=${encodeURIComponent(`${artistLine}${message}\n\nReply to: ${email}`)}`;
     window.location.href = mailto;
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-lg px-md">
-      <div className="flex flex-col gap-sm">
-        <h2 className="font-display text-2xl">Commission an artist</h2>
-        <p className="text-sm leading-relaxed text-muted">
-          Every commission is bespoke — no price list. Tell us about your group and the occasion,
-          and we'll take it from there.
-        </p>
-      </div>
+    // The heading and the artist carousel are the page's — this is the fields
+    // only, so picking an artist and writing the note read as one section.
+    <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
+      {selectedArtistName && (
+        <TextField
+          label="Selected artist"
+          value={selectedArtistName}
+          onChange={() => {}}
+          readOnly
+          help="pick above"
+        />
+      )}
 
       <TextField
         label="Your email"
