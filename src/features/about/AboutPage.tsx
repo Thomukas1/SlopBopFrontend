@@ -24,40 +24,48 @@ export default function AboutPage() {
           synthetic artists. They create songs, and you judge them.
         </p>
 
+        {/* The thesis, stated as a bet — confident about the wager, silent on
+            the outcome. Declaring that our music bops would answer the exact
+            question the line above hands to the reader, and a vote whose result
+            the label already announced isn't worth casting. */}
         <p className="text-base leading-relaxed">
-          We want to find out if AI music can actually <span className="highlight">bop</span> if
-          there's a synthetic artist behind its production.
+          Anyone can prompt a song. We're betting it can only <span className="highlight">bop</span>{' '}
+          when there's an artist behind it, with its own personality, voice and taste. Your vote
+          settles it.
         </p>
 
         {/* Socials, lifted up right under the introduction */}
         <SocialLinks socials={PROJECT_SOCIALS} className="justify-center pt-sm" />
       </section>
 
-      {/* Featured artist — a taste of the roster; the full list lives on /roster */}
+      {/* Featured artist — a taste of the roster. No "view all" button beneath
+          it: it out-competed the card for the tap, so the one artist we chose to
+          show got skipped on the way to a list. Roster is a permanent nav tab,
+          so the full list is always one tap away regardless. */}
       <section className="flex flex-col gap-md px-md">
         {featured && <FeaturedArtistCard artist={featured} />}
-
-        <button
-          type="button"
-          className="secondary full-width"
-          onClick={() => navigate('/roster')}
-        >
-          View all artists
-        </button>
       </section>
 
       <Flourish />
 
-      {/* Commission teaser — full detail lives on /commission */}
+      {/* Commission teaser — full detail lives on /commission. A teaser, not a
+          summary: it names the offer and the payoff, and deliberately withholds
+          the mechanic (the release schedule, the voting, what the day asks of
+          you). Answering all of that here is what makes a "Learn more" button
+          pointless — there has to be something left to learn. Ends on the video
+          because that's the line that earns the tap. */}
       <section className="flex flex-col gap-md px-md">
         <div className="flex flex-col gap-xs">
-          <p className="eyebrow">Private commissions</p>
-          <h2 className="font-display text-2xl">Hire an artist for your group</h2>
+          <p className="eyebrow">Introducing</p>
+          <h2 className="font-display text-2xl">Album Commissions</h2>
         </div>
         <p className="text-base leading-relaxed">
-          For a day, one of our artists is yours. Your group writes the lyrics, the artist records
-          them in its own voice, and the songs release one by one on a custom album — with a music
-          video for the group's favourite.
+          Rent one of our artists for your group's next day out - a birthday, an offsite, a
+          hackathon. Everyone writes lyrics, the artist records them, and by the evening there's an{' '}
+          <span className="highlight">album</span> as an artifact of your special day.
+        </p>
+        <p className="text-base leading-relaxed">
+          The group's favourite song gets a music video on our channels.
         </p>
 
         <div className="flex justify-end pt-sm">

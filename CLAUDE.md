@@ -4,14 +4,18 @@ Mobile-first React web app (430px design target) — the public window into Slop
 
 ## Current focus
 
-The product has narrowed to its breakout feature: **group album creation** ("Creative Bootcamp"). A host rents one of our synthetic artists for a private activity with a group (friends, a community, a small firm — ~10–15 people); everyone writes lyrics for a short song, the artist records them, and the songs release one-by-one on a shared album page for the group to listen, react, and vote on. The top-voted song gets a music video posted to our socials.
+The product has narrowed to its breakout feature: **group album creation**, sold as **Album Commissions**. A host rents one of our synthetic artists for a private activity with a group; everyone writes lyrics for a short song, the artist records them, and the songs release one-by-one on a shared album page for the group to listen, react, and vote on. The top-voted song gets a music video posted to our socials.
 
-To keep the public app pointed at this, two earlier surfaces are **hidden from the NavBar but still fully routed and functional** — deferred, not removed, while we build them out:
+The nav is **About · Roster · Commission**. The About page (`/`) states the label's thesis and teases the offer; the **Commission page (`/commission`, `features/commission/`, `CommissionPage`)** carries the pitch and ends with an email inquiry (`ContactForm` → a `mailto:` to `slopboptv@gmail.com`; no payment or ordering flow yet).
 
-- **Simulation / Map (`/map`)** — the live "artist lives a day" loop. All the sim architecture in `OVERVIEW.md` still stands.
+**The offer's specifics live in the code, not here.** Group size, how a day runs, the occasions it fits, the prize, what a buyer needs on the day — all of it is owned by `features/commission/` (`DayBreakdown`, `commission-faq-data.tsx`). Restating any of it in a doc just gives it somewhere to go stale. Pricing is deliberately off the page: inbound only, quoted over email.
+
+Two earlier surfaces are **hidden from the NavBar but still fully routed and functional** — deferred, not removed:
+
+- **Simulation / Map (`/map`)** — the live "artist lives a day" loop.
 - **Application (`/apply`)** — the audition funnel to become a synthetic artist.
 
-The nav is now **About · Roster · Commission**. The About page (`/`) teases the offer; the **Commission page (`/commission`, `features/commission/`, `CommissionPage`)** — internal codename "Creative Bootcamp" — sells commissioning an artist as a bespoke service spanning multiple occasions (celebrations, teams, hackathons) and ends with an informal email inquiry form (`ContactForm` → a `mailto:` to `slopboptv@gmail.com` for now; no payment or ordering flow yet). Everything about the sim and the application form in the docs remains accurate for when those surfaces come back.
+Both are documented in `SIMULATION.md`, which is parked context — read it when they come back, not before. Un-hiding either is an edit to `TABS` in `components/NavBar.tsx`.
 
 ## Stack
 
@@ -41,5 +45,7 @@ Env: `VITE_API_URL` (backend base, defaults `http://localhost:5000`), `VITE_SOL_
 ## Docs
 
 - `OVERVIEW.md` — the mental model and the decisions behind it. **Read it first.**
-- Cross-repo contract (backend API, Mongo shapes, the other two repos): `/home/thomukas1/repos/SlopBopSimulator/_DOCS/_INFRA/` — read before any change that touches the backend's shape.
-- **No per-feature doc files.** The code plus the service types are the detail; they don't desync. Don't reintroduce per-feature markdown — it rots.
+- `SIMULATION.md` — the deferred sim + application layer. Parked context; skip it unless that work is back on.
+- `src/styles/THEME.md` — what the palette *means* (which colour is allowed to do what). Read before spending a colour.
+- Cross-repo contract (backend API, Mongo shapes, the other two repos): `../SlopBopSimulator/_DOCS/_INFRA/` — read before any change that touches the backend's shape.
+- **No per-feature doc files.** The code plus the service types are the detail; they don't desync. Don't reintroduce per-feature markdown — it rots. (`src/features/map/_CONTEXT.md` and `_TERRAIN_OPEN_QUESTION.md` are the one exception, and only because the sim's code is frozen while it's deferred — they rot like anything else the moment it isn't.)

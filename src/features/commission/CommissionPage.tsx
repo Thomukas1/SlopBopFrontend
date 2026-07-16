@@ -1,103 +1,70 @@
 import { FAQ } from '../../primitives/FAQ';
 import { ExampleAlbum } from './ExampleAlbum';
+import { DayBreakdown } from './DayBreakdown';
 import { PrizeVideo } from './PrizeVideo';
 import { AlbumOrderForm } from './order/AlbumOrderForm';
 import { COMMISSION_FAQ_ITEMS } from './commission-faq-data';
-
-// How a day runs, as three plain beats — the mechanic without the clutter.
-const FLOW: { title: string; body: string }[] = [
-  {
-    title: 'Everyone writes one song',
-    body: 'One hour up front: meet the artist, learn how a 30-second song actually works, write yours. No experience, no talent required. It’s the only thing anyone asks of you all day.',
-  },
-  {
-    title: 'Songs drop on a schedule',
-    body: 'The artist records them and releases them one at a time, each with a countdown to the next. Waiting turns into anticipation instead of a queue.',
-  },
-  {
-    title: 'Listen, react, vote',
-    // The prize used to be a trailing clause here. It's the payoff, so it gets
-    // its own section further down; this beat just hands off to it.
-    body: 'Every drop, someone puts it on for the room. Guess who wrote it. Slop or Bop. By the end the votes have decided which song won the day.',
-  },
-];
 
 export default function CommissionPage() {
   return (
     // No bottom padding: the ordering section runs to the page's edge and its
     // fill measures from there, so any gap here would leave the colour short.
     <div className="flex flex-col gap-3xl">
-      {/* Hero — image and eyebrow only. Mood, nothing to read yet. */}
+      {/* Hero — image, then the kicker and the h1 as one block. They're a single
+          sentence read top-down, so the kicker can't live in its own gap-3xl
+          section away from the line it answers. The product itself is named by
+          the prose directly below rather than up here. */}
       <header className="flex flex-col">
         <img src="/Branding/contact-visual.png" alt="" className="w-full block" />
-        <div className="px-md pt-md">
-          <p className="eyebrow">Hire an artist for the day</p>
+        <div className="flex flex-col gap-xs px-md pt-md">
+          <p className="eyebrow">Ever wanted to create a music album?</p>
+          <h1 className="font-display text-3xl leading-tight">Now is your chance!</h1>
         </div>
       </header>
 
-      {/* The TL;DR — carries the page's h1. The one idea the whole pitch rests
-          on: this is a layer on top of a day you've already planned, not a day
-          you have to give up. "Whatever your group already has planned" is the
-          load-bearing clause — it makes an offsite and a camping trip the same
-          sentence without listing use cases. Ends by naming the artifact, which
-          the album below then makes real. */}
+      {/* The offer, stated plainly — the headline hooks, this names the thing.
+          Leads on what you're buying, then on what makes the artist worth
+          renting: the four facets they're built from. No hours, no group size,
+          no occasions — every rule here is DayBreakdown's job, and repeating
+          them costs the reader the momentum this section exists to build. */}
       <section className="flex flex-col gap-md px-md">
-        <h1 className="font-display text-3xl leading-tight">It runs on top of your day</h1>
         <p className="text-base leading-relaxed">
-          Whatever your group already has planned — an offsite, a hackathon, a weekend at the lake —
-          this runs alongside it. One hour in the morning, everyone writes one short song. The
-          artist records them all in a voice that's unmistakably theirs and drops them one at a time
-          while you get on with everything else. By the evening there's an
-          <span className="highlight"> album</span> that didn't exist that morning.
+          Hire a synthetic artist for an unforgettable group attraction —
+          <span className="highlight"> producing a music album</span>.
+        </p>
+        <p className="text-base leading-relaxed">
+          Your chosen artist has a custom voice, personality, appearance and music taste. With you as
+          authors of the lyrics, they can produce a cohesive album that encapsulates the vibe and
+          energy of your group.
         </p>
       </section>
 
       {/* The artifact, made real — and the first thing on the page you can touch
           rather than read. Sits here, right where the TL;DR names it, instead of
-          down by the carousel: the two interactive blocks are the page's visual
-          breaks, so they're deliberately at opposite ends of the prose. The line
-          underneath is the emotional read of what you just heard. */}
+          down by the carousel: the interactive blocks are the page's visual
+          breaks, so they're spread across the prose rather than stacked.
+
+          The lines underneath are the bonding pitch, and this is the one place
+          they land without being a claim: you've just heard what a track sounds
+          like, so the album is already real by the time they say what it does
+          for the group. */}
       <section className="flex flex-col gap-lg px-md">
         <ExampleAlbum />
-        <p className="text-base leading-relaxed">
-          One song per person, all in the same voice. Not a prompt anyone typed — lyrics they wrote,
-          sung by an artist with a real voice, played to a room that had opinions about it. People
-          who'll tell you flat out they aren't creative walk out quietly
-          <span className="highlight"> proud</span> of three lines they wrote before lunch.
-        </p>
-      </section>
-
-      {/* How the day flows. No subhead — the TL;DR now carries the "ambient"
-          idea, so this section just has to explain the mechanic. The card binds
-          the three beats and the group size into one block: the whole shape of
-          a day, spec sheet and all, in a single frame. */}
-      <section className="flex flex-col gap-lg px-md">
-        <h2 className="font-display text-lg">How the day goes</h2>
-        <div className="frosted-card !p-lg flex flex-col">
-          <div className="flex flex-col gap-lg">
-            {FLOW.map(({ title, body }, i) => (
-              <div key={title} className="flex gap-md items-start">
-                <span className="font-display text-base text-alt bg-accent rounded-full w-8 h-8 shrink-0 flex items-center justify-center">
-                  {i + 1}
-                </span>
-                <div className="flex flex-col gap-xs pt-1">
-                  <h3 className="font-display text-base leading-tight">{title}</h3>
-                  <p className="text-sm subtle leading-relaxed">{body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* The GPU throughput ceiling (~6–20 songs/day), as a plain spec line
-              closing the card — the last thing read before the FAQ is a
-              concrete fit check. */}
-          <div className="frosted-card-divider-h !my-lg" />
-          <div className="flex flex-col gap-xs">
-            <p className="eyebrow">Recommended group size</p>
-            <p className="font-display text-2xl">🧑 10–15</p>
-          </div>
+        <div className="flex flex-col gap-md">
+          <p className="text-base leading-relaxed">
+            This experience is an additional layer of fun throughout a special day with a group of
+            friends or colleagues.
+          </p>
+          <p className="text-base leading-relaxed">
+            It's like <span className="highlight">glue</span> that keeps you in the same wavelength,
+            making you both work as a team and compete for popularity!
+          </p>
         </div>
       </section>
+
+      {/* The mechanic and the fit check, in one frame — the half of the pitch
+          that has to survive being forwarded to whoever approves the money. */}
+      <DayBreakdown />
 
       {/* The prize — the page's crescendo, and the only part of the day that
           leaves the room. Placed last before the FAQ so the pitch escalates
@@ -106,13 +73,14 @@ export default function CommissionPage() {
           spend to a community's marketing budget. The video is the proof. */}
       <section className="flex flex-col gap-lg px-md">
         <div className="flex flex-col gap-md">
-          <h2 className="font-display text-lg">One song gets a music video</h2>
+          <h2 className="font-display text-lg">The Prize</h2>
           <p className="text-base leading-relaxed">
-            That's what the voting is for. Whichever track your group backs hardest gets made into a
-            real music video and published on our channels — the same ones every other Slop Bop
-            release goes out on. It's the one thing from the day that
-            <span className="highlight"> leaves the room</span>, and the reason a Slop or Bop vote at
-            3pm is worth arguing about.
+            Make sure to vote on your favorite songs, because the most popular one will
+            <span className="highlight"> go public</span>.
+          </p>
+          <p className="text-base leading-relaxed">
+            24 hours after the album is completed, the song with the highest score will upgrade into
+            a music video and be posted on our social channels for a chance to go viral!
           </p>
         </div>
 
