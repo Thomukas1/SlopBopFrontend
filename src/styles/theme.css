@@ -124,6 +124,11 @@
   --hero-height: 350px;
   --hero-overlap: 100px;
 
+  /* Strip #root reserves at the bottom of every page for the fixed NavBar and
+     the mini player above it. A fill that has to reach the very bottom of the
+     page must paint past this, so it can't stay a bare number in index.css. */
+  --app-bottom-inset: 130px;
+
   /* Z-indexes */
   --z-dropdown: 100;
   --z-sticky: 200;

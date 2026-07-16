@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextField, TextAreaField } from '../../primitives/form';
+import { TextField, TextAreaField } from '../../../primitives/form';
 
 // Interim transport: no backend inbox endpoint yet, so submitting opens the
 // visitor's mail client pre-addressed to us. Swap for a POST when the ordering

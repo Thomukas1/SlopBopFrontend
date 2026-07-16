@@ -1,5 +1,5 @@
-import { Artist } from '../../services/slopbop';
-import { ArtistCard } from '../../components/ArtistCard';
+import { Artist } from '../../../services/slopbop';
+import { ArtistCard } from '../../../components/ArtistCard';
 
 interface Props {
   artists: Artist[];

@@ -44,9 +44,9 @@ export function PrizeVideo() {
         // it rather than to this one file's dimensions — swap the source and
         // the layout still holds. Sources land near it rather than exactly on
         // it (this one is 800x1168), and object-cover absorbs the ~1% that
-        // doesn't fit. Reserving the box up front also matters because
-        // preload="none" means there's no intrinsic size until someone plays:
-        // without it the section would reflow on tap.
+        // doesn't fit. Fixing the box also holds the layout still while the
+        // metadata is in flight, so the section can't jump once the real
+        // dimensions land.
         className="w-full aspect-[2/3] object-cover rounded-lg border border-border bg-surface"
       />
 

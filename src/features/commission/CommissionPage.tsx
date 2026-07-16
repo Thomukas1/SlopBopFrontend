@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { FAQ } from '../../primitives/FAQ';
-import { useArtists } from '../../hooks/useArtists';
-import { ArtistCarousel } from './ArtistCarousel';
 import { ExampleAlbum } from './ExampleAlbum';
 import { PrizeVideo } from './PrizeVideo';
-import { ContactForm } from './ContactForm';
+import { AlbumOrderForm } from './order/AlbumOrderForm';
 import { COMMISSION_FAQ_ITEMS } from './commission-faq-data';
 
 // How a day runs, as three plain beats — the mechanic without the clutter.
@@ -26,14 +23,10 @@ const FLOW: { title: string; body: string }[] = [
 ];
 
 export default function CommissionPage() {
-  const { artists } = useArtists();
-  // Index rather than an id: the first artist is featured by default, and the
-  // list is only known once it loads.
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedArtist = artists[selectedIndex];
-
   return (
-    <div className="flex flex-col gap-3xl pb-2xl">
+    // No bottom padding: the ordering section runs to the page's edge and its
+    // fill measures from there, so any gap here would leave the colour short.
+    <div className="flex flex-col gap-3xl">
       {/* Hero — image and eyebrow only. Mood, nothing to read yet. */}
       <header className="flex flex-col">
         <img src="/Branding/contact-visual.png" alt="" className="w-full block" />
@@ -131,32 +124,10 @@ export default function CommissionPage() {
           write, and the form gets to be the last thing on the page. */}
       <FAQ items={COMMISSION_FAQ_ITEMS} title="Frequent questions" />
 
-      {/* The ask — and the artist is the star, not a form control. It used to
-          open on a bare "Pick an artist" eyebrow, which made the roster read as
-          a dropdown next to the email field; the heading and framing make this
-          the last emotional beat before the send button instead. Tap an
-          artist's top song and the player keeps going while you write, so
-          choosing and writing stay one act. */}
-      <section className="flex flex-col gap-lg px-md">
-        <div className="flex flex-col gap-md">
-          <h2 className="font-display text-lg">Who you're hiring</h2>
-          <p className="text-base leading-relaxed">
-            Each artist is a character, not a filter — a fixed personality, a face, a real singing
-            voice, a taste in music. One artist records your whole album start to finish, which is
-            why it comes out sounding like a
-            <span className="highlight"> record</span> instead of a song generator. Pick the one your
-            group would actually want to hear.
-          </p>
-        </div>
-
-        <ArtistCarousel
-          artists={artists}
-          index={selectedIndex}
-          onIndexChange={setSelectedIndex}
-        />
-
-        <ContactForm selectedArtistName={selectedArtist?.name} />
-      </section>
+      {/* The ask. Self-contained down to its own background, so the page ends
+          where the pitch does — everything past this line belongs to ordering,
+          including whatever the ask turns into next. */}
+      <AlbumOrderForm />
     </div>
   );
 }

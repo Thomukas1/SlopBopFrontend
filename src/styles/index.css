@@ -24,6 +24,7 @@
 @import './components/deadline-strip.css';
 @import './components/testimonials.css';
 @import './components/faq.css';
+@import './components/section-fill.css';
 @import './components/transitions.css';
 
 /* Tailwind CSS */
@@ -44,6 +45,10 @@
 html {
   height: calc(100vh - 60px);
   overflow-y: auto;
+  /* Full-bleed fills are 100vw wide, which counts the vertical scrollbar — on
+     desktop that's a few px past the visible edge and would raise a horizontal
+     scrollbar. Nothing is meant to scroll sideways here, so clip it. */
+  overflow-x: hidden;
 }
 
 body {
@@ -65,7 +70,10 @@ body::before {
   left: -50%;
   width: 300%;
   height: 300%;
-  z-index: -1;
+  /* -2, not -1: it leaves -1 free as a fill plane that any section can paint a
+     flat colour into to break up the stripes (see components/section-fill.css)
+     while still sitting under all page content. */
+  z-index: -2;
   background: repeating-linear-gradient(
     45deg,
     var(--p-navy) 0px,
@@ -82,7 +90,7 @@ body::before {
 /* Mobile-first: force vertical mobile layout even on desktop */
 #root {
   padding-top: var(--space-lg);
-  padding-bottom: 130px;
+  padding-bottom: var(--app-bottom-inset);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
