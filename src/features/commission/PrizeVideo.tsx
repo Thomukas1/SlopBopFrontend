@@ -26,7 +26,9 @@ const POSTER_URL = '/Images/prize-video-poster.webp';
  */
 export function PrizeVideo() {
   return (
-    <div className="flex flex-col gap-lg items-center">
+    // One width owner: the frame sets the column and the row below inherits it,
+    // so "see more" and the icons land on the video's own edges.
+    <div className="w-full max-w-[325px] mx-auto flex flex-col gap-lg">
       <video
         src={VIDEO_URL}
         poster={POSTER_URL}
@@ -45,11 +47,11 @@ export function PrizeVideo() {
         // doesn't fit. Reserving the box up front also matters because
         // preload="none" means there's no intrinsic size until someone plays:
         // without it the section would reflow on tap.
-        className="w-full max-w-[325px] aspect-[2/3] object-cover rounded-lg border border-border bg-surface"
+        className="w-full aspect-[2/3] object-cover rounded-lg border border-border bg-surface"
       />
 
-      <div className="flex items-center gap-lg">
-        <p className="eyebrow">See more</p>
+      <div className="flex items-center justify-between gap-lg">
+        <p className="eyebrow">See more on:</p>
         <SocialLinks socials={PROJECT_SOCIALS} />
       </div>
     </div>
