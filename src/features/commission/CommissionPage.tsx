@@ -17,8 +17,8 @@ export default function CommissionPage() {
       <header className="flex flex-col">
         <img src="/Branding/contact-visual.png" alt="" className="w-full block" />
         <div className="flex flex-col gap-xs px-md pt-md">
-          <p className="eyebrow">Ever wanted to create a music album?</p>
-          <h1 className="font-display text-3xl leading-tight">Now is your chance!</h1>
+          <p className="eyebrow">Ever wanted to create an album?</p>
+          <h1 className="font-display text-3xl leading-tight">Now you can!</h1>
         </div>
       </header>
 
