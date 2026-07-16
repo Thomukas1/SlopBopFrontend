@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type Tab = { path: string; emoji: string; label: string };
@@ -16,20 +17,36 @@ export function NavBar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  // Direction-aware page slide. We tag <html> with which way we're moving
-  // through the nav so the CSS view-transition can slide the new page in from
-  // the matching side (right when going deeper, left when going back). A tap
-  // from a non-nav route (fromIndex -1) reads as forward.
+  // Channel-change static: themed noise bands pop in to cover the page (the CSS
+  // for `.tv-switching` lives in transitions.css), swap the route ~230ms in
+  // (while the bands fully cover the screen) so the cut is hidden, then clear
+  // the class after the burst ends. Reduced-motion users skip it.
+  const timers = useRef<number[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
   const handleNav = (path: string) => {
     if (path === pathname) return;
-    const fromIndex = TABS.findIndex((t) => t.path === pathname);
-    const toIndex = TABS.findIndex((t) => t.path === path);
-    document.documentElement.dataset.vtDir = toIndex > fromIndex ? 'forward' : 'back';
-    navigate(path, { viewTransition: true });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      navigate(path);
+      return;
+    }
+
+    const root = document.documentElement;
+    timers.current.forEach(clearTimeout);
+    // Restart the burst cleanly if one's still mid-flight.
+    root.classList.remove('tv-switching');
+    void root.offsetWidth; // force reflow so the animation re-triggers
+    root.classList.add('tv-switching');
+
+    timers.current = [
+      window.setTimeout(() => navigate(path), 250),
+      window.setTimeout(() => root.classList.remove('tv-switching'), 510),
+    ];
   };
 
   return (
-    <nav className="app-navbar fixed bottom-0 left-0 right-0 z-fixed h-[60px] bg-surface-2 border-t border-border">
+    <nav className="fixed bottom-0 left-0 right-0 z-fixed h-[60px] bg-surface-2 border-t border-border">
       <div className="max-w-[430px] mx-auto h-full flex items-center justify-around">
         {TABS.map(({ path, emoji, label }) => {
           const active = pathname === path;

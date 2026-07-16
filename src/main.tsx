@@ -115,6 +115,20 @@ function ScrollToTop() {
   return null;
 }
 
+// Diagonal channel-change static bands. Count / colour / scattered pop-in delay
+// are data-driven here so transitions.css stays generic; positions are % of the
+// (rotated, oversized) overlay. `(i * 7) % 16` scatters the delays so the bands
+// don't fill in top-to-bottom. Max delay ~150ms → they all overlap at full
+// cover around 220–290ms, which is when the NavBar swaps the route.
+const TV_BAND_COUNT = 12;
+const TV_BAND_COLORS = ['var(--p-navy)', 'var(--p-lime)', 'var(--p-cobalt)'];
+const TV_BANDS = Array.from({ length: TV_BAND_COUNT }, (_, i) => ({
+  top: `calc(${i} * 100% / ${TV_BAND_COUNT})`,
+  height: `calc(100% / ${TV_BAND_COUNT} + 1px)`,
+  background: TV_BAND_COLORS[i % TV_BAND_COLORS.length],
+  animationDelay: `${((i * 7) % 16) * 10}ms`,
+}));
+
 /**
  * Persistent app shell. The routed page renders in <Outlet />; the chrome
  * around it (nav, players) and ScrollToTop live here so they stay mounted
@@ -129,6 +143,14 @@ function RootLayout() {
       <NavBar />
       <MiniPlayer />
       <MusicPlayer />
+      {/* Channel-change static overlay — diagonal bands that pop in to cover
+          the screen. Inert until the NavBar toggles `.tv-switching` on <html>
+          during a page change (see transitions.css). */}
+      <div className="tv-static" aria-hidden="true">
+        {TV_BANDS.map((style, i) => (
+          <span key={i} className="tv-band" style={style} />
+        ))}
+      </div>
     </>
   );
 }
