@@ -25,6 +25,9 @@
 @import './components/testimonials.css';
 @import './components/faq.css';
 @import './components/section-fill.css';
+@import './components/facet-card.css';
+@import './components/album-world.css';
+@import './components/mixtape-world.css';
 @import './components/transitions.css';
 
 /* Tailwind CSS */

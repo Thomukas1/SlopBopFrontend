@@ -4,15 +4,16 @@
 const OCCASIONS: { emoji: string; label: string }[] = [
   { emoji: '🏢', label: 'Team offsite' },
   { emoji: '💻', label: 'Hackathon' },
-  { emoji: '🎂', label: 'Birthday party' },
-  { emoji: '🏕️', label: 'Camping trip' },
+  { emoji: '🎂', label: 'Party' },
+  { emoji: '🏕️', label: 'Camping' },
+  { emoji: '📸', label: 'Day Trip' },
 ];
 
 // How a day runs, as three plain beats — the mechanic without the clutter.
 const FLOW: { title: string; body: string }[] = [
   {
     title: 'Create',
-    body: 'During submission window, everyone submits hand-written lyrics for the artist to turn into a 30-second song',
+    body: 'During submission window, everyone submits hand-written lyrics for the artist to turn into a 40-second song',
   },
   {
     title: 'Release',

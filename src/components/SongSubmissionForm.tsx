@@ -7,9 +7,10 @@ import { useToast } from '../context/ToastContext';
 const AUTHOR_MAX = 18;
 const TEXT_MAX = 260;
 
-// Device-level one-per-person dedup. The submission endpoint has no auth, so the
-// server can't enforce "one per person" — we remember which collections this
-// device has already submitted to and show the thank-you notice on return visits.
+// Device-level one-per-person dedup, for the collections that ask for it (see
+// `oncePerDevice`). The submission endpoint has no auth, so the server can't
+// enforce "one per person" — we remember which collections this device has
+// already submitted to and show the thank-you notice on return visits.
 // Best-effort only (cleared with site data), which is the intent.
 const SUBMITTED_KEY = 'slopbop_submissions';
 
@@ -34,24 +35,38 @@ interface Props {
   trackCount: number;
   /** Capacity — the denominator of the count header. */
   maxTracks: number;
-  /** Refetch the collection so the window is re-evaluated (capacity hit, or a
-   * 409 closes it). */
+  /** Cap this device at one submission for this collection: on success the form
+   * gives way to the thank-you notice, and stays that way on return visits.
+   * Off by default — the form takes as many submissions as the collection has
+   * room for. Albums opt in; mixtapes don't. */
+  oncePerDevice?: boolean;
+  /** Refetch the collection so the count header advances and the window is
+   * re-evaluated (capacity hit, or a 409 closes it). */
   refresh: () => void;
 }
 
 /**
  * The generic "write a song" card, shared verbatim by albums and mixtapes. It's
  * a self-contained card: a centered `count / max songs` header, then the two
- * fields + submit (or a thank-you once this device has submitted). It owns only
- * the submission itself — the POST, validation, and per-device dedup.
+ * fields + submit (or a thank-you, where `oncePerDevice` applies and this device
+ * has already submitted). It owns only the submission itself — the POST,
+ * validation, and per-device dedup.
  *
  * Everything *around* it — the intro copy, any deadline countdown, the lifecycle
  * gating that decides whether the card shows at all — lives in the per-type
  * manager that renders it (album `Submissions`, `MixtapeSubmissions`), so this
  * stays identical for every collection type.
  */
-export default function SongSubmissionForm({ collectionId, trackCount, maxTracks, refresh }: Props) {
-  const [submitted, setSubmitted] = useState(() => !!getSubmittedCollections()[collectionId]);
+export default function SongSubmissionForm({
+  collectionId,
+  trackCount,
+  maxTracks,
+  oncePerDevice = false,
+  refresh,
+}: Props) {
+  const [submitted, setSubmitted] = useState(
+    () => oncePerDevice && !!getSubmittedCollections()[collectionId],
+  );
   const { submit, submitting, fieldErrors } = useSubmitSongRequest();
   const { showToast } = useToast();
 
@@ -67,11 +82,16 @@ export default function SongSubmissionForm({ collectionId, trackCount, maxTracks
     try {
       const outcome = await submit(collectionId, { author, text });
       if (outcome.ok) {
-        markSubmitted(collectionId);
         setAuthor('');
         setText('');
-        showToast('Submission sent successfully!', 'success');
-        setSubmitted(true);
+        showToast('Song submitted successfully!', 'success');
+        if (oncePerDevice) {
+          markSubmitted(collectionId);
+          setSubmitted(true);
+        }
+        // Advance the count header — it stays on screen after a submission
+        // either way, so the room can watch the collection fill up.
+        refresh();
       } else if (outcome.kind === 'closed') {
         // Window closed between load and submit — tell the user and refresh so
         // the form gives way to the closed notice.
