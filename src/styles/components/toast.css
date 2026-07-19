@@ -48,11 +48,12 @@
   border-left: 4px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Success Toast */
+/* Success Toast — success is the lime accent, a light background, so it takes
+   the dark-on-accent text colour rather than white. */
 .toast-success {
   background: var(--color-success);
-  color: var(--white);
-  border-left: 4px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-alt);
+  border-left: 4px solid rgba(0, 0, 0, 0.15);
 }
 
 /* Warning Toast */
@@ -74,12 +75,18 @@
   animation: toastSlideOut 0.3s ease-in forwards;
 }
 
-/* Toast message */
+/* Toast message.
+   It's a <p>, so the base layer would paint it --text-primary (grey, meant for
+   the dark app background) and hand it the global soft shadow. A toast paints
+   its own solid surface and sets the matching text colour per type, so it opts
+   out of both and inherits from .toast-<type> instead. */
 .toast-message {
   margin: 0;
   flex: 1;
   line-height: 1.4;
   word-break: break-word;
+  color: inherit;
+  text-shadow: none;
 }
 
 /* Close button */

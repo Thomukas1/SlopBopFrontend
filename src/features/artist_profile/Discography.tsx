@@ -11,9 +11,12 @@ interface Props {
   artistName?: string;
 }
 
+// The artist's permanent catalogue. Mixtapes are deliberately absent: a mixtape
+// is a live session, not a release, so it surfaces as the LIVE card at the top
+// of the profile and is gone once it resolves. Its songs are excluded here for
+// free — they carry a `collection_id`, so they never fall through to singles.
 export interface GroupedDiscography {
   albums: { album: Collection; songs: Song[] }[];
-  mixtapes: { album: Collection; songs: Song[] }[];
   singles: Song[];
 }
 
@@ -23,7 +26,6 @@ function useDiscography(artistId: string): {
   refetch: () => void;
 } {
   const { collections: albums, loading: albumsLoading } = useCollections(artistId, 'album');
-  const { collections: mixtapes, loading: mixtapesLoading } = useCollections(artistId, 'mixtape');
   const { songs, loading: songsLoading, refetch } = useSongs(artistId);
 
   const discography = useMemo<GroupedDiscography>(() => {
@@ -46,12 +48,12 @@ function useDiscography(artistId: string): {
         songs: songsByCollection.get(album._id) ?? [],
       }));
 
-    return { albums: group(albums), mixtapes: group(mixtapes), singles };
-  }, [albums, mixtapes, songs]);
+    return { albums: group(albums), singles };
+  }, [albums, songs]);
 
   return {
     discography,
-    loading: albumsLoading || mixtapesLoading || songsLoading,
+    loading: albumsLoading || songsLoading,
     refetch,
   };
 }
@@ -61,8 +63,7 @@ export default function Discography({ artistId, artistName }: Props) {
   const navigate = useNavigate();
 
   if (loading) return null;
-  if (!discography.albums.length && !discography.mixtapes.length && !discography.singles.length)
-    return null;
+  if (!discography.albums.length && !discography.singles.length) return null;
 
   return (
     <div className="flex flex-col gap-lg">
@@ -76,22 +77,6 @@ export default function Discography({ artistId, artistName }: Props) {
                 coverUrl={album.cover_url}
                 title={album.title || 'Untitled'}
                 onClick={() => navigate(`/albums/${album._id}`)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {discography.mixtapes.length > 0 && (
-        <div className="flex flex-col gap-md">
-          <h2 className="font-display text-lg">Mixtapes</h2>
-          <div className="grid grid-cols-2 gap-md">
-            {discography.mixtapes.map(({ album }) => (
-              <AlbumCard
-                key={album._id}
-                coverUrl={album.cover_url}
-                title={album.title || 'Untitled'}
-                onClick={() => navigate(`/mixtapes/${album._id}`)}
               />
             ))}
           </div>

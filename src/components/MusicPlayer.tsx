@@ -46,6 +46,10 @@ export default function MusicPlayer() {
     togglePlay,
     seek,
     skip,
+    next,
+    prev,
+    hasNext,
+    hasPrev,
     collapse,
   } = useMusicPlayer();
 
@@ -186,7 +190,23 @@ export default function MusicPlayer() {
 
       {/* Controls + slider — full screen width */}
       <div className="flex flex-col gap-md px-xl py-xl">
-        <div className="flex items-center justify-center gap-3xl">
+        {/* The queue stickers sit absolutely at the row's edges rather than in
+            the flow, so the transport trio stays dead-centre whether one, both
+            or neither is showing. */}
+        <div className="relative flex items-center justify-center gap-3xl">
+          {hasPrev && (
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous song"
+              className="queue-sticker queue-sticker-prev absolute left-0"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path d="M11.5 12l7-6.5v13zM4.5 12l7-6.5v13z" />
+              </svg>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => skip(-15)}
@@ -225,6 +245,19 @@ export default function MusicPlayer() {
           >
             +15s
           </button>
+
+          {hasNext && (
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next song"
+              className="queue-sticker queue-sticker-next absolute right-0"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path d="M12.5 12l-7 6.5v-13zM19.5 12l-7 6.5v-13z" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-xs">

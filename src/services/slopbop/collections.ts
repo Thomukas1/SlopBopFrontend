@@ -17,9 +17,15 @@ export interface Collection {
   song_count?: number;
   cover_url?: string;
   created_at?: string;
-  // Submission-window fields, authored on album-type collections only. Prefer
-  // reading the evaluated `RequestStatus` off collection detail; these are the
-  // raw source.
+  // The artist's own pitch, in their voice — shown quoted on the profile's live
+  // mixtape card. Mixtape-only, and optional: absent falls back to a default
+  // line, so an artist who writes nothing still has a call to action.
+  cta?: string;
+  // Submission fields, authored on both kinds and returned by the list read.
+  // An album uses the full window (start → deadline); a mixtape has no window,
+  // only capacity, so it carries just the count and max. Prefer the evaluated
+  // `RequestStatus` off collection detail where you have it — these are the raw
+  // source, and the only thing available from a list.
   submission_start?: string;    // ISO or absent
   submission_deadline?: string; // ISO or absent
   submission_count?: number;    // seeds submitted so far

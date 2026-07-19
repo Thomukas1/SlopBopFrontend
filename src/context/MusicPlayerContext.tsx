@@ -34,11 +34,15 @@ interface MusicPlayerContextValue {
   currentTime: number;
   duration: number;
   expanded: boolean;
+  hasNext: boolean;
+  hasPrev: boolean;
   play: (track: Track) => void;
   playQueue: (tracks: Track[], startIndex?: number) => void;
   togglePlay: () => void;
   seek: (time: number) => void;
   skip: (delta: number) => void;
+  next: () => void;
+  prev: () => void;
   expand: () => void;
   collapse: () => void;
   close: () => void;
@@ -61,6 +65,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const queueRef = useRef<Track[]>([]);
   const indexRef = useRef(0);
 
+  // …but the position also has to be *rendered* (the prev/next stickers appear
+  // and disappear with it), and refs don't re-render. Mirrored into state, which
+  // only ever changes when the queue or the index does — go() owns both.
+  const [queueIndex, setQueueIndex] = useState(0);
+  const [queueLength, setQueueLength] = useState(0);
+
   // Load a track into the audio element and start it. Stable so the mount
   // effect's `ended` handler can call it to auto-advance the queue.
   const loadAndPlay = useCallback((t: Track) => {
@@ -79,6 +89,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Jump to a queue position. The single place the index moves, so the ref and
+  // the rendered mirror can't drift apart. Out-of-range is a no-op.
+  const go = useCallback((i: number) => {
+    if (i < 0 || i >= queueRef.current.length) return;
+    indexRef.current = i;
+    setQueueIndex(i);
+    loadAndPlay(queueRef.current[i]);
+  }, [loadAndPlay]);
+
   // Create a persistent audio element
   useEffect(() => {
     const audio = new Audio();
@@ -89,10 +108,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const onLoadedMetadata = () => setDuration(audio.duration);
     // Advance to the next queued track, or stop at the end of the queue.
     const onEnded = () => {
-      const next = indexRef.current + 1;
-      if (next < queueRef.current.length) {
-        indexRef.current = next;
-        loadAndPlay(queueRef.current[next]);
+      if (indexRef.current + 1 < queueRef.current.length) {
+        go(indexRef.current + 1);
       } else {
         setPlaying(false);
       }
@@ -118,8 +135,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('canplay', onCanPlay);
       audio.pause();
     };
-    // loadAndPlay is stable, so the audio element is still set up once.
-  }, [loadAndPlay]);
+    // go is stable, so the audio element is still set up once.
+  }, [go]);
 
   // Sync play/pause for toggles on the already-loaded track. The initial
   // playback is kicked off directly in play() so it stays inside the user
@@ -135,22 +152,33 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   }, [playing, track]);
 
   // Play an ordered list as a queue, starting at `startIndex`; each track
-  // auto-advances to the next when it ends. The list is snapshotted here, so
-  // the caller re-sorting/filtering its source afterwards won't affect what's
-  // playing — a new queue only forms on the next playQueue() call.
+  // auto-advances to the next when it ends.
+  //
+  // `startIndex` is a playhead position, not a slice point — callers pass the
+  // *whole* list they're rendering and the row that was pressed, so pressing
+  // row 4 leaves rows 1-3 behind the playhead and prev/next can walk the full
+  // list either way. This is what makes the queue de-facto songlist-shaped:
+  // whatever list you press in becomes the queue, replacing the previous one.
+  //
+  // The list is snapshotted here, so the caller re-sorting/filtering its source
+  // afterwards won't affect what's playing — a new queue only forms on the next
+  // playQueue() call. Trade-off: re-sorting mid-playback leaves prev/next
+  // walking the order that was on screen when playback started.
   const playQueue = useCallback((tracks: Track[], startIndex = 0) => {
     if (!tracks.length) return;
-    const i = Math.max(0, Math.min(startIndex, tracks.length - 1));
     queueRef.current = tracks;
-    indexRef.current = i;
+    setQueueLength(tracks.length);
     setExpanded(false);
-    loadAndPlay(tracks[i]);
-  }, [loadAndPlay]);
+    go(Math.max(0, Math.min(startIndex, tracks.length - 1)));
+  }, [go]);
 
   // Convenience: play a single track as a one-item queue.
   const play = useCallback((t: Track) => playQueue([t], 0), [playQueue]);
 
   const togglePlay = useCallback(() => setPlaying((p) => !p), []);
+
+  const next = useCallback(() => go(indexRef.current + 1), [go]);
+  const prev = useCallback(() => go(indexRef.current - 1), [go]);
 
   const seek = useCallback((time: number) => {
     const audio = audioRef.current;
@@ -176,6 +204,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }
     queueRef.current = [];
     indexRef.current = 0;
+    setQueueIndex(0);
+    setQueueLength(0);
     setPlaying(false);
     setLoading(false);
     setCurrentTime(0);
@@ -192,11 +222,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         currentTime,
         duration,
         expanded,
+        hasNext: queueIndex < queueLength - 1,
+        hasPrev: queueIndex > 0,
         play,
         playQueue,
         togglePlay,
         seek,
         skip,
+        next,
+        prev,
         expand,
         collapse,
         close,

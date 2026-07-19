@@ -1,3 +1,49 @@
+/* Queue skip stickers — the prev/next tabs at the edges of the transport row.
+   Styled as die-cut stickers slapped onto the player: white cut-line border,
+   hard offset shadow for the lifted-off-the-page feel, and a slight tilt so
+   they read as *applied* rather than laid out. Pressing one slides it out
+   toward its own edge, like it's peeling the page across.
+
+   Centred via top/transform rather than the flex line: they're absolutely
+   positioned, and driving the tilt off the same transform keeps rotation and
+   press-slide on one property instead of fighting each other. */
+.queue-sticker {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--white);
+  background: var(--accent);
+  color: var(--text-alt);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--accent-dim), 0 6px 14px rgba(0, 0, 0, 0.45);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.queue-sticker-prev {
+  transform: translateY(-50%) rotate(-7deg);
+}
+
+.queue-sticker-next {
+  transform: translateY(-50%) rotate(7deg);
+}
+
+/* Press: shove toward the edge it points at and flatten the shadow, so the
+   sticker looks pushed down into the page mid-swipe. */
+.queue-sticker-prev:active {
+  transform: translate(-5px, -50%) rotate(-11deg) scale(0.94);
+  box-shadow: 0 1px 0 var(--accent-dim), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.queue-sticker-next:active {
+  transform: translate(5px, -50%) rotate(11deg) scale(0.94);
+  box-shadow: 0 1px 0 var(--accent-dim), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
 /* Layered track: a thin unplayed rail with a thicker "played" bar on top,
    and a transparent native range input over it for interaction. */
 .music-player-progress {
