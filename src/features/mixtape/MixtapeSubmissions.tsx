@@ -15,7 +15,7 @@ interface Props {
 // until capacity, and songs land one at a time as they're produced (so this sits
 // *below* the song list rather than replacing it). Its states:
 //
-//   open (count < max) → intro + the generic form card (or the thank-you notice)
+//   open (count < max) → intro + the generic form card
 //   full  → a "tape is full" notice
 //   otherwise          → nothing (e.g. not yet configured with max_tracks)
 //
@@ -24,12 +24,17 @@ export default function MixtapeSubmissions({ mixtapeId, artistName, status, refr
   let body: React.ReactNode = null;
   if (status.open) {
     // Intro copy sits above the generic form card (which carries the count
-    // header). No deadline strip — a mixtape has no window, just capacity.
+    // header). No deadline strip — a mixtape has no window, just capacity. And
+    // no oncePerDevice: submit as many songs as there are slots left.
     body = (
       <div className="flex flex-col gap-md">
         <p className="text-sm text-secondary leading-relaxed">
-          Get on this mixtape by {artistName ?? 'this artist'} — submit a song with
-          your own custom lyrics and it'll show up here once it's recorded.
+          Help {artistName ?? 'this artist'} create their next viral song!
+        </p>
+        <p className="text-sm text-secondary leading-relaxed">
+          Write down the lyrics and a song will show up as soon as they produce
+          it. The most popular song in the mixtape will become a fresh Single,
+          while the rest will perish…
         </p>
 
         <SongSubmissionForm

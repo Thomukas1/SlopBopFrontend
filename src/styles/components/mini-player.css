@@ -1,90 +1,87 @@
 /* ============================================================
-   Mini player — contextual vote burst
-   A sharp, ~0.6s dopamine hit fired the instant a vote is cast:
-   a rising light glow behind the bar, a fan of sparks shooting up,
-   and a "Thanks for your vote!" that pops in. Anchored to the top
-   edge of the (position: fixed) mini player and radiating upward.
+   Mini player — expand affordance hint
+   The bar is tappable but doesn't look it, so the first time a track
+   starts we pop a shining "Click to expand" pill above its right edge:
+   it rises with a slight overshoot, holds for 3s while a highlight
+   sweeps across it, then slides back down and fades out.
+   Timing is mirrored by HINT_MS in MiniPlayer.tsx — change both.
    ============================================================ */
 
-.vote-burst {
+.expand-hint {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;            /* sit on the bar's top edge, radiate up */
-  height: 0;
-  pointer-events: none;
+  bottom: 100%;
+  right: var(--space-md);
+  margin-bottom: var(--space-sm);
+  pointer-events: none;          /* never intercepts a tap on the bar */
   z-index: 1;
-}
 
-/* Rising radial light from behind the bar */
-.vote-burst-glow {
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  width: 260px;
-  height: 160px;
-  transform: translate(-50%, 0) scale(0.3);
-  background: radial-gradient(ellipse at center bottom,
-    rgba(182, 248, 51, 0.9) 0%,
-    rgba(182, 248, 51, 0.35) 40%,
-    transparent 70%);
-  filter: blur(2px);
-  opacity: 0;
-  animation: voteGlow 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
+  /* The pill itself — dark, so it reads against the lime bar below it
+     and the page behind it. */
+  overflow: hidden;              /* clips the shine sweep, not the glow */
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  background: var(--black);
+  border: 1px solid var(--accent);
+  box-shadow:
+    0 0 14px rgba(182, 248, 51, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.4);
 
-@keyframes voteGlow {
-  0%   { opacity: 0; transform: translate(-50%, 0)     scale(0.3); }
-  20%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -55px) scale(1.5); }
-}
-
-/* Sparks — shoot up and out along pre-computed vectors, then fade */
-.vote-burst-spark {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 7px;
-  height: 7px;
-  border-radius: 2px;
-  background: var(--c, var(--accent));
-  box-shadow: 0 0 6px rgba(182, 248, 51, 0.9);
-  opacity: 0;
-  transform: translate(-50%, 0) scale(0.5);
-  animation: voteSpark 0.9s cubic-bezier(0.15, 0.75, 0.25, 1) forwards;
-  animation-delay: var(--d, 0s);
-}
-
-@keyframes voteSpark {
-  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-  15%  { opacity: 1; }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--tx)), var(--ty)) scale(1);
-  }
-}
-
-/* Pop-in thank you — a quick overshoot, brief hold, lift-off fade */
-.vote-burst-text {
-  position: absolute;
-  bottom: 22px;
-  left: 50%;
-  transform: translate(-50%, 10px) scale(0.6);
-  white-space: nowrap;
-  font-family: var(--font-display);
+  font-family: var(--font-accent);
   font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
   color: var(--accent);
-  text-shadow: 0 0 10px rgba(182, 248, 51, 0.7), 0 1px 2px rgba(0, 0, 0, 0.5);
+
   opacity: 0;
-  animation: voteThanks 1s cubic-bezier(0.2, 1.4, 0.3, 1) forwards;
+  animation: expandHint 3.7s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
 }
 
-@keyframes voteThanks {
-  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
-  16%  { opacity: 1; transform: translate(-50%, 0)    scale(1.08); }
-  26%  { transform: translate(-50%, 0) scale(1); }
-  78%  { opacity: 1; transform: translate(-50%, -4px) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -18px) scale(1); }
+/* Rise + overshoot, hold, then slide down and out. The long flat middle
+   is the 3s read window. */
+@keyframes expandHint {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.92); }
+  6%   { opacity: 1; transform: translateY(-3px) scale(1.04); }
+  11%  { transform: translateY(0) scale(1); }
+  89%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(16px) scale(0.96); }
+}
+
+/* Highlight sweep — travels across the pill twice while it's held. */
+.expand-hint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: expandHintShine 1.5s ease-in-out 0.35s 2;
+}
+
+@keyframes expandHintShine {
+  to { transform: translateX(100%); }
+}
+
+/* Reduced motion — keep the hint (it carries the information) but let it
+   simply fade in and out on the same schedule, with no travel or shine. */
+@media (prefers-reduced-motion: reduce) {
+  .expand-hint {
+    animation: expandHintFade 3.7s ease forwards;
+  }
+
+  .expand-hint::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  @keyframes expandHintFade {
+    0%   { opacity: 0; }
+    6%   { opacity: 1; }
+    89%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
 }

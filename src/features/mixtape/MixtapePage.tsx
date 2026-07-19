@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useMixtape } from '../../hooks/useMixtape';
@@ -25,6 +25,14 @@ export default function MixtapePage() {
   // Toggles the cover image out for a QR code pointing at this same page, so a
   // host can flash the mixtape on screen and let people scan in to submit.
   const [showQR, setShowQR] = useState(false);
+
+  // Swap the app's diagonal stripes for the demo world — an unfinished skin with
+  // the code showing through (styles/components/mixtape-world.css). Above the
+  // early returns so the loading and not-found states land in the same world.
+  useEffect(() => {
+    document.body.classList.add('mixtape-world');
+    return () => document.body.classList.remove('mixtape-world');
+  }, []);
 
   const loading = mixtapeLoading || artistLoading;
 

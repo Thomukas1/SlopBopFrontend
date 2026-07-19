@@ -16,25 +16,21 @@ export default function RosterPage() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-md py-lg">
-        <div className="flex flex-col gap-xs">
-          <p className="eyebrow">Signed Artists</p>
-          <h1 className="font-display text-2xl">The Roster</h1>
-        </div>
+        <h1 className="font-display text-2xl">The Roster</h1>
 
         <p className="text-base leading-relaxed">
-          Slopbop artists are synthetic agents - distinct characters
-          built from these 4 elements:
+          Slopbop artists are synthetic agents, built from these base elements:
         </p>
 
         <div className="grid grid-cols-2 gap-sm">
           {FACETS.map(({ emoji, label, color }) => (
             <div
               key={label}
-              className="flex items-center gap-sm bg-surface-2 rounded-md border-l-2 pl-sm pr-md py-sm"
-              style={{ borderColor: color }}
+              className="facet-card"
+              style={{ '--facet': color } as React.CSSProperties}
             >
-              <span className="text-base leading-none" aria-hidden="true">{emoji}</span>
-              <span className="text-xs uppercase tracking-wider">{label}</span>
+              <span className="facet-card__emoji" aria-hidden="true">{emoji}</span>
+              <span className="facet-card__label">{label}</span>
             </div>
           ))}
         </div>
@@ -49,7 +45,7 @@ export default function RosterPage() {
           {artists.map(artist => (
             <ArtistCard key={artist.artist_id} artist={artist} />
           ))}
-          <p className="text-center subtle text-sm py-lg">More artists announced soon</p>
+          <p className="text-center subtle text-sm py-lg">More artists coming soon</p>
         </div>
       )}
     </div>

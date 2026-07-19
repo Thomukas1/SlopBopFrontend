@@ -18,21 +18,24 @@ export function FeaturedArtistCard({ artist }: { artist: Artist }) {
       to={`/artists/${artist.artist_id}`}
       className="block w-full rounded-lg overflow-hidden border-2 border-accent active:opacity-80 transition-opacity"
     >
-      <Img
-        src={artist.image_url ?? '/Images/mystery-actor.png'}
-        alt={artist.name}
-        className="w-full aspect-video"
-        imgClassName="object-cover object-top"
-      />
-      <div className="px-lg py-md bg-surface flex items-center justify-between gap-md">
-        <div className="flex flex-col gap-xs min-w-0">
-          <p className="eyebrow">Featured Artist</p>
-          <p className="font-display text-xl truncate">{artist.name}</p>
-        </div>
-        {/* The affordance. A trailing arrow on the right edge of a card is the
-            standard "this goes somewhere" cue on mobile — without it the card
-            reads as a picture with a caption. */}
-        <span className="text-sm text-accent whitespace-nowrap shrink-0">View profile →</span>
+      <div className="relative">
+        <Img
+          src={artist.image_url ?? '/Images/mystery-actor.png'}
+          alt={artist.name}
+          className="w-full aspect-video"
+          imgClassName="object-cover object-top"
+        />
+        {/* The affordance, as a tab off the border's top-right corner — without
+            it the card reads as a picture with a caption. It sits over the image
+            rather than beside the name so that the name owns its whole row and
+            never has to compete for width. */}
+        <span className="absolute top-0 right-0 bg-accent text-alt text-xs px-md py-xs rounded-bl-lg">
+          View profile →
+        </span>
+      </div>
+      <div className="px-lg py-md bg-surface flex flex-col gap-xs">
+        <p className="eyebrow">Featured Artist</p>
+        <p className="font-display text-xl break-words">{artist.name}</p>
       </div>
     </Link>
   );

@@ -32,7 +32,8 @@ export default function Submissions({ albumId, artistName, status, songCount, re
   } else if (status.open) {
     // Intro copy and the deadline strip sit *above* the form card, which is a
     // generic self-contained card (count header + fields). Keeping them out is
-    // what lets the same card serve albums and mixtapes.
+    // what lets the same card serve albums and mixtapes. An album is one song
+    // per guest, hence oncePerDevice.
     body = (
       <div className="flex flex-col gap-md">
         <p className="text-sm text-secondary leading-relaxed">
@@ -46,6 +47,7 @@ export default function Submissions({ albumId, artistName, status, songCount, re
           collectionId={albumId}
           trackCount={status.track_count}
           maxTracks={status.max_tracks}
+          oncePerDevice
           refresh={refresh}
         />
       </div>

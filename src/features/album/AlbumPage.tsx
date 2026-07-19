@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAlbum } from '../../hooks/useAlbum';
@@ -25,6 +25,14 @@ export default function AlbumPage() {
   // Toggles the cover image out for a QR code pointing at this same page, so a
   // host can put the album on screen and let a room scan their way in.
   const [showQR, setShowQR] = useState(false);
+
+  // Swap the app's diagonal stripes for the album's twirl for as long as this
+  // page is mounted (styles/components/album-world.css). Above the early returns
+  // so the loading and not-found states land in the same world.
+  useEffect(() => {
+    document.body.classList.add('album-world');
+    return () => document.body.classList.remove('album-world');
+  }, []);
 
   const loading = albumLoading || artistLoading;
 
