@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { RequestStatus } from '../../services/slopbop';
-import SongSubmissionForm from '../../components/SongSubmissionForm';
+import SongWriter from '../../components/songwriter/SongWriter';
 
 interface Props {
   albumId: string;
@@ -43,7 +43,7 @@ export default function Submissions({ albumId, artistName, status, songCount, re
         {status.submission_deadline && (
           <DeadlineStrip deadline={status.submission_deadline} onExpire={refresh} />
         )}
-        <SongSubmissionForm
+        <SongWriter
           collectionId={albumId}
           trackCount={status.track_count}
           maxTracks={status.max_tracks}

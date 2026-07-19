@@ -1,5 +1,5 @@
 import type { RequestStatus } from '../../services/slopbop';
-import SongSubmissionForm from '../../components/SongSubmissionForm';
+import SongWriter from '../../components/songwriter/SongWriter';
 
 interface Props {
   mixtapeId: string;
@@ -37,7 +37,7 @@ export default function MixtapeSubmissions({ mixtapeId, artistName, status, refr
           while the rest will perish…
         </p>
 
-        <SongSubmissionForm
+        <SongWriter
           collectionId={mixtapeId}
           trackCount={status.track_count}
           maxTracks={status.max_tracks}
