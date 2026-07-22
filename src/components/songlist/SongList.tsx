@@ -128,7 +128,11 @@ export default function SongList({ songs, toTrack, header, onRefetch }: Props) {
                 duration={song.duration}
                 stats={song.stats}
                 active={track?.id === song._id}
-                onClick={() => playQueue(tracks, i)}
+                // Resume rather than reload — on a slow connection an impatient
+                // second tap would otherwise restart the fetch and starve playback.
+                onClick={() =>
+                  track?.id === song._id ? togglePlay() : playQueue(tracks, i)
+                }
               />
             </div>
           ))}

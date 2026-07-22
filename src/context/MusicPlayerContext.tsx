@@ -7,6 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from 'react';
+import { useToast } from './ToastContext';
 
 export interface TrackStats {
   bops: number;
@@ -51,6 +52,7 @@ interface MusicPlayerContextValue {
 const MusicPlayerContext = createContext<MusicPlayerContextValue | null>(null);
 
 export function MusicPlayerProvider({ children }: { children: ReactNode }) {
+  const { showToast } = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -71,6 +73,16 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [queueIndex, setQueueIndex] = useState(0);
   const [queueLength, setQueueLength] = useState(0);
 
+  // Surface a failed play() instead of swallowing it. AbortError is the one
+  // exception — it just means a newer load superseded this one.
+  const handlePlayError = useCallback((err: unknown) => {
+    setPlaying(false);
+    setLoading(false);
+    if ((err as DOMException)?.name !== 'AbortError') {
+      showToast("Couldn't play this song — check your connection and try again.");
+    }
+  }, [showToast]);
+
   // Load a track into the audio element and start it. Stable so the mount
   // effect's `ended` handler can call it to auto-advance the queue.
   const loadAndPlay = useCallback((t: Track) => {
@@ -83,11 +95,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setPlaying(true);
     setLoading(true);
     // Start within the user gesture so autoplay policy doesn't block it.
-    audio.play().catch(() => {
-      setPlaying(false);
-      setLoading(false);
-    });
-  }, []);
+    audio.play().catch(handlePlayError);
+  }, [handlePlayError]);
 
   // Jump to a queue position. The single place the index moves, so the ref and
   // the rendered mirror can't drift apart. Out-of-range is a no-op.
@@ -118,6 +127,16 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const onWaiting = () => setLoading(true);
     const onPlaying = () => setLoading(false);
     const onCanPlay = () => setLoading(false);
+    // Mirror the element's own play state, so the button stays honest when
+    // playback stops for reasons we never initiated (OS interruption, etc).
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    // Without this a mid-playback error leaves the UI stuck on a spinner.
+    const onError = () => {
+      setPlaying(false);
+      setLoading(false);
+      showToast("Couldn't load this song — check your connection and try again.");
+    };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -125,6 +144,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('error', onError);
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
@@ -133,23 +155,13 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('error', onError);
       audio.pause();
     };
-    // go is stable, so the audio element is still set up once.
-  }, [go]);
-
-  // Sync play/pause for toggles on the already-loaded track. The initial
-  // playback is kicked off directly in play() so it stays inside the user
-  // gesture (browsers block deferred autoplay).
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !track) return;
-    if (playing) {
-      audio.play().catch(() => setPlaying(false));
-    } else {
-      audio.pause();
-    }
-  }, [playing, track]);
+    // go and showToast are stable, so the audio element is still set up once.
+  }, [go, showToast]);
 
   // Play an ordered list as a queue, starting at `startIndex`; each track
   // auto-advances to the next when it ends.
@@ -175,7 +187,20 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // Convenience: play a single track as a one-item queue.
   const play = useCallback((t: Track) => playQueue([t], 0), [playQueue]);
 
-  const togglePlay = useCallback(() => setPlaying((p) => !p), []);
+  // Imperative on purpose: routing play() through state + an effect defers it
+  // past the click, and Safari/Firefox reject an out-of-gesture play() when no
+  // in-gesture one has succeeded yet. Reads `paused` off the element, not our
+  // mirrored state, so a stale flag can't pick the wrong branch.
+  const togglePlay = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || !track) return;
+    if (audio.paused) {
+      setPlaying(true);
+      audio.play().catch(handlePlayError);
+    } else {
+      audio.pause();
+    }
+  }, [track, handlePlayError]);
 
   const next = useCallback(() => go(indexRef.current + 1), [go]);
   const prev = useCallback(() => go(indexRef.current - 1), [go]);
